@@ -19,11 +19,12 @@ namespace Bav
         /// <summary>
         /// Public Default Constructor.
         /// </summary>
+        /// <param name="changed"></param>
         /// <inheritdoc />
         // ReSharper disable once UnusedMember.Global
-        internal ChangedVersionProvider()
+        internal ChangedVersionProvider(bool? changed = null)
         {
-            Changed = DefaultChanged;
+            Changed = changed ?? DefaultChanged;
         }
 
         /// <summary>

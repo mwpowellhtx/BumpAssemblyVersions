@@ -115,7 +115,8 @@
     <Compile Include="Providers\DayVersionProviderTests.cs" />
     <Compile Include="Providers\DeltaDaysVersionProviderTests.cs" />
     <Compile Include="Providers\DeltaDaysVersionProviderTestsBase.cs" />
-    <Compile Include="Providers\IncrementVersionProviderTests.cs" />
+    <Compile Include="Providers\IncrementShouldChangeVersionProviderTests.cs" />
+    <Compile Include="Providers\IncrementAlwaysChangesVersionProviderTests.cs" />
     <Compile Include="Providers\MonthVersionProviderTests.cs" />
     <Compile Include="Providers\MultipartTimestampVersionProviderTestsBase.cs" />
     <Compile Include="Providers\NoOpVersionProviderTests.cs" />

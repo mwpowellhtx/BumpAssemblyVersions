@@ -11,7 +11,7 @@ namespace Bav
     /// 
     /// </summary>
     /// <inheritdoc />
-    public class IncrementVersionProviderTests : VersionProviderTestsBase<IncrementVersionProvider>
+    public class IncrementAlwaysChangesVersionProviderTests : VersionProviderTestsBase<IncrementVersionProvider>
     {
 
 #pragma warning disable xUnit1008 // Test data attribute should only be used on a Theory
@@ -39,6 +39,7 @@ namespace Bav
 
         private static InitializeProviderCallback<IncrementVersionProvider> GetProviderInitializationCallback() => null;
 
+   
         /// <summary>
         /// Gets the Test Cases.
         /// </summary>
@@ -48,6 +49,8 @@ namespace Bav
             {
                 IEnumerable<object[]> GetAll()
                 {
+                    // We expect that it will always have been Tried.
+                    const bool expectedTried = true;
                     int Increment(int y) => y >= MaxValue ? 0 : y + 1;
 
                     IEnumerable<object> GetOne(int x, int y)
@@ -55,8 +58,6 @@ namespace Bav
                         yield return $"{x}";
                         yield return $"{y}";
                         yield return GetProviderInitializationCallback();
-                        // We expect that it will always have been Tried.
-                        const bool expectedTried = true;
                         yield return expectedTried;
                     }
 
