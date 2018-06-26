@@ -36,6 +36,7 @@ namespace Bav
             Assert.True(providerType.IsClass);
             Assert.False(providerType.IsAbstract);
             Assert.False(providerType.IsInterface);
+            Assert.True(providerType.IsPublic);
         }
 
         /// <summary>
