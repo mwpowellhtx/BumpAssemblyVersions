@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <!-- Required elements-->
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <summary>This is a test</summary>
+    <description>$description$</description>
+    <developmentDependency>$developmentDependency$</developmentDependency>
+    <projectUrl>$projectUrl$</projectUrl>
+    <licenseUrl>$licenseUrl$</licenseUrl>
+    <requireLicenseAcceptance>$requireLicenseAcceptance$</requireLicenseAcceptance>
+    <tags>$packageTags$</tags>
+  </metadata>
+  <files>
+    <file src="bin\$configuration$\**\$id$.dll" target="tasks"/>
+    <file src="bin\$configuration$\**\$id$.xml" target="tasks"/>
+    <file src="build\*.*" target="build"/>
+  </files>
+</package>

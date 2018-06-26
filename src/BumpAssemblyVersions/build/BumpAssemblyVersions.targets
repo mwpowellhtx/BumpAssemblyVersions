@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+
+  <!-- ReSharper disable once UnknownProperty -->
+  <Target Name="BavBeforeBuild" BeforeTargets="BeforeBuild" Condition="!Exists($(BavLockFilePath))">
+
+    <!-- MSBuild Items / https://msdn.microsoft.com/en-us/library/ms171453.aspx -->
+    <!-- MSBuild Properties1 / https://msdn.microsoft.com/en-us/library/ms171458.aspx -->
+    <!-- Task Writing / https://msdn.microsoft.com/en-us/library/t9883dzc.aspx -->
+    <!-- https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild -->
+    <!-- https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-transforms -->
+
+    <!--BumpMajor="$(BumpMajor)"-->
+    <!--BumpMinor="$(BumpMinor)"-->
+    <!--BumpPatch="$(BumpPatch)"-->
+    <!--BumpRevision="$(BumpRevision)"-->
+    <!--BumpLabel="$(BumpLabel)"-->
+    <!--ResetMajor="$(BumpResetMajor)"-->
+    <!--ResetMinor="$(BumpResetMinor)"-->
+    <!--ResetPatch="$(BumpResetPatch)"-->
+    <!--ResetRevision="$(BumpResetRevision)"-->
+    <!--ResetLabel="$(BumpResetLabel)"-->
+    <!--LabelDigits="$(BumpLabelDigits)"-->
+
+    <!-- ReSharper disable once UnknownTask, UnknownItemGroup -->
+    <BumpVersion Configuration="$(Configuration)"
+                     Bumps="@(BumpVersionSpec)"
+                     ProjectFullPath="$(MSBuildProjectFullPath)">
+
+      <Output TaskParameter="NewVersion" PropertyName="BavNewVersion" />
+      <Output TaskParameter="NewPackageVersion" PropertyName="BavNewPackageVersion" />
+      <Output TaskParameter="NewBavNewAssemblyVersion" PropertyName="BavNewAssemblyVersion" />
+      <Output TaskParameter="NewBavNewFileVersion" PropertyName="NewBavNewFileVersion" />
+
+    </BumpVersion>
+    
+    <Message Text="This is a test" />
+    <Message Text="This is only a test" />
+
+    <PropertyGroup>
+      <Version Condition="$(BavNewVersion) != ''">$(BavNewVersion)</Version>
+      <PackageVersion Condition="$(BavNewPackageVersion) != ''">$(BavNewPackageVersion)</PackageVersion>
+      <AssemblyVersion Condition="$(BavNewAssemblyVersion) != ''">$(BavNewAssemblyVersion)</AssemblyVersion>
+      <FileVersion Condition="$(NewBavNewFileVersion) != ''">$(NewBavNewFileVersion)</FileVersion>
+    </PropertyGroup>
+
+  </Target>
+
+  <PropertyGroup>
+    <BumpAssemblyVersionsLoaded>true</BumpAssemblyVersionsLoaded>
+  </PropertyGroup>
+
+</Project>

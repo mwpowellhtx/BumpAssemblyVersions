@@ -1,0 +1,84 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Authors>Michael W. Powell</Authors>
+    <Company>Kingdom Software</Company>
+    <Copyright>Copyright © 2018</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RootNamespace>Bav</RootNamespace>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <DevelopmentDependency>true</DevelopmentDependency>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Title>BumpAssemblyVersions</Title>
+    <PackageVersion>1.0.0</PackageVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Description>Bumps assembly versions according to user provided specifications.</Description>
+    <IsTool>true</IsTool>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>BumpAssemblyVersions</PackageId>
+    <PackageProjectUrl>http://github.com/mwpowellhtx/BumpAssemblyVersions</PackageProjectUrl>
+    <PackageLicenseUrl>http://github.com/mwpowellhtx/BumpAssemblyVersions/LICENSE</PackageLicenseUrl>
+    <PackageDescription>$(Description)</PackageDescription>
+    <PackageTags>version; versions; assembly; assemblies; bump</PackageTags>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\netstandard2.0\BumpAssemblyVersions.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>bin\Release\netstandard2.0\BumpAssemblyVersions.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <!-- TODO: TBD: Microsoft.Build.* is not compatible with netstandard1.6 / https://github.com/Microsoft/msbuild/issues/3435 -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build" Version="15.7.179" />
+    <PackageReference Include="Microsoft.Build.Framework" Version="15.7.179" />
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.7.179" />
+    <PackageReference Include="NuGet.Versioning" Version="4.6.2" />
+    <PackageReference Include="System.Xml.XDocument" Version="4.3.0" />
+    <PackageReference Include="System.Xml.XPath.XDocument" Version="4.3.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Update="@(PackageReference)" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="build\*" PackagePath="build\" CopyToOutput="true">
+      <IncludeInPackage>true</IncludeInPackage>
+    </Content>
+    <!-- TODO: TBD: ditto multi-targeting; (not yet) -->
+    <!--<Content Include="buildMultiTargeting\*" PackagePath="buildMultiTargeting\" />-->
+  </ItemGroup>
+
+  <Target Name="PackTaskDependencies" AfterTargets="Build" BeforeTargets="GenerateNuspec">
+
+    <!-- The include needs to happen after output has been copied to build
+    output folder but before NuGet generates a nuspec. -->
+
+    <ItemGroup>
+      <_PackageFiles Include="bin\$(Configuration)\**\*.dll">
+        <PackagePath>tasks\%(RecursiveDir)</PackagePath>
+        <Visible>false</Visible>
+        <BuildAction>Content</BuildAction>
+      </_PackageFiles>
+    </ItemGroup>
+  </Target>
+
+</Project>
