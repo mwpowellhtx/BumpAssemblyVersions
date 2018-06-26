@@ -111,6 +111,7 @@
     <Compile Include="Events\ConfigureBuildEventArgs.cs" />
     <Compile Include="Events\ConfigureEnvironmentVariablesEventArgs.cs" />
     <Compile Include="Providers\ChangedVersionProvider.cs" />
+    <Compile Include="Providers\ChangedVersionProviderTests.cs" />
     <Compile Include="Providers\DayOfYearVersionProviderTests.cs" />
     <Compile Include="Providers\DayVersionProviderTests.cs" />
     <Compile Include="Providers\DeltaDaysVersionProviderTests.cs" />

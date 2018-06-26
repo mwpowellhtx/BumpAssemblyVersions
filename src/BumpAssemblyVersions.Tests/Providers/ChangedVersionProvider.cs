@@ -6,7 +6,7 @@ namespace Bav
     /// 
     /// </summary>
     /// <inheritdoc />
-    internal class ChangedVersionProvider : VersionProviderBase
+    public class ChangedVersionProvider : VersionProviderBase
     {
         /// <summary>
         /// Gets the Provider Name.
@@ -17,7 +17,16 @@ namespace Bav
         private const bool DefaultChanged = true;
 
         /// <summary>
-        /// Public Default Constructor.
+        /// Internal Default Constructor.
+        /// </summary>
+        /// <inheritdoc />
+        internal ChangedVersionProvider()
+            : this((bool?) null)
+        {
+        }
+
+        /// <summary>
+        /// Internal Changed Constructor.
         /// </summary>
         /// <param name="changed"></param>
         /// <inheritdoc />
