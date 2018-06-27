@@ -97,6 +97,8 @@ namespace Bav
 
         private string ParseAndIncrement(string current)
         {
+            // TODO: TBD: may strip out dot-delimited Identifier parts beyond the first...
+
             // Basically, extract the Value itself from whatever overall Element may be given.
             var match = ElementRegex.Match(current);
 
