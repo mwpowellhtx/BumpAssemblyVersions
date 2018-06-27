@@ -13,11 +13,17 @@ namespace Bav
         /// <inheritdoc />
         public override string Name { get; } = "Increment";
 
-        private static int Increment(int current)
+        /// <summary>
+        /// Returns the <paramref name="current"/> Increment result.
+        /// </summary>
+        /// <param name="current"></param>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
+        /// <returns></returns>
+        protected static int Increment(int current, int min = 0, int max = short.MaxValue)
         {
-            const short maxValue = short.MaxValue;
             var currentpp = current + 1;
-            return currentpp > maxValue ? 0 : currentpp;
+            return currentpp > max ? min : currentpp;
         }
 
         /// <summary>
