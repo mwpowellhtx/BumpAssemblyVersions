@@ -1,7 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace Bav
 {
+    using static String;
+
     internal static class StringExtensionMethods
     {
         /// <summary>
@@ -22,19 +25,13 @@ namespace Bav
         }
 
         /// <summary>
-        /// 
+        /// Trims any Leading characters found in <paramref name="chs"/>.
         /// </summary>
         /// <param name="s"></param>
-        /// <param name="ch"></param>
+        /// <param name="chs"></param>
         /// <returns></returns>
-        public static string TrimLeading(this string s, char ch)
-        {
-            while (s.Any() && s.First() == ch)
-            {
-                s = s.Substring(1, s.Length - 1);
-            }
-
-            return s;
-        }
+        public static string TrimLeading(this string s, params char[] chs)
+            => s.SkipWhile(x => chs.Any() && chs.Any(y => x == y))
+                .Aggregate(Empty, (g, ch) => $"{g}{ch}");
     }
 }
