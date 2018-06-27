@@ -103,17 +103,19 @@ namespace Bav
             const int one = 1;
 
             // Gets the next Increment with a Minimum of One in the case of Overflow.
-            int Get(Group g) => g.Success
-                ? Increment(Parse(g.Value), one, (int) Pow(10d, ValueWidth) - 1)
-                : one;
+            int Get(Capture cap) => Increment(
+                Parse(cap.Value), one, (int) Pow(10d, ValueWidth) - 1);
 
             const string value = nameof(value);
 
             const int zed = 0;
 
-            var result = (match.Success && match.Groups.HasGroupName(value)
-                ? $"{Get(match.Groups[value])}"
-                : $"{one}").PadLeft(ValueWidth, $"{zed}");
+            // Rule out the Match up front.
+            var result = (ShouldReset
+                          || !(match.Success && match.Groups.HasGroupName(value))
+                    ? $"{one}"
+                    : $"{Get(match.Groups[value])}")
+                .PadLeft(ValueWidth, $"{zed}");
 
             return result;
         }
