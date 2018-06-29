@@ -8,6 +8,7 @@ namespace Bav
     using static Math;
     using static String;
     using static RegexOptions;
+    using static StringComparison;
 
     /// <summary>
     /// Pre-Release is not unlike the <see cref="IncrementVersionProvider"/> excepting that
@@ -104,6 +105,18 @@ namespace Bav
 
             const int one = 1;
 
+            // Specify a little shorthand for case insensitive String Equality.
+            bool StringEquals(string a, string b)
+                => string.Equals(a, b, CurrentCultureIgnoreCase);
+
+            // In this case Reset when the Label has Changed.
+            bool MustReset(GroupCollection groups)
+            {
+                const string label = nameof(label);
+                return groups.HasGroupName(label)
+                       && !StringEquals(groups[label].Value, Label);
+            }
+
             // Gets the next Increment with a Minimum of One in the case of Overflow.
             int Get(Capture cap) => Increment(
                 Parse(cap.Value), one, (int) Pow(10d, ValueWidth) - 1);
@@ -114,6 +127,7 @@ namespace Bav
 
             // Rule out the Match up front.
             var result = (ShouldReset
+                          || MustReset(match.Groups)
                           || !(match.Success && match.Groups.HasGroupName(value))
                     ? $"{one}"
                     : $"{Get(match.Groups[value])}")
