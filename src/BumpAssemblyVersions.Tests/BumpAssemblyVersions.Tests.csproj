@@ -122,6 +122,7 @@
     <Compile Include="Providers\MultipartTimestampVersionProviderTestsBase.cs" />
     <Compile Include="Providers\NoOpVersionProviderTests.cs" />
     <Compile Include="Providers\PreReleaseIncrementVersionProviderTests.cs" />
+    <Compile Include="Providers\PreReleaseShouldChangeVersionProviderTests.cs" />
     <Compile Include="Providers\SecondsSinceMidnightVersionProviderTests.cs" />
     <Compile Include="Providers\ShortYearVersionProviderTests.cs" />
     <Compile Include="Providers\TimestampBasedVersionProviderTestsBase.cs" />
