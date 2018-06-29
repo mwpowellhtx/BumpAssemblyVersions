@@ -72,6 +72,7 @@ namespace Bav
                     // Be careful with this one. We want to capture the Width, and we want the Current to be Zero Padded.
                     string FormatValue(int current, int width) => string.Format($"{{0:D0{width}}}", current);
 
+                    //  This one vets the obvious Should (indeed, MUST) reset use case.
                     IEnumerable<object> GetOneDefaultUseCase(string label, int current)
                     {
                         yield return $"{label}{FormatValue(current, valueWidth)}";
@@ -93,7 +94,7 @@ namespace Bav
                     IEnumerable<object> GetFromAnotherLabelUseCase(string a, string b, int current)
                     {
                         yield return $"{a}{FormatValue(current, valueWidth)}";
-                        yield return $"{b}{FormatValue(Increment(current), valueWidth)}";
+                        yield return $"{b}{FormatValue(one, valueWidth)}";
                         yield return GetLabeledCallback(b);
                         yield return true;
                     }
