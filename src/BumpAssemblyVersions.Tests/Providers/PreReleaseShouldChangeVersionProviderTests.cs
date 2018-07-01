@@ -23,7 +23,7 @@ namespace Bav
         /// <param name="afterChange"></param>
         /// <param name="init"></param>
         /// <param name="expectedTried"></param>
-        /// <inheritdoc cref=""/>
+        /// <inheritdoc />
         [MemberData(nameof(BeforeAndAfterProviderChanged))]
         public override void Verify_Version_element_After_Trying_to_Change(string beforeChange, string afterChange,
             InitializeProviderCallback<PreReleaseIncrementVersionProvider> init, bool expectedTried)
@@ -50,14 +50,13 @@ namespace Bav
                     const string alpha = nameof(alpha);
 
                     // ReSharper disable once ConvertToLocalFunction
-                    InitializeProviderCallback<PreReleaseIncrementVersionProvider> initCallback =
-                        p =>
-                        {
-                            p.Label = alpha;
-                            p.MayReset = true;
-                            p.ValueWidth = valueWidth;
-                            p.MoreSignificantProviders = new[] {new ChangedVersionProvider()};
-                        };
+                    InitializeProviderCallback<PreReleaseIncrementVersionProvider> initCallback = p =>
+                    {
+                        p.Label = alpha;
+                        p.MayReset = true;
+                        p.ValueWidth = valueWidth;
+                        p.MoreSignificantProviders = new[] {new ChangedVersionProvider()};
+                    };
 
                     const int one = 1;
 
