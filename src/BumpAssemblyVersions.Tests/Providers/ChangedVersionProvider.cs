@@ -3,7 +3,10 @@
 namespace Bav
 {
     /// <summary>
-    /// 
+    /// We do not care what this particular concrete Version Provider actually might have done.
+    /// Only that it can be observered to have <see cref="VersionProviderBase.Changed"/>. This is
+    /// for unit testing purposes only and adds no real value in terms of <see cref="TryChange"/>
+    /// behavior.
     /// </summary>
     /// <inheritdoc />
     public class ChangedVersionProvider : VersionProviderBase
