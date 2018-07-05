@@ -50,6 +50,7 @@
   <!-- TODO: TBD: Microsoft.Build.* is not compatible with netstandard1.6 / https://github.com/Microsoft/msbuild/issues/3435 -->
   <ItemGroup>
     <PackageReference Include="Microsoft.Build" Version="15.7.179" />
+    <PackageReference Include="Microsoft.Build.Engine" />
     <PackageReference Include="Microsoft.Build.Framework" Version="15.7.179" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.7.179" />
     <PackageReference Include="NuGet.Versioning" Version="4.6.2" />
@@ -57,6 +58,7 @@
     <PackageReference Include="System.Xml.XPath.XDocument" Version="4.3.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Update="@(PackageReference)" PrivateAssets="All" />
+    <PackageReference Update="Microsoft.Build.Engine" Version="15.7.179" />
   </ItemGroup>
 
   <ItemGroup>
