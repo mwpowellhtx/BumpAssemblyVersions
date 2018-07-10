@@ -26,7 +26,12 @@ namespace Bav
         /// <summary>
         /// 
         /// </summary>
-        FileVersion
+        FileVersion,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        AssemblyInfoVersion
     }
 
     /// <summary>
