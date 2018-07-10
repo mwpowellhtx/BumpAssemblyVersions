@@ -48,6 +48,7 @@ namespace Bav
             // We will return the naive pattern matching for faster identification.
             string GetRegexPattern(string attribName)
                 => $@"\[assembly\: {attribName}\(""(?<version>[a-zA-Z\d\.\-\+\*]+)""\)\]";
+            // TODO: TBD: separate out the version bits, including potential for wildcard, from the release label identifying bits, from any metadata identifying bits...
 
             var longName = AttributeType.Name;
             var shortName = longName.Substring(0, longName.Length - nameof(Attribute).Length);
@@ -58,6 +59,7 @@ namespace Bav
 
         private IEnumerable<Regex> AttributeRegexes { get; } = GetAttributeRegexes().ToArray();
 
+        // TODO: TBD: get set to consider how to receive specs from the end user...
         internal AssemblyInfoBumpVersionServiceBase(params IVersionProvider[] versionProviders)
             : base(versionProviders)
         {
@@ -112,14 +114,22 @@ namespace Bav
             }
         }
 
+        // TODO: TBD: this one may need to be promoted to first class assembly wide entity...
         private class BumpMatch
         {
-            internal bool IsMatch { get; set; }
+            private readonly Match _match;
 
-            internal string Line { get; set; }
+            internal string Line { get; private set; }
 
-            internal static BumpMatch Create(bool isMatch, string line)
-                => new BumpMatch {IsMatch = isMatch, Line = line};
+            internal bool IsMatch => _match?.Success ?? false;
+
+            private BumpMatch(Match match)
+            {
+                _match = match;
+            }
+
+            internal static BumpMatch Create(Match match, string line)
+                => new BumpMatch(match) {Line = line};
         }
 
         /// <summary>
@@ -133,7 +143,7 @@ namespace Bav
         /// <returns></returns>
         private bool ContainsAttribute(string assyInfoFullPath, out IEnumerable<BumpMatch> lines)
             => (lines = ReadLinesFromFile(assyInfoFullPath).Select(
-                        l => BumpMatch.Create(AttributeRegexes.Any(regex => regex.IsMatch(l)), l)
+                        l => BumpMatch.Create(AttributeRegexes.FirstOrDefault(regex => regex.IsMatch(l))?.Match(l), l)
                     )
                 ).Any(x => x.IsMatch);
 
@@ -207,6 +217,8 @@ namespace Bav
             // ReSharper disable once PossibleMultipleEnumeration
             foreach (var candidate in candidates.Where(x => x.IsMatch))
             {
+                // TODO: TBD: instead of looking up the Regex all over again, just utilize the Match we discovered during the parse...
+
                 // ReSharper disable once LoopCanBeConvertedToQuery ditto TODO...
                 // Now we want to align with the Regexes as well.
                 foreach (var regex in AttributeRegexes.Where(r => r.IsMatch(candidate.Line)))
@@ -214,6 +226,9 @@ namespace Bav
                     var match = regex.Match(candidate.Line);
 
                     var versionString = match.Groups[version].Value;
+
+                    // TODO: TBD: this is where we want toe bits from the Match/Groups ...
+
 
                     // TODO: TBD: now that we actually have the Version String, then we must connect it somehow with the Version Provider(s)...
 
