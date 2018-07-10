@@ -31,7 +31,10 @@ namespace Bav
 
         /// <summary>
         /// Gets whether <see cref="Timestamp"/> ought to be used as
-        /// <see cref="DateTime.ToUniversalTime"/>.
+        /// <see cref="DateTime.ToUniversalTime"/>. This may be specified individually for each
+        /// specific Version Element, as in MajorUseUtc, MinorUseUtc, PatchUseUtc, BuildUseUtc,
+        /// and so on, or for the entire Version as in UseUtc. The default is false, and the
+        /// specific Version Element overrides the Version setting.
         /// </summary>
         bool UseUtc { get; }
 
