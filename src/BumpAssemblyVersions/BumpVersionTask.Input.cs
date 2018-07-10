@@ -20,7 +20,7 @@
         public ITaskItem[] Bumps
         {
             get => _bumps;
-            set => _bumps = value;
+            set => _bumps = value ?? new ITaskItem[] { };
         }
 
         /// <summary>
