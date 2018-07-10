@@ -69,6 +69,15 @@
     <!--<Content Include="buildMultiTargeting\*" PackagePath="buildMultiTargeting\" />-->
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="BumpVersionTask.Input.cs">
+      <DependentUpon>BumpVersionTask.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BumpVersionTask.Output.cs">
+      <DependentUpon>BumpVersionTask.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
   <Target Name="PackTaskDependencies" AfterTargets="Build" BeforeTargets="GenerateNuspec">
 
     <!-- The include needs to happen after output has been copied to build
