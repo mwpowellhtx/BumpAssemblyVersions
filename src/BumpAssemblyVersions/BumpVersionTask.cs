@@ -21,8 +21,13 @@ namespace Bav
     {
         private AssemblyInfoBumpVersionService AssemblyInfoBumpVersion { get; } = new AssemblyInfoBumpVersionService();
 
+        /// <summary>
+        /// Default Public Constructor.
+        /// </summary>
+        /// <inheritdoc />
         public BumpVersion()
         {
+            Bumps = null;
         }
 
         /// <summary>
