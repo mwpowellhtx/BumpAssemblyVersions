@@ -2,65 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
-using System.Text.RegularExpressions;
 
 namespace Bav
 {
     using static String;
-    using static RegexOptions;
-    using static ServiceMode;
 
-    internal abstract class AssemblyInfoBumpVersionServiceBase : BumpVersionServiceBase
-    {
-        protected AssemblyInfoBumpVersionServiceBase(params IVersionProvider[] versionProviders)
-            : base(versionProviders)
-        {
-        }
-
-        // ReSharper disable once StaticMemberInGenericType
-        private static IEnumerable<Type> _supportedAttributeTypes;
-
-        protected static IEnumerable<Type> SupportedAttributeTypes
-        {
-            get
-            {
-                IEnumerable<Type> GetAll()
-                {
-                    // TODO: TBD: that I know of... are there any others?
-                    yield return typeof(AssemblyVersionAttribute);
-                    yield return typeof(AssemblyFileVersionAttribute);
-                    yield return typeof(AssemblyInformationalVersionAttribute);
-                }
-
-                return _supportedAttributeTypes ?? (_supportedAttributeTypes = GetAll().ToArray());
-            }
-        }
-    }
-
-    internal class AssemblyInfoBumpVersionServiceBase<T> : AssemblyInfoBumpVersionServiceBase
+    internal class AssemblyInfoBumpVersionService<T> : StreamBumpVersionServiceBase<T>
         where T : Attribute
     {
-        private static readonly Type AttributeType = typeof(T);
-
-        private static IEnumerable<Regex> GetAttributeRegexes()
-        {
-            // We will return the naive pattern matching for faster identification.
-            string GetRegexPattern(string attribName)
-                => $@"\[assembly\: {attribName}\(""(?<version>[a-zA-Z\d\.\-\+\*]+)""\)\]";
-            // TODO: TBD: separate out the version bits, including potential for wildcard, from the release label identifying bits, from any metadata identifying bits...
-
-            var longName = AttributeType.Name;
-            var shortName = longName.Substring(0, longName.Length - nameof(Attribute).Length);
-
-            yield return new Regex(GetRegexPattern(longName), Compiled);
-            yield return new Regex(GetRegexPattern(shortName), Compiled);
-        }
-
-        private IEnumerable<Regex> AttributeRegexes { get; } = GetAttributeRegexes().ToArray();
-
         // TODO: TBD: get set to consider how to receive specs from the end user...
-        internal AssemblyInfoBumpVersionServiceBase(params IVersionProvider[] versionProviders)
+        internal AssemblyInfoBumpVersionService(params IVersionProvider[] versionProviders)
             : base(versionProviders)
         {
         }
@@ -82,17 +33,7 @@ namespace Bav
 
             using (var fs = File.Open(assyInfoFullPath, mode, access, share))
             {
-                using (var sr = new StreamReader(fs))
-                {
-                    const string cr = @"\r";
-                    const string lf = @"\n";
-
-                    while (!sr.EndOfStream)
-                    {
-                        var line = sr.ReadLine() ?? Empty;
-                        yield return line.Replace(cr, Empty).Replace(lf, Empty);
-                    }
-                }
+                return ReadLinesFromStream(fs);
             }
         }
 
@@ -104,50 +45,22 @@ namespace Bav
 
             using (var fs = File.Open(assyInfoFullPath, mode, access, share))
             {
-                using (var sw = new StreamWriter(fs))
-                {
-                    foreach (var line in lines)
-                    {
-                        sw.WriteLineAsync(line).Wait();
-                    }
-                }
+                WriteLinesToStream(fs, lines.ToArray());
             }
-        }
-
-        // TODO: TBD: this one may need to be promoted to first class assembly wide entity...
-        private class BumpMatch
-        {
-            private readonly Match _match;
-
-            internal string Line { get; private set; }
-
-            internal bool IsMatch => _match?.Success ?? false;
-
-            private BumpMatch(Match match)
-            {
-                _match = match;
-            }
-
-            internal static BumpMatch Create(Match match, string line)
-                => new BumpMatch(match) {Line = line};
         }
 
         /// <summary>
         /// Returns whether the file on the other end of the <paramref name="assyInfoFullPath"/>
-        /// Contains any of the <paramref name="lines"/> identified by the
-        /// <see cref="AttributeRegexes"/> set of <see cref="Regex"/> pattern matchers.
+        /// Contains any of the <paramref name="results"/>.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="assyInfoFullPath"></param>
-        /// <param name="lines"></param>
+        /// <param name="results"></param>
         /// <returns></returns>
-        private bool ContainsAttribute(string assyInfoFullPath, out IEnumerable<BumpMatch> lines)
-            => (lines = ReadLinesFromFile(assyInfoFullPath).Select(
-                        l => BumpMatch.Create(AttributeRegexes.FirstOrDefault(regex => regex.IsMatch(l))?.Match(l), l)
-                    )
-                ).Any(x => x.IsMatch);
+        /// <see cref="StreamBumpVersionServiceBase{T}.ContainsAttribute"/>
+        private bool ContainsAttribute(string assyInfoFullPath, out IEnumerable<BumpMatch> results)
+            => ContainsAttribute(ReadLinesFromFile(assyInfoFullPath), out results);
 
-        internal static bool VerifyServiceRequest(ServiceMode mode, IEnumerable<IVersionProvider> providers)
+        private static bool VerifyServiceRequest(ServiceMode mode, IEnumerable<IVersionProvider> providers)
         {
             // ReSharper disable once PossibleMultipleEnumeration
             var p = providers.ToArray();
@@ -160,12 +73,12 @@ namespace Bav
             }
 
             // TODO: TBD: may let "mode" be a decision driven by VersionProviders ...
-            if (mode != NoElements || !p.Any())
+            if (mode != ServiceMode.NoElements || !p.Any())
             {
                 return false;
             }
 
-            if ((mode & ReleaseElements) != ReleaseElements)
+            if ((mode & ServiceMode.ReleaseElements) != ServiceMode.ReleaseElements)
             {
                 return true;
             }
