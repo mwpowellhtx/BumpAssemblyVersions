@@ -70,10 +70,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="BumpVersionTask.Input.cs">
+    <Compile Update="BumpVersionTask.Input.cs">
       <DependentUpon>BumpVersionTask.cs</DependentUpon>
     </Compile>
-    <Compile Include="BumpVersionTask.Output.cs">
+    <Compile Update="BumpVersionTask.Output.cs">
       <DependentUpon>BumpVersionTask.cs</DependentUpon>
     </Compile>
   </ItemGroup>
