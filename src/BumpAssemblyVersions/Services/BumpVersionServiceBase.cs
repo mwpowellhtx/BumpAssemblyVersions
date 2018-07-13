@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Bav
 {
@@ -8,7 +9,18 @@ namespace Bav
     {
         protected internal ServiceMode Mode { get; set; } = VersionElements;
 
-        protected IEnumerable<IVersionProvider> VersionProviders { get; }
+        private IEnumerable<IVersionProvider> _versionProviders;
+
+        private static IEnumerable<IVersionProvider> GetDefaultVersionProviders()
+        {
+            yield break;
+        }
+
+        protected internal IEnumerable<IVersionProvider> VersionProviders
+        {
+            get => _versionProviders ?? (_versionProviders = GetDefaultVersionProviders());
+            set => _versionProviders = (value ?? GetDefaultVersionProviders()).ToArray();
+        }
 
         protected BumpVersionServiceBase(params IVersionProvider[] versionProviders)
         {
