@@ -10,12 +10,20 @@ namespace Bav
     using static String;
     using static RegexOptions;
 
-    internal abstract class StreamBumpVersionServiceBase<T> : BumpVersionServiceBase, IDisposable
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <inheritdoc cref="BumpVersionServiceBase" />
+    public abstract class StreamBumpVersionServiceBase<T> : BumpVersionServiceBase, IStreamBumpVersionService
         where T : Attribute
     {
         // ReSharper disable once StaticMemberInGenericType
         private static IEnumerable<Type> _supportedAttributeTypes;
 
+        /// <summary>
+        /// 
+        /// </summary>
         protected static IEnumerable<Type> SupportedAttributeTypes
         {
             get
@@ -32,24 +40,38 @@ namespace Bav
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         protected static readonly Type AttributeType = typeof(T);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         protected static IEnumerable<Regex> GetAttributeRegexes()
         {
             // We will return the naive pattern matching for faster identification.
             string GetRegexPattern(string attribName)
-                => $@"\[assembly\: {attribName}\(""(?<version>[a-zA-Z\d\.\-\+\*]+)""\)\]";
-            // TODO: TBD: separate out the version bits, including potential for wildcard, from the release label identifying bits, from any metadata identifying bits...
+            {
+                // TODO: TBD: separate out the version bits, including potential for wildcard, from the release label identifying bits, from any metadata identifying bits...
+                return $@"\[assembly\: {attribName}\(""(?<version>[a-zA-Z\d\.\-\+\*]+)""\)\]";
+            }
 
-            var longName = AttributeType.Name;
-            var shortName = longName.Substring(0, longName.Length - nameof(Attribute).Length);
+            // There may be instances where it does not quite match the pattern.
+            var names = new[] {AttributeType.ToShortName(), AttributeType.ToLongName()}.Distinct().ToArray();
 
-            yield return new Regex(GetRegexPattern(longName), Compiled);
-            yield return new Regex(GetRegexPattern(shortName), Compiled);
+            return names.Select(name => new Regex(GetRegexPattern(name), Compiled));
         }
 
-        protected internal IEnumerable<Regex> AttributeRegexes { get; } = GetAttributeRegexes().ToArray();
+        /// <inheritdoc />
+        public IEnumerable<Regex> AttributeRegexes { get; } = GetAttributeRegexes().ToArray();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="versionProviders"></param>
+        /// <inheritdoc />
         protected StreamBumpVersionServiceBase(params IVersionProvider[] versionProviders)
             : base(versionProviders)
         {
@@ -93,6 +115,9 @@ namespace Bav
         }
 
         // TODO: TBD: this one may need to be promoted to first class assembly wide entity...
+        /// <summary>
+        /// 
+        /// </summary>
         protected class BumpMatch
         {
             private readonly Match _match;
@@ -124,12 +149,23 @@ namespace Bav
                     )
                 ).Any(x => x.IsMatch);
 
+        /// <summary>
+        /// Indicates whether the Object IsDisposed.
+        /// </summary>
         protected bool IsDisposed { get; private set; }
 
+        /// <summary>
+        /// Disposes the Object whether <paramref name="disposing"/>.
+        /// </summary>
+        /// <param name="disposing"></param>
         protected virtual void Dispose(bool disposing)
         {
         }
 
+        /// <summary>
+        /// Disposes the Object.
+        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             Dispose(true);

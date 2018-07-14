@@ -5,9 +5,15 @@ namespace Bav
 {
     using static ServiceMode;
 
-    internal abstract class BumpVersionServiceBase
+    /// <summary>
+    /// 
+    /// </summary>
+    public abstract class BumpVersionServiceBase : IBumpVersionService
     {
-        protected internal ServiceMode Mode { get; set; } = VersionElements;
+        /// <summary>
+        /// Gets the Mode.
+        /// </summary>
+        public ServiceMode Mode { get; protected internal set; } = VersionElements;
 
         private IEnumerable<IVersionProvider> _versionProviders;
 
@@ -16,12 +22,19 @@ namespace Bav
             yield break;
         }
 
-        protected internal IEnumerable<IVersionProvider> VersionProviders
+        /// <summary>
+        /// Gets the set of VersionProviders.
+        /// </summary>
+        public IEnumerable<IVersionProvider> VersionProviders
         {
             get => _versionProviders ?? (_versionProviders = GetDefaultVersionProviders());
-            set => _versionProviders = (value ?? GetDefaultVersionProviders()).ToArray();
+            protected internal set => _versionProviders = (value ?? GetDefaultVersionProviders()).ToArray();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="versionProviders"></param>
         protected BumpVersionServiceBase(params IVersionProvider[] versionProviders)
         {
             VersionProviders = versionProviders;
