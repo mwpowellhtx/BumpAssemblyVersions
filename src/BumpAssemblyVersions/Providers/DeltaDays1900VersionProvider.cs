@@ -13,11 +13,11 @@ namespace Bav
         /// <inheritdoc />
         protected override DateTime BaseTimestamp { get; } = GetBaseTimestamp();
 
+        // ReSharper disable once SuggestBaseTypeForParameter, UnusedMember.Local
         /// <summary>
         /// Private Copy Constructor.
         /// </summary>
         /// <param name="other"></param>
-        // ReSharper disable once SuggestBaseTypeForParameter, UnusedMember.Local
         /// <inheritdoc />
         private DeltaDays1900VersionProvider(DeltaDays1900VersionProvider other)
             : base(other)
