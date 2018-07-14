@@ -105,7 +105,6 @@ namespace Bav
         /// Tries to Bump the Version contained by the <paramref name="assyInfoFullPath"/>
         /// indicated by the <typeparamref name="T"/> <see cref="Attribute"/>.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="assyInfoFullPath"></param>
         /// <returns></returns>
         internal bool TryBumpVersion(string assyInfoFullPath)
