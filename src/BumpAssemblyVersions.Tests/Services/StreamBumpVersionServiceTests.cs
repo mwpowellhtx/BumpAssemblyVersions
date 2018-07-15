@@ -175,10 +175,27 @@ namespace Bav
 
                     // TODO: TBD: this will need to improve a bit: currently demonstrating the sort of naive pattern matching working...
                     // Which allows us to focus on the Version themselves here.
+
+                    // TODO: TBD: just besides these obvious cases, may build cases from them... we could more extensively generate these, but I'm not sure I want to generate thousands of test cases...
                     foreach (var testCase in GetKnownMatches(true
+                        , "123.123"
+                        , "123.123.*"
+                        , "123.123.123"
+                        , "123.123.123.*"
+                        , "123.123.123.123"
+                    ))
+                    {
+                        yield return testCase;
+                    }
+
+                    foreach (var testCase in GetKnownMatches(false
                         , "..."
                         , ".-+"
                         , "1234567890.abcdefghijklmnopqrstuvwxyz..ABCDEFGHIJKLMNOPQRSTUVWXYZ-+*"
+                        , "123.123.*.*"
+                        , "123.123.123.123.*"
+                        , "123.123.123.123.123"
+                        , "123.123.123.123.123.*"
                     ))
                     {
                         yield return testCase;
