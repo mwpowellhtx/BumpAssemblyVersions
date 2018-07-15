@@ -54,8 +54,14 @@ namespace Bav
             // We will return the naive pattern matching for faster identification.
             string GetRegexPattern(string attribName)
             {
-                // TODO: TBD: separate out the version bits, including potential for wildcard, from the release label identifying bits, from any metadata identifying bits...
-                return $@"\[assembly\: {attribName}\(""(?<version>[a-zA-Z\d\.\-\+\*]+)""\)\]";
+                const string wc = @"(\.\*)"; // Wildcard
+                const string ve = @"(\d)+"; // VersionElement
+                var xve = $@"(\.{ve})"; // ExtendedVersionElement
+                var version = $@"(?<version>{ve}{xve}({wc}|{xve}{wc}?|{xve}{{2}})?)";
+                const string se = @"(a-zA-Z\d\-)+"; // SemanticElement
+                var xse = $@"(\.{se})"; // ExtendedSemanticElement
+                var semantic = $"(?<semantic>{se}{xse}*)";
+                return $@"\[assembly\: {attribName}\(""{version}(\-{semantic})?""\)\]";
             }
 
             // There may be instances where it does not quite match the pattern.
