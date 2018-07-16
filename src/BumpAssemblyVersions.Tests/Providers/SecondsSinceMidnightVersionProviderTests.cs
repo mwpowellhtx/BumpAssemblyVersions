@@ -8,6 +8,7 @@ namespace Bav
     using static Int16;
     using static Math;
 
+    // ReSharper disable once UnusedMember.Global
     /// <summary>
     /// 
     /// </summary>

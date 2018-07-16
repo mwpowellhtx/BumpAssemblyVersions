@@ -1,5 +1,6 @@
 ﻿namespace Bav
 {
+    // ReSharper disable once UnusedMember.Global
     /// <summary>
     /// 
     /// </summary>
@@ -8,6 +9,7 @@
     {
     }
 
+    // ReSharper disable once UnusedMember.Global
     /// <summary>
     /// 
     /// </summary>
@@ -16,6 +18,7 @@
     {
     }
 
+    // ReSharper disable once UnusedMember.Global
     /// <summary>
     /// 
     /// </summary>
@@ -24,6 +27,7 @@
     {
     }
 
+    // ReSharper disable once UnusedMember.Global
     /// <summary>
     /// 
     /// </summary>
@@ -32,6 +36,7 @@
     {
     }
 
+    // ReSharper disable once UnusedMember.Global
     /// <summary>
     /// 
     /// </summary>
@@ -40,6 +45,7 @@
     {
     }
 
+    // ReSharper disable once UnusedMember.Global
     /// <summary>
     /// 
     /// </summary>

@@ -7,6 +7,7 @@ namespace Bav
     using Xunit;
     using static Math;
 
+    // ReSharper disable once UnusedMember.Global
     /// <summary>
     /// 
     /// </summary>

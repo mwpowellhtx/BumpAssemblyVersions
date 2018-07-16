@@ -7,6 +7,7 @@ namespace Bav
     using static Type;
     using static BindingFlags;
 
+    // ReSharper disable once UnusedMember.Global
     /// <summary>
     /// 
     /// </summary>
