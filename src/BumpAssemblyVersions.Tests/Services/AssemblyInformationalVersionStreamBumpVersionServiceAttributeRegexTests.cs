@@ -4,6 +4,7 @@ namespace Bav
 {
     using Xunit.Abstractions;
 
+    // ReSharper disable once UnusedMember.Global
     /// <summary>
     /// Represents unit <see cref="IStreamBumpVersionService.AttributeRegexes"/> tests connected
     /// with <see cref="AssemblyFileVersionAttribute"/>.
@@ -12,6 +13,7 @@ namespace Bav
     public class AssemblyInformationalVersionStreamBumpVersionServiceAttributeRegexTests
         : BumpVersionServiceAttributeRegexTests<AssemblyInformationalVersionAttribute>
     {
+        // ReSharper disable once UnusedMember.Global
         /// <summary>
         /// Public Constructor.
         /// </summary>
