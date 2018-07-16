@@ -6,18 +6,18 @@ namespace Bav
 
     /// <summary>
     /// Represents unit <see cref="IStreamBumpVersionService.AttributeRegexes"/> tests connected
-    /// with <see cref="AssemblyVersionAttribute"/>.
+    /// with <see cref="AssemblyFileVersionAttribute"/>.
     /// </summary>
     /// <inheritdoc />
-    public class AssemblyVersionStreamBumpVersionServiceAttributeRegexTests
-        : BumpVersionServiceAttributeRegexTests<AssemblyVersionAttribute>
+    public class AssemblyFileVersionStreamBumpVersionServiceAttributeRegexTests
+        : BumpVersionServiceAttributeRegexTests<AssemblyFileVersionAttribute>
     {
         /// <summary>
         /// Public Constructor.
         /// </summary>
         /// <param name="outputHelper"></param>
         /// <inheritdoc />
-        public AssemblyVersionStreamBumpVersionServiceAttributeRegexTests(
+        public AssemblyFileVersionStreamBumpVersionServiceAttributeRegexTests(
             ITestOutputHelper outputHelper)
             : base(outputHelper)
         {
