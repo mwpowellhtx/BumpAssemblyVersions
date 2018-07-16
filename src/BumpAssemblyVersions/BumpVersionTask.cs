@@ -9,7 +9,6 @@ namespace Bav
     using Microsoft.Build.Definition;
     using Microsoft.Build.Evaluation;
     using Microsoft.Build.Utilities;
-    using static String;
     using static MessageImportance;
 
     /// <summary>
