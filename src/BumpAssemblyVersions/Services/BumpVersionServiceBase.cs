@@ -8,11 +8,10 @@ namespace Bav
     /// <summary>
     /// 
     /// </summary>
+    /// <inheritdoc />
     public abstract class BumpVersionServiceBase : IBumpVersionService
     {
-        /// <summary>
-        /// Gets the Mode.
-        /// </summary>
+        /// <inheritdoc />
         public ServiceMode Mode { get; protected internal set; } = VersionElements;
 
         private IEnumerable<IVersionProvider> _versionProviders;
@@ -22,9 +21,7 @@ namespace Bav
             yield break;
         }
 
-        /// <summary>
-        /// Gets the set of VersionProviders.
-        /// </summary>
+        /// <inheritdoc />
         public IEnumerable<IVersionProvider> VersionProviders
         {
             get => _versionProviders ?? (_versionProviders = GetDefaultVersionProviders());
