@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace Bav
 {
     using Xunit;
     using Xunit.Abstractions;
+    using static BindingFlags;
     using static RegexOptions;
     using static ServiceMode;
 
@@ -14,28 +16,102 @@ namespace Bav
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract class StreamBumpVersionServiceTests<T>
+    public abstract class BumpVersionServiceAttributeRegexTests<T>
         where T : Attribute
     {
         /// <summary>
-        /// 
+        /// Provides access to an <see cref="ITestOutputHelper"/>.
         /// </summary>
         protected ITestOutputHelper OutputHelper { get; }
 
         /// <summary>
-        /// 
+        /// Protected Constructor.
         /// </summary>
         /// <param name="outputHelper"></param>
-        protected StreamBumpVersionServiceTests(ITestOutputHelper outputHelper)
+        protected BumpVersionServiceAttributeRegexTests(ITestOutputHelper outputHelper)
         {
             OutputHelper = outputHelper;
         }
 
         /// <summary>
+        /// Provides the FixtureAttributeType.
+        /// </summary>
+        protected static readonly Type FixtureAttributeType = typeof(T);
+
+        /// <summary>
+        /// Provides the FixtureType.
+        /// </summary>
+        protected static readonly Type FixtureType = typeof(StreamBumpVersionServiceFixture<T>);
+
+        /// <summary>
+        /// Verify that the <see cref="StreamBumpVersionServiceBase{T}.SupportedAttributeTypes"/>
+        /// themselves are accurate and accounted for among the
+        /// <paramref name="expectedSupportedTypes"/>.
+        /// </summary>
+        /// <param name="expectedSupportedTypes"></param>
+        [Theory, MemberData(nameof(ExpectedSupportedTypes))]
+        public void Verify_Supported_Attribute_Type(params Type[] expectedSupportedTypes)
+        {
+            const string propertyName = nameof(StreamBumpVersionServiceBase<T>.SupportedAttributeTypes);
+
+            // Not technically from the FixtureType, per se.
+            var property = typeof(StreamBumpVersionServiceBase<T>).GetProperty(propertyName, Static | NonPublic | GetProperty);
+
+            Assert.NotNull(property);
+            Assert.Equal(typeof(IEnumerable<Type>), property.PropertyType);
+
+            // While technically we could just Get the Value, let's also assert that we did.
+            bool TryGetPropertyValue(PropertyInfo pi, out IEnumerable<Type> types)
+            {
+                types = (IEnumerable<Type>) pi.GetValue(null);
+                return types != null && types.Any();
+            }
+
+            // In other words, we are not expecting any Exceptions be thrown from the Static Ctor.
+            Assert.True(TryGetPropertyValue(property, out var actualSupportedTypes));
+
+            // ReSharper disable once PossibleMultipleEnumeration
+            Assert.Equal(expectedSupportedTypes.Length, actualSupportedTypes.Count());
+
+            foreach (var expectedSupportedType in expectedSupportedTypes)
+            {
+                // ReSharper disable once PossibleMultipleEnumeration
+                Assert.Contains(expectedSupportedType, actualSupportedTypes);
+            }
+        }
+
+        /// <summary>
         /// 
         /// </summary>
-        protected static readonly Type FixturedType = typeof(T);
+        // ReSharper disable once StaticMemberInGenericType
+        private static IEnumerable<object[]> _expectedSupportedTypes;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        public static IEnumerable<object[]> ExpectedSupportedTypes
+        {
+            get
+            {
+                IEnumerable<object[]> GetAll()
+                {
+                    IEnumerable<object> GetOne(params Type[] types)
+                        => types.Select(type => (object) type);
+
+                    yield return GetOne(
+                        typeof(AssemblyVersionAttribute)
+                        , typeof(AssemblyFileVersionAttribute)
+                        , typeof(AssemblyInformationalVersionAttribute)).ToArray();
+                }
+
+                return _expectedSupportedTypes ?? (_expectedSupportedTypes = GetAll().ToArray());
+            }
+        }
+
+        /// <summary>
+        /// Provides some <see cref="IVersionProvider"/> vetting the tests.
+        /// </summary>
+        /// <inheritdoc />
         private class VersionProviderSamenessComparer : EqualityComparer<IVersionProvider>
         {
             public override bool Equals(IVersionProvider x, IVersionProvider y)
@@ -45,30 +121,10 @@ namespace Bav
                 => (obj?.Id ?? Guid.Empty).GetHashCode();
         }
 
-        private static IEnumerable<Action<Regex>> GetExpectedRegexVerification()
-        {
-            bool ShortNameRegexExpected() => FixturedType.Name.EndsWith(nameof(Attribute));
-
-            if (ShortNameRegexExpected())
-            {
-                yield return regex =>
-                {
-                    Assert.NotNull(regex);
-                    Assert.Equal(Compiled, regex.Options);
-                    Assert.Contains($"{FixturedType.ToShortName()}", $"{regex}");
-                };
-            }
-
-            yield return regex =>
-            {
-                Assert.NotNull(regex);
-                Assert.Equal(Compiled, regex.Options);
-                Assert.Contains($"{FixturedType.ToLongName()}", $"{regex}");
-            };
-        }
-
         /// <summary>
-        /// 
+        /// Returns a Created Fixture. Should not throw any exceptions, but we do not need to test
+        /// for this explicitly. Running successfully through passing is sufficient evidence along
+        /// these lines.
         /// </summary>
         /// <param name="mode"></param>
         /// <param name="versionProviders"></param>
@@ -79,6 +135,28 @@ namespace Bav
             var serviceFixture = new StreamBumpVersionServiceFixture<T>(versionProviders) {Mode = mode};
 
             VerifyFixture(serviceFixture, mode, versionProviders);
+
+            IEnumerable<Action<Regex>> GetExpectedRegexVerification()
+            {
+                bool ShortNameRegexExpected() => FixtureAttributeType.Name.EndsWith(nameof(Attribute));
+
+                if (ShortNameRegexExpected())
+                {
+                    yield return regex =>
+                    {
+                        Assert.NotNull(regex);
+                        Assert.Equal(Compiled, regex.Options);
+                        Assert.Contains($"{FixtureAttributeType.ToShortName()}", $"{regex}");
+                    };
+                }
+
+                yield return regex =>
+                {
+                    Assert.NotNull(regex);
+                    Assert.Equal(Compiled, regex.Options);
+                    Assert.Contains($"{FixtureAttributeType.ToLongName()}", $"{regex}");
+                };
+            }
 
             // We should also be able to identify definitive Regular Expressions characteristics.
             Assert.Collection(serviceFixture.AttributeRegexes, GetExpectedRegexVerification().ToArray());
@@ -107,16 +185,17 @@ namespace Bav
         private static IVersionProvider Unknown => new UnknownVersionProvider();
 
         /// <summary>
-        /// 
+        /// Verifies that the <see cref="Regex"/> matches.
         /// </summary>
         /// <param name="mode"></param>
         /// <param name="given"></param>
         /// <param name="expectedVersion"></param>
         /// <param name="shouldMatch"></param>
-        [Theory]
-        [MemberData(nameof(DefaultTestCases))]
-        public void Verify_Default_Fixture(ServiceMode mode, string given, string expectedVersion, bool shouldMatch)
+        [Theory
+         , MemberData(nameof(DefaultTestCases))]
+        public void Verify_Regex_Match(ServiceMode mode, string given, string expectedVersion, bool shouldMatch)
         {
+            // TODO: TBD: need a sister unit tests in order to vet at least one or a couple of unsupported attribute examples...
             var expectedProviders = new[] {NoOp, NoOp, NoOp, NoOp};
 
             var fixture = CreateFixture(mode, expectedProviders);
@@ -126,6 +205,7 @@ namespace Bav
                 .TryVerifyMatch(given, expectedVersion, shouldMatch));
         }
 
+        // ReSharper disable once StaticMemberInGenericType
         private static IEnumerable<object[]> _defaultTestCases;
 
         /// <summary>
@@ -137,10 +217,10 @@ namespace Bav
             {
                 // The couple of sort of boilerplate usages are captured here.
                 string GetShortNameUsage(string version)
-                    => $"[assembly: {FixturedType.ToShortName()}(\"{version}\")]";
+                    => $"[assembly: {FixtureAttributeType.ToShortName()}(\"{version}\")]";
 
                 string GetLongNameUsage(string version)
-                    => $"[assembly: {FixturedType.ToLongName()}(\"{version}\")]";
+                    => $"[assembly: {FixtureAttributeType.ToLongName()}(\"{version}\")]";
 
                 IEnumerable<object> GetOne(ServiceMode mode, string g, string s, bool shouldMatch)
                 {
