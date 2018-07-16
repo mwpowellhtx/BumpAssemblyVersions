@@ -24,7 +24,7 @@ namespace Bav
         /// <summary>
         /// 
         /// </summary>
-        protected static IEnumerable<Type> SupportedAttributeTypes
+        protected internal static IEnumerable<Type> SupportedAttributeTypes
         {
             get
             {
@@ -54,20 +54,45 @@ namespace Bav
             // We will return the naive pattern matching for faster identification.
             string GetRegexPattern(string attribName)
             {
-                const string wc = @"(\.\*)"; // Wildcard
-                const string ve = @"(\d)+"; // VersionElement
-                var xve = $@"(\.{ve})"; // ExtendedVersionElement
+                /*
+                 * Went with an abbreviated notation here for brevity:
+                 * wc = wildcard
+                 * v = version
+                 * s = semantic
+                 * e = element
+                 * x = extended
+                 */
+                const string dot = @"\.";
+                const string hyp = @"\-";
+                var wc = $@"({dot}\*)";
+                const string ve = @"(\d)+";
+                var xve = $@"({dot}{ve})";
                 var version = $@"(?<version>{ve}{xve}({wc}|{xve}{wc}?|{xve}{{2}})?)";
-                const string se = @"(a-zA-Z\d\-)+"; // SemanticElement
-                var xse = $@"(\.{se})"; // ExtendedSemanticElement
+                var se = $@"(a-zA-Z\d{hyp})+";
+                var xse = $@"({dot}{se})";
                 var semantic = $"(?<semantic>{se}{xse}*)";
-                return $@"\[assembly\: {attribName}\(""{version}(\-{semantic})?""\)\]";
+                return $@"\[assembly\: {attribName}\(""{version}({hyp}{semantic})?""\)\]";
             }
 
             // There may be instances where it does not quite match the pattern.
             var names = new[] {AttributeType.ToShortName(), AttributeType.ToLongName()}.Distinct().ToArray();
 
             return names.Select(name => new Regex(GetRegexPattern(name), Compiled));
+        }
+
+        static StreamBumpVersionServiceBase()
+        {
+            if (SupportedAttributeTypes.Any(type => type == AttributeType))
+            {
+                return;
+            }
+
+            var supported = Join(", ", SupportedAttributeTypes.Select(type => $"'{type}'"));
+
+            throw new InvalidOperationException(
+                $"'{AttributeType}' is not supported"
+                + $" by '{typeof(StreamBumpVersionServiceBase<T>)}': {supported}."
+            );
         }
 
         /// <inheritdoc />
