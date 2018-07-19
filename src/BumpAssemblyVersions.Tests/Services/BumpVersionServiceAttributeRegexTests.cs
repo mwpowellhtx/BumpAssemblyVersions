@@ -41,7 +41,7 @@ namespace Bav
         /// <summary>
         /// Provides the FixtureType.
         /// </summary>
-        protected static readonly Type FixtureType = typeof(StreamBumpVersionServiceFixture<T>);
+        protected static readonly Type FixtureType = typeof(AssemblyInfoBumpVersionServiceFixture<T>);
 
         /// <summary>
         /// Verify that the <see cref="StreamBumpVersionServiceBase{T}.SupportedAttributeTypes"/>
@@ -52,10 +52,10 @@ namespace Bav
         [Theory, MemberData(nameof(ExpectedSupportedTypes))]
         public void Verify_Supported_Attribute_Type(params Type[] expectedSupportedTypes)
         {
-            const string propertyName = nameof(StreamBumpVersionServiceBase<T>.SupportedAttributeTypes);
+            const string propertyName = nameof(AssemblyInfoBumpVersionServiceFixture<T>.SupportedAttributeTypes);
 
             // Not technically from the FixtureType, per se.
-            var property = typeof(StreamBumpVersionServiceBase<T>).GetProperty(propertyName, Static | NonPublic | GetProperty);
+            var property = typeof(AssemblyInfoBumpVersionService<T>).GetProperty(propertyName, Static | NonPublic | GetProperty);
 
             Assert.NotNull(property);
             Assert.Equal(typeof(IEnumerable<Type>), property.PropertyType);
@@ -127,14 +127,12 @@ namespace Bav
         /// these lines.
         /// </summary>
         /// <param name="mode"></param>
-        /// <param name="versionProviders"></param>
         /// <returns></returns>
-        internal static IStreamBumpVersionService CreateFixture(
-            ServiceMode mode, params IVersionProvider[] versionProviders)
+        internal static IAssemblyInfoBumpVersionService CreateFixture(ServiceMode mode)
         {
-            var serviceFixture = new StreamBumpVersionServiceFixture<T>(versionProviders) {Mode = mode};
+            var serviceFixture = new AssemblyInfoBumpVersionServiceFixture<T> {Mode = mode};
 
-            VerifyFixture(serviceFixture, mode, versionProviders);
+            VerifyFixture(serviceFixture, mode);
 
             IEnumerable<Action<Regex>> GetExpectedRegexVerification()
             {
@@ -164,25 +162,15 @@ namespace Bav
             return serviceFixture;
         }
 
-        private static void VerifyFixture(IBumpVersionService service, ServiceMode expectedMode
-            , params IVersionProvider[] expectedProviders)
+        private static void VerifyFixture(IBumpVersionService service, ServiceMode expectedMode)
         {
             Assert.NotNull(service);
-
             Assert.Equal(expectedMode, service.Mode);
-
-            // Does not need to be the same precise instance, but each of the items should be.
-            Assert.Equal(expectedProviders.Length, service.VersionProviders.Count());
-
-            if (expectedProviders.Any())
-            {
-                Assert.Equal(expectedProviders, service.VersionProviders, new VersionProviderSamenessComparer());
-            }
         }
 
-        private static IVersionProvider NoOp => new NoOpVersionProvider();
+        //private static IVersionProvider NoOp => new NoOpVersionProvider();
 
-        private static IVersionProvider Unknown => new UnknownVersionProvider();
+        //private static IVersionProvider Unknown => new UnknownVersionProvider();
 
         /// <summary>
         /// Verifies that the <see cref="Regex"/> matches.
@@ -195,10 +183,7 @@ namespace Bav
          , MemberData(nameof(DefaultTestCases))]
         public void Verify_Regex_Match(ServiceMode mode, string given, string expectedVersion, bool shouldMatch)
         {
-            // TODO: TBD: need a sister unit tests in order to vet at least one or a couple of unsupported attribute examples...
-            var expectedProviders = new[] {NoOp, NoOp, NoOp, NoOp};
-
-            var fixture = CreateFixture(mode, expectedProviders);
+            var fixture = CreateFixture(mode);
 
             Assert.Equal(shouldMatch, fixture.AttributeRegexes
                 .FilterMatch(given, shouldMatch)
