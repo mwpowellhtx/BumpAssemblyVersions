@@ -110,6 +110,7 @@
     <Compile Include="BumpVersionTests.cs" />
     <Compile Include="Events\ConfigureBuildEventArgs.cs" />
     <Compile Include="Events\ConfigureEnvironmentVariablesEventArgs.cs" />
+    <Compile Include="Integration\AssemblyFileVersionStreamBumpVersionServiceAttributeRegexTests.cs" />
     <Compile Include="Providers\ChangedVersionProvider.cs" />
     <Compile Include="Providers\ChangedVersionProviderTests.cs" />
     <Compile Include="Providers\DayOfYearVersionProviderTests.cs" />
@@ -140,7 +141,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Events\ToolsetRequiredEventArgs.cs" />
     <Compile Include="Providers\VersionProviderRegistryTests.cs" />
-    <Compile Include="Services\StreamBumpVersionServiceFixture.cs" />
+    <Compile Include="Services\AssemblyInfoBumpVersionServiceFixture.cs" />
     <Compile Include="Services\BumpVersionServiceAttributeRegexTests.cs" />
     <Compile Include="Services\UnsupportedAttribute.cs" />
     <Compile Include="Services\UnsupportedAttributeBumpVersionServiceTests.cs" />
@@ -159,7 +160,9 @@
   <ItemGroup>
     <Analyzer Include="..\packages\xunit.analyzers.0.7.0\analyzers\dotnet\cs\xunit.analyzers.dll" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Integration\Content\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
