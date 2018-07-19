@@ -5,6 +5,7 @@ using System.Reflection;
 
 namespace Bav
 {
+    using static Convert;
     using static Type;
     using static BindingFlags;
 
@@ -14,7 +15,7 @@ namespace Bav
 
     /// <inheritdoc cref="IVersionProvider" />
     /// <inheritdoc cref="ICloneable" />
-    public abstract class VersionProviderBase : IVersionProvider, ICloneable
+    public abstract class VersionProviderBase : IVersionProvider
     {
         /// <summary>
         /// Gets whether the Provider is ForInternalUseOnly.
@@ -148,7 +149,7 @@ namespace Bav
         {
             var providerType = GetType();
             var ctor = providerType.GetConstructor(Instance | NonPublic, DefaultBinder, new[] {providerType}, null);
-            return Convert.ChangeType(ctor?.Invoke(new object[] {this}), providerType);
+            return ChangeType(ctor?.Invoke(new object[] {this}), providerType);
         }
     }
 }
