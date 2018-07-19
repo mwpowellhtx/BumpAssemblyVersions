@@ -1,20 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
 
 namespace Bav
 {
     /// <summary>
     /// 
     /// </summary>
-    public interface IBumpVersionService
+    /// <inheritdoc />
+    public interface IBumpVersionService : IDisposable
     {
         /// <summary>
         /// Gets the Mode.
         /// </summary>
         ServiceMode Mode { get; }
-
-        /// <summary>
-        /// Gets the set of VersionProviders.
-        /// </summary>
-        IEnumerable<IVersionProvider> VersionProviders { get; }
     }
 }
