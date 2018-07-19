@@ -6,7 +6,7 @@ namespace Bav
     using Microsoft.Build.Framework;
     using static DateTime;
 
-    internal class BumpVersionDescriptor
+    internal class BumpVersionDescriptor : IBumpVersionDescriptor
     {
         // TODO: TBD: once the providers are arranged, then the More Significant bits may be determined...
         private ITaskItem Item { get; }
@@ -22,36 +22,37 @@ namespace Bav
 
         // TODO: TBD: kind happens here agnostic of the Project file version, whether current msbuild/csharp, or legacy
         // TODO: TBD: will need to determine whether we're talking about csharp assembly attributes, or project file level Xml-style specs
-        internal VersionKind Kind { get; set; }
+        public VersionKind Kind { get; internal set; }
 
         private IVersionProvider Get(ref IVersionProvider provider, string request)
             => provider ?? (provider = Item.ToVersionProvider(request, DescriptorTimestamp));
 
         private IVersionProvider _majorProvider;
 
-        internal IVersionProvider MajorProvider => Get(ref _majorProvider, nameof(MajorProvider));
+        public IVersionProvider MajorProvider => Get(ref _majorProvider, nameof(MajorProvider));
 
         private IVersionProvider _minorProvider;
 
-        internal IVersionProvider MinorProvider => Get(ref _minorProvider, nameof(MinorProvider));
+        public IVersionProvider MinorProvider => Get(ref _minorProvider, nameof(MinorProvider));
 
         private IVersionProvider _patchProvider;
 
-        internal IVersionProvider PatchProvider => Get(ref _patchProvider, nameof(PatchProvider));
+        public IVersionProvider PatchProvider => Get(ref _patchProvider, nameof(PatchProvider));
 
         private IVersionProvider _buildProvider;
 
-        internal IVersionProvider BuildProvider => Get(ref _buildProvider, nameof(BuildProvider));
+        public IVersionProvider BuildProvider => Get(ref _buildProvider, nameof(BuildProvider));
 
         private IVersionProvider _releaseProvider;
 
-        internal IVersionProvider ReleaseProvider => Get(ref _releaseProvider, nameof(ReleaseProvider));
+        public IVersionProvider ReleaseProvider => Get(ref _releaseProvider, nameof(ReleaseProvider));
 
         /// <summary>
         /// Gets or sets whether to Create a New Version if one did not exist.
         /// </summary>
         public bool CreateNew { get; set; }
 
+        // TODO: TBD: move this over to the Service?
         private static IVersionProvider InitMoreSignificant(IVersionProvider provider
             , params IVersionProvider[] moreSignificants)
         {
@@ -59,7 +60,7 @@ namespace Bav
             return provider;
         }
 
-        internal IEnumerable<IVersionProvider> GetVersionProviders()
+        private IEnumerable<IVersionProvider> GetVersionProviders()
         {
             yield return InitMoreSignificant(MajorProvider);
             yield return InitMoreSignificant(MinorProvider, MajorProvider);
@@ -68,5 +69,7 @@ namespace Bav
             yield return InitMoreSignificant(ReleaseProvider, BuildProvider, PatchProvider, MajorProvider
                 , MinorProvider);
         }
+
+        public IEnumerable<IVersionProvider> VersionProviders => GetVersionProviders();
     }
 }
