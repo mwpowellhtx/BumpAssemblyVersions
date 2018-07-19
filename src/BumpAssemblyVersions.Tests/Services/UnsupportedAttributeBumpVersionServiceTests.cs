@@ -34,7 +34,7 @@ namespace Bav
         public void Verify_Attribute_Unsupported()
         {
             // ReSharper disable once ObjectCreationAsStatement
-            Action create = () => new StreamBumpVersionServiceFixture<T>();
+            Action create = () => new AssemblyInfoBumpVersionServiceFixture<T>();
 
             // We do not need many examples of this really.
             create.Throws<TypeInitializationException>(tex =>
