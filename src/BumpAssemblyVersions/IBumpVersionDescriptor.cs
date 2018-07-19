@@ -6,18 +6,31 @@ namespace Bav
     {
         VersionKind Kind { get; }
 
-        IVersionProvider MajorProvider { get; }
+        IVersionProvider MajorProviderTemplate { get; }
 
-        IVersionProvider MinorProvider { get; }
+        IVersionProvider MinorProviderTemplate { get; }
 
-        IVersionProvider PatchProvider { get; }
+        IVersionProvider PatchProviderTemplate { get; }
 
-        IVersionProvider BuildProvider { get; }
+        IVersionProvider BuildProviderTemplate { get; }
 
-        IVersionProvider ReleaseProvider { get; }
+        IVersionProvider ReleaseProviderTemplate { get; }
 
         bool CreateNew { get; set; }
 
+        /// <summary>
+        /// Gets the set of <see cref="IVersionProvider"/> Templates. This collection should
+        /// be static based on the specified Descriptor Templates.
+        /// </summary>
+        IEnumerable<IVersionProvider> VersionProviderTemplates { get; }
+
+        /// <summary>
+        /// Gets the set of <see cref="IVersionProvider"/> instances cloned from the
+        /// <see cref="VersionProviderTemplates"/>. This is a more dynamic list and should
+        /// recalculate the <see cref="IVersionProvider.MoreSignificantProviders"/> every time.
+        /// This should ostensibly connect with whatever calling context parser is responsible
+        /// for considering each qualifying match.
+        /// </summary>
         IEnumerable<IVersionProvider> VersionProviders { get; }
     }
 }

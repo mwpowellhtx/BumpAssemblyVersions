@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Bav
 {
@@ -27,49 +28,87 @@ namespace Bav
         private IVersionProvider Get(ref IVersionProvider provider, string request)
             => provider ?? (provider = Item.ToVersionProvider(request, DescriptorTimestamp));
 
-        private IVersionProvider _majorProvider;
+        private IVersionProvider _majorProviderTemplate;
 
-        public IVersionProvider MajorProvider => Get(ref _majorProvider, nameof(MajorProvider));
+        public IVersionProvider MajorProviderTemplate => Get(
+            ref _majorProviderTemplate, nameof(MajorProviderTemplate));
 
-        private IVersionProvider _minorProvider;
+        private IVersionProvider _minorProviderTemplate;
 
-        public IVersionProvider MinorProvider => Get(ref _minorProvider, nameof(MinorProvider));
+        public IVersionProvider MinorProviderTemplate => Get(
+            ref _minorProviderTemplate, nameof(MinorProviderTemplate));
 
-        private IVersionProvider _patchProvider;
+        private IVersionProvider _patchProviderTemplate;
 
-        public IVersionProvider PatchProvider => Get(ref _patchProvider, nameof(PatchProvider));
+        public IVersionProvider PatchProviderTemplate => Get(
+            ref _patchProviderTemplate, nameof(PatchProviderTemplate));
 
-        private IVersionProvider _buildProvider;
+        private IVersionProvider _buildProviderTemplate;
 
-        public IVersionProvider BuildProvider => Get(ref _buildProvider, nameof(BuildProvider));
+        public IVersionProvider BuildProviderTemplate => Get(
+            ref _buildProviderTemplate, nameof(BuildProviderTemplate));
 
-        private IVersionProvider _releaseProvider;
+        private IVersionProvider _releaseProviderTemplate;
 
-        public IVersionProvider ReleaseProvider => Get(ref _releaseProvider, nameof(ReleaseProvider));
+        public IVersionProvider ReleaseProviderTemplate => Get(
+            ref _releaseProviderTemplate, nameof(ReleaseProviderTemplate));
 
         /// <summary>
         /// Gets or sets whether to Create a New Version if one did not exist.
         /// </summary>
         public bool CreateNew { get; set; }
 
-        // TODO: TBD: move this over to the Service?
-        private static IVersionProvider InitMoreSignificant(IVersionProvider provider
-            , params IVersionProvider[] moreSignificants)
+        private IEnumerable<IVersionProvider> _versionProviderTemplates;
+
+        /// <inheritdoc />
+        public IEnumerable<IVersionProvider> VersionProviderTemplates
         {
-            ((VersionProviderBase) provider).MoreSignificantProviders = moreSignificants;
-            return provider;
+            get
+            {
+                IEnumerable<IVersionProvider> GetAll()
+                {
+                    yield return MajorProviderTemplate;
+                    yield return MinorProviderTemplate;
+                    yield return PatchProviderTemplate;
+                    yield return BuildProviderTemplate;
+                    yield return ReleaseProviderTemplate;
+                }
+
+                return _versionProviderTemplates ?? (_versionProviderTemplates = GetAll().ToArray());
+            }
         }
 
-        private IEnumerable<IVersionProvider> GetVersionProviders()
+        /// <inheritdoc />
+        public IEnumerable<IVersionProvider> VersionProviders
         {
-            yield return InitMoreSignificant(MajorProvider);
-            yield return InitMoreSignificant(MinorProvider, MajorProvider);
-            yield return InitMoreSignificant(PatchProvider, MajorProvider, MinorProvider);
-            yield return InitMoreSignificant(BuildProvider, PatchProvider, MajorProvider, MinorProvider);
-            yield return InitMoreSignificant(ReleaseProvider, BuildProvider, PatchProvider, MajorProvider
-                , MinorProvider);
-        }
+            get
+            {
+                // Returns the Taken Values ThroughIndex.
+                IEnumerable<T> Take<T>(IEnumerable<T> values, int throughIndex)
+                {
+                    for (var i = 0; i < throughIndex; i++)
+                    {
+                        // ReSharper disable once PossibleMultipleEnumeration
+                        yield return values.ElementAt(i);
+                    }
+                }
 
-        public IEnumerable<IVersionProvider> VersionProviders => GetVersionProviders();
+                VersionProviderBase GetCurrent(VersionProviderBase currentProvider
+                    , params IVersionProvider[] moreSignificant)
+                {
+                    currentProvider.MoreSignificantProviders = moreSignificant.ToArray();
+                    return currentProvider;
+                }
+
+                var clonedProviders = VersionProviderTemplates.Select(
+                    template => (VersionProviderBase) template.Clone()).ToList();
+
+                foreach (var clonedProvider in clonedProviders)
+                {
+                    var index = clonedProviders.IndexOf(clonedProvider);
+                    yield return GetCurrent(clonedProvider, Take(clonedProviders, index).ToArray<IVersionProvider>());
+                }
+            }
+        }
     }
 }
