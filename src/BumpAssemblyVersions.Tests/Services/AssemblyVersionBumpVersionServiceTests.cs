@@ -6,11 +6,11 @@ namespace Bav
 
     // ReSharper disable once UnusedMember.Global
     /// <summary>
-    /// Represents unit <see cref="IStreamBumpVersionService.AttributeRegexes"/> tests connected
-    /// with <see cref="AssemblyVersionAttribute"/>.
+    /// Represents unit <see cref="IAssemblyInfoBumpVersionService.AttributeRegexes"/> tests
+    /// connected with <see cref="AssemblyVersionAttribute"/>.
     /// </summary>
     /// <inheritdoc />
-    public class AssemblyVersionStreamBumpVersionServiceAttributeRegexTests
+    public class AssemblyVersionBumpVersionServiceAttributeRegexTests
         : BumpVersionServiceAttributeRegexTests<AssemblyVersionAttribute>
     {
         // ReSharper disable once UnusedMember.Global
@@ -19,7 +19,7 @@ namespace Bav
         /// </summary>
         /// <param name="outputHelper"></param>
         /// <inheritdoc />
-        public AssemblyVersionStreamBumpVersionServiceAttributeRegexTests(
+        public AssemblyVersionBumpVersionServiceAttributeRegexTests(
             ITestOutputHelper outputHelper)
             : base(outputHelper)
         {
