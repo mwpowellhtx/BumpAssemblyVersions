@@ -95,6 +95,14 @@ namespace Bav
             );
         }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
+        private IEnumerable<IVersionProvider> VersionProviders { get; }
+
+        internal AssemblyInfoBumpVersionService(params IVersionProvider[] versionProviders)
+        {
+            VersionProviders = versionProviders;
+        }
+
         /// <summary>
         /// Returns whether the <paramref name="givenLines"/> Contains Any of the
         /// <paramref name="results"/> identified by the <see cref="AttributeRegexes"/> set of
