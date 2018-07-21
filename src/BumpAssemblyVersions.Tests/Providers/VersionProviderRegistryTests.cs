@@ -9,7 +9,7 @@ namespace Bav
     using Xunit.Abstractions;
     using Xunit.Sdk;
     using static Type;
-    using static VersionProviderRegistry;
+    using static VersionProviderTemplateRegistry;
     using static BindingFlags;
 
     /// <summary>
