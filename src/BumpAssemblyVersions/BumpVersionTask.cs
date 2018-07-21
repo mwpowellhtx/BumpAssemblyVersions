@@ -82,17 +82,9 @@ namespace Bav
             , params IBumpVersionDescriptor[] descriptors)
             where T : Attribute
         {
-            using (var service = new AssemblyInfoBumpVersionService<T>())
-            {
-                return descriptors.Any(descriptor =>
-                {
-                    //service.VersionProviders = descriptor.VersionProviders;
-
-                    //// TODO: TBD: instead of a file based approach, adapt to given lines, and then we must run across a SINGLE open file stream at a time...
-                    return true;
-                    //return service.TryBumpVersion(sourceFileFullPath);
-                });
-            }
+            return new BumpFileVersionServiceAdapter().TryBumpVersions(sourceFileFullPath
+                , descriptors.Select(descriptor => new AssemblyInfoBumpVersionService<T>(
+                    descriptor.VersionProviders.ToArray())).ToArray<IAssemblyInfoBumpVersionService>());
         }
 
         /// <summary>
