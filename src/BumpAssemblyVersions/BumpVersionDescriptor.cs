@@ -58,6 +58,11 @@ namespace Bav
         /// </summary>
         public bool CreateNew { get; set; }
 
+        /// <summary>
+        /// Gets or sets whether to IncludeWildcard.
+        /// </summary>
+        public bool IncludeWildcard { get; set; }
+
         private IEnumerable<IVersionProvider> _versionProviderTemplates;
 
         /// <inheritdoc />

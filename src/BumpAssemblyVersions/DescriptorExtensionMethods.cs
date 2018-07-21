@@ -17,6 +17,7 @@ namespace Bav
         internal static class MetadataNames
         {
             internal const string CreateNew = nameof(CreateNew);
+            internal const string IncludeWildcard = nameof(IncludeWildcard);
         }
 
         /// <summary>
@@ -41,6 +42,7 @@ namespace Bav
             }
 
             SetPropertyFromMetadata(CreateNew, bool.Parse, (d, x) => d.CreateNew = x);
+            SetPropertyFromMetadata(IncludeWildcard, bool.Parse, (d, x) => d.IncludeWildcard = x);
 
             // TODO: TBD: from "VersionKind" we need to decide what the context is, whether an AssemblyInfo context, or for the new 2017 CSPROJ Xml format.
             var kind = item.ItemSpec.ToNullableVersionKind();

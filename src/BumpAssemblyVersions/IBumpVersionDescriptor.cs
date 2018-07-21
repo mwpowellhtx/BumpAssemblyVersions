@@ -18,6 +18,8 @@ namespace Bav
 
         bool CreateNew { get; set; }
 
+        bool IncludeWildcard { get; set; }
+
         /// <summary>
         /// Gets the set of <see cref="IVersionProvider"/> Templates. This collection should
         /// be static based on the specified Descriptor Templates.
