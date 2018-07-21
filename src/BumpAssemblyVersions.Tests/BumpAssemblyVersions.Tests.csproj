@@ -131,10 +131,16 @@
     <Compile Include="Providers\VersionProviderTestsBase.cs" />
     <Compile Include="Providers\MultipartTimestampVersionProviderTests.cs" />
     <Compile Include="Providers\YearVersionProviderTests.cs" />
-    <Compile Include="Services\AssemblyFileVersionStreamBumpVersionServiceAttributeRegexTests.cs" />
-    <Compile Include="Services\AssemblyInformationalVersionStreamBumpVersionServiceAttributeRegexTests.cs" />
-    <Compile Include="Services\AssemblyVersionStreamBumpVersionServiceTests.cs" />
+    <Compile Include="Services\AssemblyFileVersionBumpVersionServiceAttributeRegexTests.cs" />
+    <Compile Include="Services\AssemblyInformationalVersionBumpVersionServiceAttributeRegexTests.cs" />
+    <Compile Include="Services\AssemblyVersionBumpVersionServiceTests.cs" />
     <Compile Include="Extensions\AttributeRegexExtensionMethods.cs" />
+    <Compile Include="Services\BumpVersionServiceAttributeRegexTests.Regexes.cs">
+      <DependentUpon>BumpVersionServiceAttributeRegexTests.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Services\BumpVersionServiceAttributeRegexTests.Supported.cs">
+      <DependentUpon>BumpVersionServiceAttributeRegexTests.cs</DependentUpon>
+    </Compile>
     <Compile Include="Services\LatestBuildInvocationService.cs" />
     <Compile Include="Services\MSBuildInvocationService.cs" />
     <Compile Include="Services\NuGetInvocationService.cs" />
