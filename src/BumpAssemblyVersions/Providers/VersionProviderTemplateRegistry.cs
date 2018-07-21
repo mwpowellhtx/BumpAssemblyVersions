@@ -8,7 +8,7 @@ namespace Bav
     using static Type;
     using static BindingFlags;
 
-    internal static class VersionProviderRegistry
+    internal static class VersionProviderTemplateRegistry
     {
         internal static IEnumerable<Type> GetProviderTypes()
         {
@@ -34,6 +34,8 @@ namespace Bav
 
         private static IDictionary<string, IVersionProvider> _providers;
 
+        // TODO: TBD: getting them here as a Dictionary; may consider whether an ExpandoObject would make sense...
+        // TODO: TBD: which may also be treated like a kind of string-keyed Dictionary
         internal static IDictionary<string, IVersionProvider> Providers
             => _providers
                ?? (_providers = GetProviders().ToDictionary(provider => provider.Name, provider => provider));
