@@ -7,14 +7,12 @@ namespace Bav
     /// <inheritdoc />
     public class BumpFileVersionServiceAdapter : IBumpFileVersionServiceAdapter
     {
-        private static bool TryBumpVersionsFromFile(string fullPath, out IEnumerable<string> bumpedLines
-            , params IAssemblyInfoBumpVersionService[] bumpVersionServices)
+        private static bool TryReadGivenLinesFromFile(string fullPath
+            , out IEnumerable<string> bumpedLines)
         {
             const FileMode mode = FileMode.Open;
             const FileAccess access = FileAccess.Read;
             const FileShare share = FileShare.Read;
-
-            var bumped = new List<bool>();
 
             using (var fs = File.Open(fullPath, mode, access, share))
             {
@@ -22,22 +20,34 @@ namespace Bav
                 {
                     // Replace the CR+LF first in order to avoid unnecessary empty lines after Split.
                     bumpedLines = sr.ReadToEnd().Replace(@"\r\n", @"\n").Split('\n');
+                    return true;
+                }
+            }
+        }
 
-                    // The cross-cutting concern are the Services across the Lines.
-                    foreach (var service in bumpVersionServices)
-                    {
-                        if (service.TryBumpVersion(bumpedLines, out var servicedLines).AddTo(bumped))
-                        {
-                            bumpedLines = servicedLines.ToArray();
-                        }
-                    }
+        private static bool TryBumpLinesGivenServices(IEnumerable<string> givenLines
+            , out IEnumerable<string> bumpedLines
+            , params IAssemblyInfoBumpVersionService[] bumpVersionServices)
+        {
+            var bumped = new List<bool>();
+
+            bumpedLines = givenLines;
+
+            // The cross-cutting concern are the Services across the Lines.
+            foreach (var service in bumpVersionServices)
+            {
+                // ReSharper disable once PossibleMultipleEnumeration
+                if (service.TryBumpVersion(bumpedLines, out var servicedLines).AddTo(bumped))
+                {
+                    bumpedLines = servicedLines.ToArray();
                 }
             }
 
             return bumped.Any(x => x);
         }
 
-        private static bool TryWriteBumpedLinesToFile(string fullPath, IEnumerable<string> bumpedLines)
+        private static bool TryWriteBumpedLinesToFile(string fullPath
+            , IEnumerable<string> bumpedLines)
         {
             const FileMode mode = FileMode.CreateNew;
             const FileAccess access = FileAccess.Write;
@@ -55,8 +65,10 @@ namespace Bav
         }
 
         /// <inheritdoc />
-        public bool TryBumpVersions(string fullPath, params IAssemblyInfoBumpVersionService[] bumpVersionServices)
-            => TryBumpVersionsFromFile(fullPath, out var bumpedLines, bumpVersionServices)
+        public bool TryBumpVersions(string fullPath
+            , params IAssemblyInfoBumpVersionService[] bumpVersionServices)
+            => TryReadGivenLinesFromFile(fullPath, out var givenLines)
+               && TryBumpLinesGivenServices(givenLines, out var bumpedLines, bumpVersionServices)
                && TryWriteBumpedLinesToFile(fullPath, bumpedLines);
     }
 }
