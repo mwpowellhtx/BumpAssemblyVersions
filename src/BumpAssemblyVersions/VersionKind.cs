@@ -3,6 +3,7 @@ using System.Linq;
 
 namespace Bav
 {
+    // TODO: TBD: thus far working through the AssemblyInfo bumps... will need to work on the Xml CSPROJ based bumps next...
     /// <summary>
     /// 
     /// </summary>
@@ -11,7 +12,17 @@ namespace Bav
         /// <summary>
         /// 
         /// </summary>
+        None,
+
+        /// <summary>
+        /// 
+        /// </summary>
         Version,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        FileVersion,
 
         /// <summary>
         /// 
@@ -26,12 +37,12 @@ namespace Bav
         /// <summary>
         /// 
         /// </summary>
-        FileVersion,
+        AssemblyFileVersion,
 
         /// <summary>
         /// 
         /// </summary>
-        AssemblyInfoVersion
+        AssemblyInformationVersion
     }
 
     /// <summary>
