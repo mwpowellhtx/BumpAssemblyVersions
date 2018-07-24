@@ -10,8 +10,8 @@ namespace Bav
     /// connected with <see cref="AssemblyFileVersionAttribute"/>.
     /// </summary>
     /// <inheritdoc />
-    public class AssemblyFileVersionBumpVersionServiceAttributeRegexTests
-        : BumpVersionServiceAttributeRegexTests<AssemblyFileVersionAttribute>
+    public class AssemblyInformationalVersionAssemblyInfoBumpVersionServiceTests
+        : AssemblyInfoBumpVersionServiceTests<AssemblyInformationalVersionAttribute>
     {
         // ReSharper disable once UnusedMember.Global
         /// <summary>
@@ -19,7 +19,7 @@ namespace Bav
         /// </summary>
         /// <param name="outputHelper"></param>
         /// <inheritdoc />
-        public AssemblyFileVersionBumpVersionServiceAttributeRegexTests(
+        public AssemblyInformationalVersionAssemblyInfoBumpVersionServiceTests(
             ITestOutputHelper outputHelper)
             : base(outputHelper)
         {

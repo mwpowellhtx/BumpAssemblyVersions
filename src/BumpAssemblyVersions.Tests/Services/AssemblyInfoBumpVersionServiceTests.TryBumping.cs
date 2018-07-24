@@ -16,7 +16,7 @@ namespace Bav
 
     // TODO: TBD: these are not simply "regex" tests any longer, so rename away from that in a subsequent near future commit...
     // ReSharper disable once UnusedTypeParameter
-    public abstract partial class BumpVersionServiceAttributeRegexTests<T>
+    public abstract partial class AssemblyInfoBumpVersionServiceTests<T>
     {
         /// <summary>
         /// Verifies the Try Bump functionality.

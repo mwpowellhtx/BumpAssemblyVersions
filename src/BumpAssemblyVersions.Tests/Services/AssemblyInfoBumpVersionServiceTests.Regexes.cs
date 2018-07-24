@@ -9,7 +9,7 @@ namespace Bav
     using static RegexOptions;
     using static ServiceMode;
 
-    public abstract partial class BumpVersionServiceAttributeRegexTests<T>
+    public abstract partial class AssemblyInfoBumpVersionServiceTests<T>
     {
         /// <summary>
         /// Verifies that the <see cref="Regex"/> matches.

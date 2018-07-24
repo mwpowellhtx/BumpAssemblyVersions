@@ -10,7 +10,7 @@ namespace Bav
     /// 
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public abstract partial class BumpVersionServiceAttributeRegexTests<T>
+    public abstract partial class AssemblyInfoBumpVersionServiceTests<T>
         where T : Attribute
     {
         /// <summary>
@@ -22,7 +22,7 @@ namespace Bav
         /// Protected Constructor.
         /// </summary>
         /// <param name="outputHelper"></param>
-        protected BumpVersionServiceAttributeRegexTests(ITestOutputHelper outputHelper)
+        protected AssemblyInfoBumpVersionServiceTests(ITestOutputHelper outputHelper)
         {
             OutputHelper = outputHelper;
         }

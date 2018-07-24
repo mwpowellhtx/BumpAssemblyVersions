@@ -8,7 +8,7 @@ namespace Bav
     using Xunit;
     using static BindingFlags;
 
-    public abstract partial class BumpVersionServiceAttributeRegexTests<T>
+    public abstract partial class AssemblyInfoBumpVersionServiceTests<T>
     {
         /// <summary>
         /// Verify that the
