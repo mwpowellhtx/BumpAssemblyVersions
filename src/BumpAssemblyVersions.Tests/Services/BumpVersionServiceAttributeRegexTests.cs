@@ -58,14 +58,14 @@ namespace Bav
         /// these lines.
         /// </summary>
         /// <param name="mode"></param>
+        /// <param name="descriptor"></param>
         /// <param name="verify"></param>
-        /// <param name="versionProviders"></param>
         /// <returns></returns>
-        internal static IAssemblyInfoBumpVersionService CreateFixture(ServiceMode mode
-            , Action<IAssemblyInfoBumpVersionService> verify = null
-            , params IVersionProvider[] versionProviders)
+        internal static IAssemblyInfoBumpVersionService CreateServiceFixture(ServiceMode mode
+            , IBumpVersionDescriptor descriptor = null
+            , Action<IAssemblyInfoBumpVersionService> verify = null)
         {
-            var serviceFixture = new AssemblyInfoBumpVersionServiceFixture<T>(versionProviders) {Mode = mode};
+            var serviceFixture = new AssemblyInfoBumpVersionServiceFixture<T>(descriptor) {Mode = mode};
 
             VerifyFixture(serviceFixture, mode);
 

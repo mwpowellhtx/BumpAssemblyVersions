@@ -10,7 +10,6 @@ namespace Bav
     using static ServiceMode;
 
     public abstract partial class BumpVersionServiceAttributeRegexTests<T>
-        where T : Attribute
     {
         /// <summary>
         /// Verifies that the <see cref="Regex"/> matches.
@@ -23,7 +22,7 @@ namespace Bav
          , MemberData(nameof(RegexMatchTestCases))]
         public void Verify_Regex_Match(ServiceMode mode, string given, string expectedVersion, bool shouldMatch)
         {
-            void VerifyServiceRegexes(IAssemblyInfoBumpVersionService service)
+            void VerifyServiceRegexes(IAssemblyInfoBumpVersionService s)
             {
                 IEnumerable<Action<Regex>> GetExpectedRegexVerification()
                 {
@@ -48,12 +47,12 @@ namespace Bav
                 }
 
                 // We should also be able to identify definitive Regular Expressions characteristics.
-                Assert.Collection(service.AttributeRegexes, GetExpectedRegexVerification().ToArray());
+                Assert.Collection(s.AttributeRegexes, GetExpectedRegexVerification().ToArray());
             }
 
-            var fixture = CreateFixture(mode, VerifyServiceRegexes);
+            var service = CreateServiceFixture(mode, verify: VerifyServiceRegexes);
 
-            Assert.Equal(shouldMatch, fixture.AttributeRegexes
+            Assert.Equal(shouldMatch, service.AttributeRegexes
                 .FilterMatch(given, shouldMatch)
                 .TryVerifyMatch(given, expectedVersion, shouldMatch));
         }
