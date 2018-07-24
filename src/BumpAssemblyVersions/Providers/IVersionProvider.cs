@@ -7,6 +7,7 @@ namespace Bav
     /// Version Provider defines a Strategy through which a Version element may
     /// <see cref="TryChange"/>.
     /// </summary>
+    /// <inheritdoc />
     public interface IVersionProvider : ICloneable
     {
         /// <summary>
