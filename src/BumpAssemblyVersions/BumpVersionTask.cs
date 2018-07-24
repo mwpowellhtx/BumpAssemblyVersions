@@ -84,7 +84,7 @@ namespace Bav
         {
             return new BumpFileVersionServiceAdapter().TryBumpVersions(sourceFileFullPath
                 , descriptors.Select(descriptor => new AssemblyInfoBumpVersionService<T>(
-                    descriptor.VersionProviders.ToArray())).ToArray<IAssemblyInfoBumpVersionService>());
+                    descriptor)).ToArray<IAssemblyInfoBumpVersionService>());
         }
 
         /// <summary>
