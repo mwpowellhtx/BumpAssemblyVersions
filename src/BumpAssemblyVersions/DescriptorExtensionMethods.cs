@@ -16,8 +16,10 @@ namespace Bav
     {
         internal static class MetadataNames
         {
+            internal const string UseUtc = nameof(UseUtc);
             internal const string CreateNew = nameof(CreateNew);
             internal const string IncludeWildcard = nameof(IncludeWildcard);
+            internal const string DefaultVersion = nameof(DefaultVersion);
         }
 
         /// <summary>
@@ -41,8 +43,10 @@ namespace Bav
                 }
             }
 
+            SetPropertyFromMetadata(UseUtc, bool.Parse, (d, x) => d.UseUtc = x);
             SetPropertyFromMetadata(CreateNew, bool.Parse, (d, x) => d.CreateNew = x);
             SetPropertyFromMetadata(IncludeWildcard, bool.Parse, (d, x) => d.IncludeWildcard = x);
+            SetPropertyFromMetadata(DefaultVersion, s => s, (d, s) => d.DefaultVersion = s);
 
             // TODO: TBD: from "VersionKind" we need to decide what the context is, whether an AssemblyInfo context, or for the new 2017 CSPROJ Xml format.
             var kind = item.ItemSpec.ToNullableVersionKind();
