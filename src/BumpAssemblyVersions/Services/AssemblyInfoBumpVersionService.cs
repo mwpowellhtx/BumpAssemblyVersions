@@ -68,7 +68,7 @@ namespace Bav
                 var se = $@"(a-zA-Z\d{hyp})+";
                 var xse = $@"({dot}{se})";
                 var semantic = $"(?<semantic>{se}{xse}*)";
-                return $@"\[assembly\: {attribName}\(""{version}({hyp}{semantic})?""\)\]";
+                return $@"\[assembly\: (?<attrib>{attribName})\(""{version}({hyp}{semantic})?""\)\]";
             }
 
             // There may be instances where it does not quite match the pattern.
@@ -96,44 +96,184 @@ namespace Bav
         }
 
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        private IEnumerable<IVersionProvider> VersionProviders { get; }
+        private IBumpVersionDescriptor BumpVersionDescriptor { get; }
 
-        internal AssemblyInfoBumpVersionService(params IVersionProvider[] versionProviders)
+        internal AssemblyInfoBumpVersionService(IBumpVersionDescriptor bumpVersionDescriptor)
         {
-            VersionProviders = versionProviders;
+            BumpVersionDescriptor = bumpVersionDescriptor;
         }
 
-        /// <summary>
-        /// Returns whether the <paramref name="givenLines"/> Contains Any of the
-        /// <paramref name="results"/> identified by the <see cref="AttributeRegexes"/> set of
-        /// <see cref="Regex"/> pattern matchers.
-        /// </summary>
-        /// <param name="givenLines"></param>
-        /// <param name="results"></param>
-        /// <returns></returns>
-        protected bool ContainsAttribute(IEnumerable<string> givenLines, out IEnumerable<BumpMatch> results)
-            => (results = givenLines.Select(
-                        l => BumpMatch.Create(AttributeRegexes.FirstOrDefault(regex => regex.IsMatch(l))?.Match(l), l)
-                    )
-                ).Any(x => x.IsMatch);
+        private class BumpResult
+        {
+            internal string Line { get; set; }
 
-        ///// <summary>
-        ///// Returns whether the file on the other end of the <paramref name="assyInfoFullPath"/>
-        ///// Contains any of the <paramref name="results"/>.
-        ///// </summary>
-        ///// <param name="assyInfoFullPath"></param>
-        ///// <param name="results"></param>
-        ///// <returns></returns>
-        ///// <see cref="StringBumpVersionServiceBase{T}.ContainsAttribute"/>
-        //private bool ContainsAttribute(string assyInfoFullPath, out IEnumerable<BumpMatch> results)
-        //    => ContainsAttribute(ReadLinesFromFile(assyInfoFullPath), out results);
+            internal string AttributeName { private get; set; }
+
+            internal string Result => Build();
+
+            /// <summary>
+            /// Whether DidBump is a reflection of whether <see cref="VersionString"/>
+            /// <see cref="IsNullOrEmpty"/>.
+            /// </summary>
+            internal bool DidBump => !IsNullOrEmpty(VersionString);
+
+            // TODO: TBD: may or may not need/want to maintain Version Element separation until the last Build moment...
+            internal string VersionString { private get; set; }
+
+            internal string SemanticString { private get; set; }
+
+            private string Build()
+            {
+                const char hyp = '-';
+                return IsNullOrEmpty(SemanticString)
+                    ? $"[assembly: {AttributeName}(\"{VersionString}\")]"
+                    : $"[assembly: {AttributeName}(\"{VersionString}{hyp}{SemanticString}\")]";
+            }
+        }
 
         /// <inheritdoc />
         public bool TryBumpVersion(IEnumerable<string> givenLines, out IEnumerable<string> resultLines)
         {
-            resultLines = givenLines.ToArray();
-            // TODO: TBD: examine the lines, may inject the Reflection using statement, bump the version, etc...
-            return false;
+            /* TODO: TBD: this whole regex-based approach is kind of a poor man's way of approaching
+             the issue, injecting lines "manually", etc. I'm not sure it would be worth involving
+             some sort of "diagnostic" or at least a Roslyn code analysis around the issue so that
+             at least syntactic elements are specified in a prescribed manner. Will reserve that
+             consideration for future work. */
+
+            bool TryBumpGivenLine(string line, out BumpResult result)
+            {
+                result = new BumpResult {Line = line};
+
+                var match = AttributeRegexes.Select(regex => regex.Match(line)).SingleOrDefault(m => m.Success);
+
+                if (match == null)
+                {
+                    return result.DidBump;
+                }
+
+                const char dot = '.';
+                const char wildcard = '*';
+
+                // ReSharper disable once LocalNameCapturedOnly
+                string attrib, version;
+
+                if (!(match.Groups.HasGroupName(nameof(attrib))
+                      || match.Groups.HasGroupName(nameof(version))
+                      || match.Groups[nameof(attrib)].Success
+                      || match.Groups[nameof(version)].Success))
+                {
+                    return result.DidBump;
+                }
+
+                // ReSharper disable once RedundantAssignment
+                result.AttributeName = attrib = match.Groups[nameof(attrib)].Value;
+
+                /* Capture this once and once only across the breadth of the request. Yes, we want
+                 to capture a whole new collection, because any prior matches in the same file will
+                 also need to have been bumped in a consistent manner, including any More Significant
+                 Providers in prior sequences. */
+
+                var versionProviders = BumpVersionDescriptor.VersionProviders.ToArray();
+
+                // TODO: TBD: should "wildcard" be a special field? potentially, it could even be its own Version Provider, i.e. WildcardVersionProvider ...
+                // TODO: TBD: which would be a long-handed way of saying "*" ... but it might make better sense than reading around the wildcard field ...
+                var versionElements = match.Groups[nameof(version)].Value.Split(dot);
+                var hasWildcard = versionElements.Any(x => x == $"{wildcard}");
+
+                var changedElements = versionElements
+                    .Take(versionElements.Length - (hasWildcard ? 1 : 0))
+                    .Zip(versionProviders.Take(versionElements.Length - (hasWildcard ? 1 : 0))
+                        , (x, p) => p.TryChange(x, out var y) ? y : x).ToArray();
+
+                result.VersionString = version = Join($"{dot}", changedElements);
+
+                if (hasWildcard)
+                {
+                    // ReSharper disable once RedundantAssignment
+                    result.VersionString = version = Join($"{dot}", version, $"{wildcard}");
+                }
+
+                /* TODO: TBD: there is a corner case in here whereby we would not necessarily want a
+                 Wildcard to coexist with a Semantic, but we will leave that go for the time being... */
+                string semantic;
+
+                // ReSharper disable once InvertIf
+                // Having the Group does not necessarily mean Successful Match.
+                if (match.Groups.HasGroupName(nameof(semantic))
+                    && match.Groups[nameof(semantic)].Success)
+                {
+                    semantic = match.Groups[nameof(semantic)].Value;
+
+                    // Semantic simply falls through as-is when there is no Provider given.
+                    var p = versionProviders.OfType<PreReleaseIncrementVersionProvider>().SingleOrDefault();
+
+                    if (p != null && p.TryChange(semantic, out var newSemantic))
+                    {
+                        result.SemanticString = newSemantic;
+                    }
+                }
+
+                return result.DidBump;
+            }
+
+            IEnumerable<string> BumpGivenLines(out int bumpCount, params string[] lines)
+            {
+                bumpCount = 0;
+                var bumpedLines = new List<string>();
+                foreach (var line in lines)
+                {
+                    bumpedLines.Add(line);
+
+                    if (!TryBumpGivenLine(line, out var result) || !result.DidBump)
+                    {
+                        continue;
+                    }
+
+                    ++bumpCount;
+                    bumpedLines[bumpedLines.Count - 1] = result.Result;
+                }
+
+                void AddUsingStatement()
+                {
+                    // Insert the Using Statement when there was not one before.
+                    var usingStatement = $"using {AttributeType.Namespace};";
+
+                    if (bumpedLines.Any(result => result == usingStatement))
+                    {
+                        return;
+                    }
+
+                    bumpedLines.Insert(0, usingStatement);
+                }
+
+                // TODO: TBD: the functionality could potentially go on the interface itself ?
+                string GetDefaultVersion(IBumpVersionDescriptor descriptor, string defaultDefaultVersion = null)
+                    => descriptor.DefaultVersion ?? (defaultDefaultVersion ?? $"{new Version(0, 0, 0)}");
+
+                if (bumpCount > 0)
+                {
+                    AddUsingStatement();
+                }
+                else if (bumpCount == 0
+                         && BumpVersionDescriptor.CreateNew
+                         && TryBumpGivenLine(
+                             $"[assembly: {AttributeType.ToShortName()}"
+                             + $"(\"{GetDefaultVersion(BumpVersionDescriptor)}\")]"
+                             , out var result))
+                {
+                    AddUsingStatement();
+
+                    bumpedLines.Add(result.Result);
+                    ++bumpCount;
+                }
+
+                return bumpedLines.ToArray();
+            }
+
+            // ReSharper disable once PossibleMultipleEnumeration
+            resultLines = BumpGivenLines(out var resultCount, givenLines.ToArray()).ToArray();
+
+            return resultCount > 0;
         }
     }
 }
