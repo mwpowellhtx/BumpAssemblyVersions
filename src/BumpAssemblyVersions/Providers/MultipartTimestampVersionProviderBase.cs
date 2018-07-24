@@ -19,8 +19,11 @@ namespace Bav
     /// The success of this Provider hingeson the dynamics of <see cref="MultipartCallbacks"/>
     /// having been specified depending on the use case.
     /// </summary>
-    /// <inheritdoc />
-    public abstract class MultipartTimestampVersionProviderBase : VersionProviderBase
+    /// <inheritdoc cref="VersionProviderBase" />
+    /// <inheritdoc cref="IMultipartVersionProvider" />
+    public abstract class MultipartTimestampVersionProviderBase
+        : VersionProviderBase
+            , IMultipartVersionProvider
     {
         /// <summary>
         /// Override with the Callbacks supported by this Provider.

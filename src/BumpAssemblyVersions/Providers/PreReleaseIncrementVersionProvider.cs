@@ -22,9 +22,12 @@ namespace Bav
     /// are considering this to be just one, single Identifier as far as the Semantic Versioning
     /// specification is concerned.
     /// </summary>
-    /// <inheritdoc />
+    /// <inheritdoc cref="IncrementVersionProvider" />
+    /// <inheritdoc cref="IPreReleaseIncrementVersionProvider" />
     /// <see cref="!:http://semver.org/"/>
-    public class PreReleaseIncrementVersionProvider : IncrementVersionProvider
+    public class PreReleaseIncrementVersionProvider
+        : IncrementVersionProvider
+            , IPreReleaseIncrementVersionProvider
     {
         /// <summary>
         /// Gets the Provider Name.
@@ -39,9 +42,7 @@ namespace Bav
                 .ToLower().Where(c => c >= 'a' && c <= 'z')
                 .Aggregate(Empty, (label, c) => label + $"{c}");
 
-        /// <summary>
-        /// Gets or sets the Pre-Release Label.
-        /// </summary>
+        /// <inheritdoc />
         public string Label
         {
             get => _label;
@@ -54,18 +55,14 @@ namespace Bav
 
         private int _valueWidth;
 
-        /// <summary>
-        /// Gets or sets the Pre-Release Value Width.
-        /// </summary>
+        /// <inheritdoc />
         public int ValueWidth
         {
             get => _valueWidth;
             set => _valueWidth = Max(ValueWidthMinimum, value);
         }
 
-        /// <summary>
-        /// Gets whether ShouldDiscard. This property has precedence over Version Bumping.
-        /// </summary>
+        /// <inheritdoc />
         public virtual bool ShouldDiscard { get; internal set; }
 
         /// <summary>
