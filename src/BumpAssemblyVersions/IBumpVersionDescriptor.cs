@@ -2,23 +2,60 @@
 
 namespace Bav
 {
-    internal interface IBumpVersionDescriptor
+    /// <summary>
+    /// 
+    /// </summary>
+    public interface IBumpVersionDescriptor
     {
+        /// <summary>
+        /// 
+        /// </summary>
         VersionKind Kind { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         IVersionProvider MajorProviderTemplate { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         IVersionProvider MinorProviderTemplate { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         IVersionProvider PatchProviderTemplate { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         IVersionProvider BuildProviderTemplate { get; }
 
+        /// <summary>
+        /// 
+        /// </summary>
         IVersionProvider ReleaseProviderTemplate { get; }
 
+        /// <summary>
+        /// Gets or sets whether to UseUtc.
+        /// </summary>
+        bool? UseUtc { get; set; }
+
+        /// <summary>
+        /// Gets or sets whether to CreateNew.
+        /// </summary>
         bool CreateNew { get; set; }
 
+        /// <summary>
+        /// Gets or sets whether to IncludeWildcard.
+        /// </summary>
         bool IncludeWildcard { get; set; }
+
+        /// <summary>
+        /// Gets or sets the DefaultVersion.
+        /// </summary>
+        string DefaultVersion { get; set; }
 
         /// <summary>
         /// Gets the set of <see cref="IVersionProvider"/> Templates. This collection should

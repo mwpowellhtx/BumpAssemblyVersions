@@ -7,61 +7,56 @@ namespace Bav
     using Microsoft.Build.Framework;
     using static DateTime;
 
-    internal class BumpVersionDescriptor : IBumpVersionDescriptor
+    internal partial class BumpVersionDescriptor : IBumpVersionDescriptor
     {
-        // TODO: TBD: once the providers are arranged, then the More Significant bits may be determined...
-        private ITaskItem Item { get; }
-
         // TODO: TBD: starting with Timestamp specified here at the Descriptor level ...
         // TODO: TBD: it may be preferrable to draw this from the task/build event(s) instead, if possible ...
-        private DateTime DescriptorTimestamp { get; } = Now;
+        protected DateTime DescriptorTimestamp { private get; set; } = Now;
 
+        /// <summary>
+        /// Internal Constructor.
+        /// </summary>
+        /// <param name="item">Once arranged we no longer require the <see cref="ITaskItem"/>.</param>
+        /// <see cref="DescriptorTimestamp"/>
         internal BumpVersionDescriptor(ITaskItem item)
         {
-            Item = item;
+            // Gets the Provider Template given the Item.
+            IVersionProvider Get(string request) => item.ToVersionProvider(request, DescriptorTimestamp);
+
+            MajorProviderTemplate = Get(nameof(MajorProviderTemplate));
+            MinorProviderTemplate = Get(nameof(MinorProviderTemplate));
+            PatchProviderTemplate = Get(nameof(PatchProviderTemplate));
+            BuildProviderTemplate = Get(nameof(BuildProviderTemplate));
+            ReleaseProviderTemplate = Get(nameof(ReleaseProviderTemplate));
         }
 
         // TODO: TBD: kind happens here agnostic of the Project file version, whether current msbuild/csharp, or legacy
         // TODO: TBD: will need to determine whether we're talking about csharp assembly attributes, or project file level Xml-style specs
         public VersionKind Kind { get; internal set; }
 
-        private IVersionProvider Get(ref IVersionProvider provider, string request)
-            => provider ?? (provider = Item.ToVersionProvider(request, DescriptorTimestamp));
+        // TODO: TBD: consider exposing an internal setter?
+        // TODO: TBD: possibly fixture-ize the descriptor?
+        public IVersionProvider MajorProviderTemplate { get; }
 
-        private IVersionProvider _majorProviderTemplate;
+        public IVersionProvider MinorProviderTemplate { get; }
 
-        public IVersionProvider MajorProviderTemplate => Get(
-            ref _majorProviderTemplate, nameof(MajorProviderTemplate));
+        public IVersionProvider PatchProviderTemplate { get; }
 
-        private IVersionProvider _minorProviderTemplate;
+        public IVersionProvider BuildProviderTemplate { get; }
 
-        public IVersionProvider MinorProviderTemplate => Get(
-            ref _minorProviderTemplate, nameof(MinorProviderTemplate));
+        public IVersionProvider ReleaseProviderTemplate { get; }
 
-        private IVersionProvider _patchProviderTemplate;
-
-        public IVersionProvider PatchProviderTemplate => Get(
-            ref _patchProviderTemplate, nameof(PatchProviderTemplate));
-
-        private IVersionProvider _buildProviderTemplate;
-
-        public IVersionProvider BuildProviderTemplate => Get(
-            ref _buildProviderTemplate, nameof(BuildProviderTemplate));
-
-        private IVersionProvider _releaseProviderTemplate;
-
-        public IVersionProvider ReleaseProviderTemplate => Get(
-            ref _releaseProviderTemplate, nameof(ReleaseProviderTemplate));
-
-        /// <summary>
-        /// Gets or sets whether to Create a New Version if one did not exist.
-        /// </summary>
+        /// <inheritdoc />
         public bool CreateNew { get; set; }
 
-        /// <summary>
-        /// Gets or sets whether to IncludeWildcard.
-        /// </summary>
+        /// <inheritdoc />
         public bool IncludeWildcard { get; set; }
+
+        /// <inheritdoc />
+        public string DefaultVersion { get; set; }
+
+        /// <inheritdoc />
+        public bool? UseUtc { get; set; }
 
         private IEnumerable<IVersionProvider> _versionProviderTemplates;
 
@@ -98,6 +93,13 @@ namespace Bav
                     }
                 }
 
+                VersionProviderBase CloneCurrent(IVersionProvider currentProvider)
+                {
+                    var clone = (VersionProviderBase) currentProvider.Clone();
+                    clone.SetTimestamp(DescriptorTimestamp, UseUtc);
+                    return clone;
+                }
+
                 VersionProviderBase GetCurrent(VersionProviderBase currentProvider
                     , params IVersionProvider[] moreSignificant)
                 {
@@ -105,8 +107,7 @@ namespace Bav
                     return currentProvider;
                 }
 
-                var clonedProviders = VersionProviderTemplates.Select(
-                    template => (VersionProviderBase) template.Clone()).ToList();
+                var clonedProviders = VersionProviderTemplates.Select(CloneCurrent).ToList();
 
                 foreach (var clonedProvider in clonedProviders)
                 {
