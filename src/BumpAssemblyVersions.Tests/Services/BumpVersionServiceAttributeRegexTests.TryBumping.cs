@@ -223,7 +223,7 @@ namespace Bav
                                         , $@"// Example
 {BuildVersionAttribUsage(name, $"{then.Year}.{then.Month}.{then.Day}")}
 // Fini"
-                                        , $@"using System.Reflection;
+                                        , $@"using {FixtureAttributeType.Namespace};
 // Example
 {BuildVersionAttribUsage(name, $"{now.Year}.{now.Month}.{now.Day}")}
 // Fini"
