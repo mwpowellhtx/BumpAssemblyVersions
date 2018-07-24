@@ -19,13 +19,13 @@ namespace Bav
                 using (var sr = new StreamReader(fs))
                 {
                     // Replace the CR+LF first in order to avoid unnecessary empty lines after Split.
-                    bumpedLines = sr.ReadToEnd().Replace(@"\r\n", @"\n").Split('\n');
+                    bumpedLines = sr.ReadToEnd().Replace("\r\n", "\n").Split('\n');
                     return true;
                 }
             }
         }
 
-        private static bool TryBumpLinesGivenServices(IEnumerable<string> givenLines
+        private static bool TryBumpGivenLinesServices(IEnumerable<string> givenLines
             , out IEnumerable<string> bumpedLines
             , params IAssemblyInfoBumpVersionService[] bumpVersionServices)
         {
@@ -68,7 +68,7 @@ namespace Bav
         public bool TryBumpVersions(string fullPath
             , params IAssemblyInfoBumpVersionService[] bumpVersionServices)
             => TryReadGivenLinesFromFile(fullPath, out var givenLines)
-               && TryBumpLinesGivenServices(givenLines, out var bumpedLines, bumpVersionServices)
+               && TryBumpGivenLinesServices(givenLines, out var bumpedLines, bumpVersionServices)
                && TryWriteBumpedLinesToFile(fullPath, bumpedLines);
     }
 }
