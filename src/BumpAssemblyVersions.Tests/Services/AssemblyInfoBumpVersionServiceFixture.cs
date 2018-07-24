@@ -10,8 +10,8 @@ namespace Bav
     internal class AssemblyInfoBumpVersionServiceFixture<T> : AssemblyInfoBumpVersionService<T>
         where T : Attribute
     {
-        internal AssemblyInfoBumpVersionServiceFixture(params IVersionProvider[] versionProviders)
-            : base(versionProviders)
+        internal AssemblyInfoBumpVersionServiceFixture(IBumpVersionDescriptor descriptor)
+            : base(descriptor)
         {
         }
     }
