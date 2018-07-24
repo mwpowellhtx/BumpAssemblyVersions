@@ -131,19 +131,19 @@
     <Compile Include="Providers\VersionProviderTestsBase.cs" />
     <Compile Include="Providers\MultipartTimestampVersionProviderTests.cs" />
     <Compile Include="Providers\YearVersionProviderTests.cs" />
-    <Compile Include="Services\AssemblyFileVersionBumpVersionServiceAttributeRegexTests.cs" />
-    <Compile Include="Services\AssemblyInformationalVersionBumpVersionServiceAttributeRegexTests.cs" />
-    <Compile Include="Services\AssemblyVersionBumpVersionServiceTests.cs" />
+    <Compile Include="Services\AssemblyFileVersionAssemblyInfoBumpVersionServiceTests.cs" />
+    <Compile Include="Services\AssemblyInformationalVersionAssemblyInfoBumpVersionServiceTests.cs" />
+    <Compile Include="Services\AssemblyVersionAssemblyInfoBumpVersionServiceTests.cs" />
     <Compile Include="Extensions\AttributeRegexExtensionMethods.cs" />
     <Compile Include="Services\BumpVersionDescriptorFixture.cs" />
-    <Compile Include="Services\BumpVersionServiceAttributeRegexTests.Regexes.cs">
-      <DependentUpon>BumpVersionServiceAttributeRegexTests.cs</DependentUpon>
+    <Compile Include="Services\AssemblyInfoBumpVersionServiceTests.Regexes.cs">
+      <DependentUpon>AssemblyInfoBumpVersionServiceTests.cs</DependentUpon>
     </Compile>
-    <Compile Include="Services\BumpVersionServiceAttributeRegexTests.Supported.cs">
-      <DependentUpon>BumpVersionServiceAttributeRegexTests.cs</DependentUpon>
+    <Compile Include="Services\AssemblyInfoBumpVersionServiceTests.Supported.cs">
+      <DependentUpon>AssemblyInfoBumpVersionServiceTests.cs</DependentUpon>
     </Compile>
-    <Compile Include="Services\BumpVersionServiceAttributeRegexTests.TryBumping.cs">
-      <DependentUpon>BumpVersionServiceAttributeRegexTests.cs</DependentUpon>
+    <Compile Include="Services\AssemblyInfoBumpVersionServiceTests.TryBumping.cs">
+      <DependentUpon>AssemblyInfoBumpVersionServiceTests.cs</DependentUpon>
     </Compile>
     <Compile Include="Services\LatestBuildInvocationService.cs" />
     <Compile Include="Services\MSBuildInvocationService.cs" />
@@ -152,7 +152,7 @@
     <Compile Include="Events\ToolsetRequiredEventArgs.cs" />
     <Compile Include="Providers\VersionProviderTemplateRegistryTests.cs" />
     <Compile Include="Services\AssemblyInfoBumpVersionServiceFixture.cs" />
-    <Compile Include="Services\BumpVersionServiceAttributeRegexTests.cs" />
+    <Compile Include="Services\AssemblyInfoBumpVersionServiceTests.cs" />
     <Compile Include="Extensions\ProviderExtensionMethods.cs" />
     <Compile Include="Services\UnsupportedAttribute.cs" />
     <Compile Include="Services\UnsupportedAttributeBumpVersionServiceTests.cs" />
