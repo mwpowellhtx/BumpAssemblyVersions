@@ -135,10 +135,14 @@
     <Compile Include="Services\AssemblyInformationalVersionBumpVersionServiceAttributeRegexTests.cs" />
     <Compile Include="Services\AssemblyVersionBumpVersionServiceTests.cs" />
     <Compile Include="Extensions\AttributeRegexExtensionMethods.cs" />
+    <Compile Include="Services\BumpVersionDescriptorFixture.cs" />
     <Compile Include="Services\BumpVersionServiceAttributeRegexTests.Regexes.cs">
       <DependentUpon>BumpVersionServiceAttributeRegexTests.cs</DependentUpon>
     </Compile>
     <Compile Include="Services\BumpVersionServiceAttributeRegexTests.Supported.cs">
+      <DependentUpon>BumpVersionServiceAttributeRegexTests.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Services\BumpVersionServiceAttributeRegexTests.TryBumping.cs">
       <DependentUpon>BumpVersionServiceAttributeRegexTests.cs</DependentUpon>
     </Compile>
     <Compile Include="Services\LatestBuildInvocationService.cs" />
@@ -146,9 +150,10 @@
     <Compile Include="Services\NuGetInvocationService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Events\ToolsetRequiredEventArgs.cs" />
-    <Compile Include="Providers\VersionProviderRegistryTests.cs" />
+    <Compile Include="Providers\VersionProviderTemplateRegistryTests.cs" />
     <Compile Include="Services\AssemblyInfoBumpVersionServiceFixture.cs" />
     <Compile Include="Services\BumpVersionServiceAttributeRegexTests.cs" />
+    <Compile Include="Extensions\ProviderExtensionMethods.cs" />
     <Compile Include="Services\UnsupportedAttribute.cs" />
     <Compile Include="Services\UnsupportedAttributeBumpVersionServiceTests.cs" />
     <Compile Include="Extensions\ExceptionExtensionMethods.cs" />
