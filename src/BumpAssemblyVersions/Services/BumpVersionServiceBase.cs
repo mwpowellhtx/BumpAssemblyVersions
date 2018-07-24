@@ -1,6 +1,4 @@
-﻿using System.Text.RegularExpressions;
-
-namespace Bav
+﻿namespace Bav
 {
     using static ServiceMode;
 
@@ -12,27 +10,6 @@ namespace Bav
     {
         /// <inheritdoc />
         public ServiceMode Mode { get; protected internal set; } = VersionElements;
-
-        // TODO: TBD: this one may need to be promoted to first class assembly wide entity...
-        /// <summary>
-        /// 
-        /// </summary>
-        protected class BumpMatch
-        {
-            internal string Line { get; }
-
-            internal Match Match { get; }
-
-            internal bool IsMatch => Match?.Success ?? false;
-
-            private BumpMatch(Match match, string line)
-            {
-                Match = match;
-                Line = line;
-            }
-
-            internal static BumpMatch Create(Match match, string line) => new BumpMatch(match, line);
-        }
 
         /// <summary>
         /// Indicates whether the Object IsDisposed.
