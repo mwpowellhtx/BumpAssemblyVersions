@@ -226,16 +226,19 @@ namespace Bav
                     {
                         foreach (var mode in GetServiceModes())
                         {
+                            const char dot = '.';
+                            const char hyp = '-';
+
                             switch (mode)
                             {
                                 case VersionElements:
                                     yield return GetOne(mode
                                         , $@"// Date/time based example: Year, Month, Day
-{BuildVersionAttribUsage(name, $"{then.Year}.{then.Month}.{then.Day}")}
+{BuildVersionAttribUsage(name, $"{then.Year}{dot}{then.Month}{dot}{then.Day}")}
 // Fini"
                                         , $@"using {FixtureAttributeType.Namespace};
 // Date/time based example: Year, Month, Day
-{BuildVersionAttribUsage(name, $"{now.Year}.{now.Month}.{now.Day}")}
+{BuildVersionAttribUsage(name, $"{now.Year}{dot}{now.Month}{dot}{now.Day}")}
 // Fini"
                                         , true, mayNotCreateNew, mayNotIncludeWildcard
                                         , yearVersionProvider, monthVersionProvider, dayVersionProvider).ToArray();
@@ -258,14 +261,14 @@ namespace Bav
                                         , $@"// Version and release elements example from RC to next RC
 {
                                                 BuildVersionAttribUsage(name
-                                                    , $"{new Version(majorValue, minorValue, patchValue, buildValue)}-{rc}{preReleaseValue}")
+                                                    , $"{new Version(majorValue, minorValue, patchValue, buildValue)}{hyp}{rc}{preReleaseValue}")
                                             }
 // Fini"
                                         , $@"using {FixtureAttributeType.Namespace};
 // Version and release elements example from RC to next RC
 {
                                                 BuildVersionAttribUsage(name
-                                                    , $"{new Version(majorValue, minorValue, patchValue + 1, buildValue + 1)}-{rc}{preReleaseValue + 1}")
+                                                    , $"{new Version(majorValue, minorValue, patchValue + 1, buildValue + 1)}{hyp}{rc}{preReleaseValue + 1}")
                                             }
 // Fini"
                                         , true, mayNotCreateNew, mayNotIncludeWildcard
@@ -283,14 +286,14 @@ namespace Bav
                                         , $@"// Version and release elements example from RC to RC (reset)
 {
                                                 BuildVersionAttribUsage(name
-                                                    , $"{new Version(majorValue, minorValue, patchValue, buildValue)}-{rc}{preReleaseValue}")
+                                                    , $"{new Version(majorValue, minorValue, patchValue, buildValue)}{hyp}{rc}{preReleaseValue}")
                                             }
 // Fini"
                                         , $@"using {FixtureAttributeType.Namespace};
 // Version and release elements example from RC to RC (reset)
 {
                                                 BuildVersionAttribUsage(name
-                                                    , $"{new Version(majorValue, minorValue, patchValue + 1, buildValue + 1)}-{rc}{preReleaseOne}")
+                                                    , $"{new Version(majorValue, minorValue, patchValue + 1, buildValue + 1)}{hyp}{rc}{preReleaseOne}")
                                             }
 // Fini"
                                         , true, mayNotCreateNew, mayNotIncludeWildcard
@@ -309,14 +312,14 @@ namespace Bav
                                         , $@"// Version and release elements example from Beta to RC
 {
                                                 BuildVersionAttribUsage(name
-                                                    , $"{new Version(majorValue, minorValue, patchValue, buildValue)}-{beta}{preReleaseValue + 1}")
+                                                    , $"{new Version(majorValue, minorValue, patchValue, buildValue)}{hyp}{beta}{preReleaseValue + 1}")
                                             }
 // Fini"
                                         , $@"using {FixtureAttributeType.Namespace};
 // Version and release elements example from Beta to RC
 {
                                                 BuildVersionAttribUsage(name
-                                                    , $"{new Version(majorValue, minorValue, patchValue + 1, buildValue + 1)}-{rc}{preReleaseOne:D4}")
+                                                    , $"{new Version(majorValue, minorValue, patchValue + 1, buildValue + 1)}{hyp}{rc}{preReleaseOne:D4}")
                                             }
 // Fini"
                                         , true, mayNotCreateNew, mayNotIncludeWildcard
