@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 namespace Bav
 {
     using static String;
+    using static VersionProviderTemplateRegistry;
     using static RegexOptions;
 
     internal class AssemblyInfoBumpVersionService<[
@@ -65,7 +66,8 @@ namespace Bav
                 const string ve = @"(\d)+";
                 var xve = $@"({dot}{ve})";
                 var version = $@"(?<version>{ve}{xve}({wc}|{xve}{wc}?|{xve}{{2}})?)";
-                var se = $@"(a-zA-Z\d{hyp})+";
+                // SE needs to be One Or More of Any of these Bits.
+                var se = $@"[a-zA-Z\d{hyp}]+";
                 var xse = $@"({dot}{se})";
                 var semantic = $"(?<semantic>{se}{xse}*)";
                 return $@"\[assembly\: (?<attrib>{attribName})\(""{version}({hyp}{semantic})?""\)\]";
@@ -204,12 +206,20 @@ namespace Bav
                 {
                     semantic = match.Groups[nameof(semantic)].Value;
 
-                    // Semantic simply falls through as-is when there is no Provider given.
-                    var p = versionProviders.OfType<PreReleaseIncrementVersionProvider>().SingleOrDefault();
+                    /* Semantic simply falls through as-is when there is no Provider given.
+                     However, not being given a Provider is effectively a NoOp. */
+                    var p = versionProviders.OfType<PreReleaseIncrementVersionProvider>().SingleOrDefault()
+                            ?? (IVersionProvider) Registry.NoOp;
 
-                    if (p != null && p.TryChange(semantic, out var newSemantic))
+                    if (p is PreReleaseIncrementVersionProvider preRelease
+                        && preRelease.TryChange(semantic, out var newSemantic))
                     {
                         result.SemanticString = newSemantic;
+                    }
+                    else
+                    {
+                        p.TryChange(semantic, out var noOpSemantic);
+                        result.SemanticString = noOpSemantic;
                     }
                 }
 
