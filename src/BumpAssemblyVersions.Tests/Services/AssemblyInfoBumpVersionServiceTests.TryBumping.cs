@@ -184,9 +184,10 @@ namespace Bav
 
                     var then = EnsureUniqueTimestamp(now);
 
-                    /* The aim here is not to prepare an exhaustive combinatorial involving the Version Providers,
-                     but rather to yield several representative examples, but which also demonstrate that integrated
-                     features are in fact also working as expected. */
+                    /* The aim here is not to prepare an exhaustive combinatorial involving the
+                     * Version Providers, but rather to yield several representative examples, but
+                     * which also demonstrate that integrated features are in fact also working as
+                     * expected. */
 
                     IVersionProvider dayVersionProvider = Registry.Day;
                     IVersionProvider monthVersionProvider = Registry.Month;
@@ -199,8 +200,9 @@ namespace Bav
                     //IVersionProvider deltaDays1990VersionProvider = Registry.DeltaDays1990;
                     //IVersionProvider deltaDays2000VersionProvider = Registry.DeltaDays2000;
                     //IVersionProvider deltaDays2010VersionProvider = Registry.DeltaDays2010;
-                    //IVersionProvider incrementVersionProvider = Registry.Increment;
-                    //IVersionProvider preReleaseIncrementVersionProvider = Registry.PreReleaseIncrement;
+                    IVersionProvider incrementVersionProvider = Registry.Increment;
+                    var preReleaseIncrementVersionProvider
+                        = (PreReleaseIncrementVersionProvider) Registry.PreReleaseIncrement;
                     //IVersionProvider secondsSinceMidnightVersionProvider = Registry.SecondsSinceMidnight;
                     //IVersionProvider hourMinuteVersionProvider = Registry.HourMinute;
                     //IVersionProvider monthDayOfMonthVersionProvider = Registry.MonthDayOfMonth;
@@ -209,6 +211,14 @@ namespace Bav
 
                     const bool mayNotCreateNew = false;
                     const bool mayNotIncludeWildcard = false;
+
+                    IVersionProvider CloneProvider<TProvider>(TProvider provider, Action<TProvider> init = null)
+                        where TProvider : class, IVersionProvider
+                    {
+                        var clone = (TProvider) provider.Clone();
+                        init?.Invoke(clone);
+                        return clone;
+                    }
 
                     // The service should respect the given Name, whether Shorthand or Longhand.
                     foreach (var name in GetEnumeratedValues(FixtureAttributeType.ToShortName()
@@ -220,15 +230,106 @@ namespace Bav
                             {
                                 case VersionElements:
                                     yield return GetOne(mode
-                                        , $@"// Example
+                                        , $@"// Date/time based example: Year, Month, Day
 {BuildVersionAttribUsage(name, $"{then.Year}.{then.Month}.{then.Day}")}
 // Fini"
                                         , $@"using {FixtureAttributeType.Namespace};
-// Example
+// Date/time based example: Year, Month, Day
 {BuildVersionAttribUsage(name, $"{now.Year}.{now.Month}.{now.Day}")}
 // Fini"
                                         , true, mayNotCreateNew, mayNotIncludeWildcard
                                         , yearVersionProvider, monthVersionProvider, dayVersionProvider).ToArray();
+                                    break;
+
+                                case VersionAndReleaseElements:
+
+                                    const int majorValue = 1;
+                                    const int minorValue = 2;
+                                    const int patchValue = 34;
+                                    const int buildValue = 567;
+
+                                    const string rc = nameof(rc);
+                                    const string beta = nameof(beta);
+
+                                    const int preReleaseOne = 1;
+                                    const int preReleaseValue = 2;
+
+                                    yield return GetOne(mode
+                                        , $@"// Version and release elements example from RC to next RC
+{
+                                                BuildVersionAttribUsage(name
+                                                    , $"{new Version(majorValue, minorValue, patchValue, buildValue)}-{rc}{preReleaseValue}")
+                                            }
+// Fini"
+                                        , $@"using {FixtureAttributeType.Namespace};
+// Version and release elements example from RC to next RC
+{
+                                                BuildVersionAttribUsage(name
+                                                    , $"{new Version(majorValue, minorValue, patchValue + 1, buildValue + 1)}-{rc}{preReleaseValue + 1}")
+                                            }
+// Fini"
+                                        , true, mayNotCreateNew, mayNotIncludeWildcard
+                                        , patchProviderTemplate: CloneProvider(incrementVersionProvider)
+                                        , buildProviderTemplate: CloneProvider(incrementVersionProvider)
+                                        , releaseProviderTemplate: CloneProvider(
+                                            preReleaseIncrementVersionProvider
+                                            , privp =>
+                                            {
+                                                privp.Label = rc;
+                                                privp.ValueWidth = 1;
+                                            })).ToArray();
+
+                                    yield return GetOne(mode
+                                        , $@"// Version and release elements example from RC to RC (reset)
+{
+                                                BuildVersionAttribUsage(name
+                                                    , $"{new Version(majorValue, minorValue, patchValue, buildValue)}-{rc}{preReleaseValue}")
+                                            }
+// Fini"
+                                        , $@"using {FixtureAttributeType.Namespace};
+// Version and release elements example from RC to RC (reset)
+{
+                                                BuildVersionAttribUsage(name
+                                                    , $"{new Version(majorValue, minorValue, patchValue + 1, buildValue + 1)}-{rc}{preReleaseOne}")
+                                            }
+// Fini"
+                                        , true, mayNotCreateNew, mayNotIncludeWildcard
+                                        , patchProviderTemplate: CloneProvider(incrementVersionProvider)
+                                        , buildProviderTemplate: CloneProvider(incrementVersionProvider)
+                                        , releaseProviderTemplate: CloneProvider(
+                                            preReleaseIncrementVersionProvider
+                                            , privp =>
+                                            {
+                                                privp.MayReset = true;
+                                                privp.Label = rc;
+                                                privp.ValueWidth = 1;
+                                            })).ToArray();
+
+                                    yield return GetOne(mode
+                                        , $@"// Version and release elements example from Beta to RC
+{
+                                                BuildVersionAttribUsage(name
+                                                    , $"{new Version(majorValue, minorValue, patchValue, buildValue)}-{beta}{preReleaseValue + 1}")
+                                            }
+// Fini"
+                                        , $@"using {FixtureAttributeType.Namespace};
+// Version and release elements example from Beta to RC
+{
+                                                BuildVersionAttribUsage(name
+                                                    , $"{new Version(majorValue, minorValue, patchValue + 1, buildValue + 1)}-{rc}{preReleaseOne:D4}")
+                                            }
+// Fini"
+                                        , true, mayNotCreateNew, mayNotIncludeWildcard
+                                        , patchProviderTemplate: CloneProvider(incrementVersionProvider)
+                                        , buildProviderTemplate: CloneProvider(incrementVersionProvider)
+                                        , releaseProviderTemplate: CloneProvider(
+                                            preReleaseIncrementVersionProvider
+                                            , privp =>
+                                            {
+                                                privp.Label = rc;
+                                                privp.ValueWidth = 4;
+                                            })).ToArray();
+
                                     break;
                             }
                         }
