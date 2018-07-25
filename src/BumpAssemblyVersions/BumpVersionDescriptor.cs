@@ -9,6 +9,8 @@ namespace Bav
 
     internal partial class BumpVersionDescriptor : IBumpVersionDescriptor
     {
+        public Guid Id { get; } = Guid.NewGuid();
+
         // TODO: TBD: starting with Timestamp specified here at the Descriptor level ...
         // TODO: TBD: it may be preferrable to draw this from the task/build event(s) instead, if possible ...
         protected DateTime DescriptorTimestamp { private get; set; } = Now;

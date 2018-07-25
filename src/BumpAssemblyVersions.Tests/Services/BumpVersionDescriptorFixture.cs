@@ -41,5 +41,12 @@ namespace Bav
             )
         {
         }
+
+        /// <summary>
+        /// See also <see cref="BumpVersionDescriptor.Id"/>.
+        /// </summary>
+        /// <returns></returns>
+        /// <see cref="BumpVersionDescriptor.Id"/>
+        public override string ToString() => $"{Id:D}";
     }
 }
