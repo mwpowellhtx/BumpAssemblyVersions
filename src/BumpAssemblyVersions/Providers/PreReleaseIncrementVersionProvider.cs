@@ -72,7 +72,10 @@ namespace Bav
         /// <inheritdoc />
         // ReSharper disable once SuggestBaseTypeForParameter, UnusedMember.Local
         private PreReleaseIncrementVersionProvider(PreReleaseIncrementVersionProvider other)
-            : base(other) => Initialize();
+            : base(other)
+        {
+            Copy(other);
+        }
 
         /// <summary>
         /// Internal Default Constructor.
@@ -88,6 +91,13 @@ namespace Bav
         {
             ValueWidth = DefaultValueWidth;
             ShouldDiscard = false;
+        }
+
+        private void Copy(IPreReleaseIncrementVersionProvider other)
+        {
+            Label = other.Label;
+            ValueWidth = other.ValueWidth;
+            ShouldDiscard = other.ShouldDiscard;
         }
 
         private static readonly Regex ElementRegex = new Regex(
