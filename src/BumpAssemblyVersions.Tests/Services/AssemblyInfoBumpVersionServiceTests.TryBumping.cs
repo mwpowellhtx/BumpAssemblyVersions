@@ -189,10 +189,10 @@ namespace Bav
                      * which also demonstrate that integrated features are in fact also working as
                      * expected. */
 
-                    IVersionProvider dayVersionProvider = Registry.Day;
-                    IVersionProvider monthVersionProvider = Registry.Month;
-                    IVersionProvider yearVersionProvider = Registry.Year;
-                    //IVersionProvider shortYearVersionProvider = Registry.ShortYear;
+                    var dayVersionProvider = (IVersionProvider) Registry.Day;
+                    var monthVersionProvider = (IVersionProvider) Registry.Month;
+                    var yearVersionProvider = (IVersionProvider) Registry.Year;
+                    var shortYearVersionProvider = (IVersionProvider) Registry.ShortYear;
                     //IVersionProvider dayOfYearVersionProvider = Registry.DayOfYear;
                     //IVersionProvider deltaDays1900VersionProvider = Registry.DeltaDays1900;
                     //IVersionProvider deltaDays1970VersionProvider = Registry.DeltaDays1970;
@@ -200,17 +200,20 @@ namespace Bav
                     //IVersionProvider deltaDays1990VersionProvider = Registry.DeltaDays1990;
                     //IVersionProvider deltaDays2000VersionProvider = Registry.DeltaDays2000;
                     //IVersionProvider deltaDays2010VersionProvider = Registry.DeltaDays2010;
-                    IVersionProvider incrementVersionProvider = Registry.Increment;
+                    var incrementVersionProvider = (IVersionProvider) Registry.Increment;
                     var preReleaseIncrementVersionProvider
                         = (PreReleaseIncrementVersionProvider) Registry.PreReleaseIncrement;
                     //IVersionProvider secondsSinceMidnightVersionProvider = Registry.SecondsSinceMidnight;
-                    //IVersionProvider hourMinuteVersionProvider = Registry.HourMinute;
-                    //IVersionProvider monthDayOfMonthVersionProvider = Registry.MonthDayOfMonth;
+                    var hourMinuteVersionProvider = (IVersionProvider) Registry.HourMinute;
+                    var monthDayOfMonthVersionProvider = (IVersionProvider) Registry.MonthDayOfMonth;
                     //IVersionProvider yearDayOfYearVersionProvider = Registry.YearDayOfYear;
                     //IVersionProvider shortYearDayOfYearVersionProvider = Registry.ShortYearDayOfYear;
 
                     const bool mayNotCreateNew = false;
                     const bool mayNotIncludeWildcard = false;
+
+                    const char dot = '.';
+                    const char hyp = '-';
 
                     IVersionProvider CloneProvider<TProvider>(TProvider provider, Action<TProvider> init = null)
                         where TProvider : class, IVersionProvider
@@ -226,12 +229,23 @@ namespace Bav
                     {
                         foreach (var mode in GetServiceModes())
                         {
-                            const char dot = '.';
-                            const char hyp = '-';
-
                             switch (mode)
                             {
                                 case VersionElements:
+
+                                    const int one = 1;
+
+                                    yield return GetOne(mode
+                                        , $@"// Simple Increment example: One, Plus One, Plus Two, Increment
+{BuildVersionAttribUsage(name, $"{one}{dot}{one + 1}{dot}{one + 2}{dot}{one}")}
+// Fini"
+                                        , $@"using {FixtureAttributeType.Namespace};
+// Simple Increment example: One, Plus One, Plus Two, Increment
+{BuildVersionAttribUsage(name, $"{one}{dot}{one + 1}{dot}{one + 2}{dot}{one + 1}")}
+// Fini"
+                                        , true, mayNotCreateNew, mayNotIncludeWildcard
+                                        , buildProviderTemplate: incrementVersionProvider).ToArray();
+
                                     yield return GetOne(mode
                                         , $@"// Date/time based example: Year, Month, Day
 {BuildVersionAttribUsage(name, $"{then.Year}{dot}{then.Month}{dot}{then.Day}")}
@@ -242,6 +256,29 @@ namespace Bav
 // Fini"
                                         , true, mayNotCreateNew, mayNotIncludeWildcard
                                         , yearVersionProvider, monthVersionProvider, dayVersionProvider).ToArray();
+
+                                    const int zero = 0;
+                                    const int hundred = 100;
+
+                                    yield return GetOne(mode
+                                        , $@"// Date/time based example: Short Year, Month Day of Month, Hour Minute, One (Should Reset to Zero)
+{
+                                                BuildVersionAttribUsage(name,
+                                                    $"{then.Year % hundred:D02}{dot}{then.Month:D02}{then.Day:D02}{dot}{then.Hour:D02}{then.Minute:D02}{dot}{one}")
+                                            }
+// Fini"
+                                        , $@"using {FixtureAttributeType.Namespace};
+// Date/time based example: Short Year, Month Day of Month, Hour Minute, One (Should Reset to Zero)
+{
+                                                BuildVersionAttribUsage(name,
+                                                    $"{now.Year % hundred:D02}{dot}{now.Month:D02}{now.Day:D02}{dot}{now.Hour:D02}{now.Minute:D02}{dot}{zero}")
+                                            }
+// Fini"
+                                        , true, mayNotCreateNew, mayNotIncludeWildcard
+                                        , shortYearVersionProvider
+                                        , monthDayOfMonthVersionProvider, hourMinuteVersionProvider
+                                        , CloneProvider(incrementVersionProvider, x => x.MayReset = true)).ToArray();
+
                                     break;
 
                                 case VersionAndReleaseElements:
