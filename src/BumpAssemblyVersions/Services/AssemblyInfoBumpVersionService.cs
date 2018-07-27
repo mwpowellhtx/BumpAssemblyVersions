@@ -153,6 +153,7 @@ namespace Bav
                     return result.DidBump;
                 }
 
+                // TODO: TBD: provide hooks whether to 1) Support Wildcard, and 2) Supports Pre-Release Semantic Version.
                 const char dot = '.';
                 const char wildcard = '*';
 
