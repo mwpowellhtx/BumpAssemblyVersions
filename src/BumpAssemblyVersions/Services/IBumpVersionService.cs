@@ -12,5 +12,10 @@ namespace Bav
         /// Gets the Mode.
         /// </summary>
         ServiceMode Mode { get; }
+
+        /// <summary>
+        /// Gets the Descriptor.
+        /// </summary>
+        IBumpVersionDescriptor Descriptor { get; }
     }
 }

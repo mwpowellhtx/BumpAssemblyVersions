@@ -11,6 +11,18 @@
         /// <inheritdoc />
         public ServiceMode Mode { get; protected internal set; } = VersionElements;
 
+        /// <inheritdoc />
+        public IBumpVersionDescriptor Descriptor { get; }
+
+        /// <summary>
+        /// Protected Constructor.
+        /// </summary>
+        /// <param name="descriptor"></param>
+        protected BumpVersionServiceBase(IBumpVersionDescriptor descriptor)
+        {
+            Descriptor = descriptor;
+        }
+
         /// <summary>
         /// Indicates whether the Object IsDisposed.
         /// </summary>
