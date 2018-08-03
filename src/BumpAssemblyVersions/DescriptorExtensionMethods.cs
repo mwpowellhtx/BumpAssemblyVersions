@@ -5,6 +5,7 @@ using System.Linq;
 namespace Bav
 {
     using Microsoft.Build.Framework;
+    using Microsoft.Build.Utilities;
     using static DescriptorExtensionMethods.MetadataNames;
     using static String;
 
@@ -27,8 +28,10 @@ namespace Bav
         /// <paramref name="item"/>.
         /// </summary>
         /// <param name="item"></param>
+        /// <param name="log"></param>
         /// <returns></returns>
-        internal static BumpVersionDescriptor ToDescriptor(this ITaskItem item)
+        internal static BumpVersionDescriptor ToDescriptor(this ITaskItem item
+            , TaskLoggingHelper log = null)
         {
             // TODO: TBD: To Descriptor? used in what way?
             var descriptor = new BumpVersionDescriptor(item);
@@ -48,72 +51,33 @@ namespace Bav
             SetPropertyFromMetadata(IncludeWildcard, bool.Parse, (d, x) => d.IncludeWildcard = x);
             SetPropertyFromMetadata(DefaultVersion, s => s, (d, s) => d.DefaultVersion = s);
 
-            // TODO: TBD: from "VersionKind" we need to decide what the context is, whether an AssemblyInfo context, or for the new 2017 CSPROJ Xml format.
-            var kind = item.ItemSpec.ToNullableVersionKind();
-
-            if (kind == null)
+            // TODO: TBD: look into it, see if there is a way that Property Groups could be used instead, i.e. that do not appear as "project items" ...
+            // TODO: TBD: they must include attributes, etc...
+            VersionKind ParseVersionKind(string s)
             {
+                var kind = s.ToNullableVersionKind();
+
+                if (kind != null)
+                {
+                    return kind.Value;
+                }
+
                 IEnumerable<string> GetVersionKindListing()
                     => from k in Enum.GetValues(typeof(VersionKind)).OfType<VersionKind>()
                         select $"'{k}'";
 
                 throw new InvalidOperationException(
-                    $"Expecting '{nameof(ITaskItem.ItemSpec)}' to be among: {{ {Join(", ", GetVersionKindListing())} }}"
+                    $"Expecting '{typeof(ITaskItem).FullName + '.' + nameof(ITaskItem.ItemSpec)}' to be among: {{ {Join(", ", GetVersionKindListing())} }}"
                 );
             }
 
-            descriptor.Kind = kind.Value;
+            descriptor.Kind = ParseVersionKind(item.ItemSpec);
+
+#if TASK_LOGGING_HELPER_DIAGNOSTICS
+            log?.LogWarning($"Parsed version kind '{descriptor.Kind}'.");
+#endif
 
             return descriptor;
         }
-
-        //private static void SetProviderTimestamp(this IVersionProvider provider
-        //    , DateTime timestamp, bool? useUtc = null)
-        //    => provider?.SetTimestamp(timestamp, useUtc);
-
-        // TODO: TBD: I know what I was driving at with these, but it may not be the best placement for it...
-        //internal static void SetMajorProviderTimestamp(this BumpVersionDescriptor descriptor
-        //    , DateTime timestamp, bool? useUtc = null)
-        //    => descriptor.MajorProvider.SetProviderTimestamp(timestamp, useUtc);
-
-        //internal static void SetMinorProviderTimestamp(this BumpVersionDescriptor descriptor
-        //    , DateTime timestamp, bool? useUtc = null)
-        //    => descriptor.MinorProvider.SetProviderTimestamp(timestamp, useUtc);
-
-        //internal static void SetPatchProviderTimestamp(this BumpVersionDescriptor descriptor
-        //    , DateTime timestamp, bool? useUtc = null)
-        //    => descriptor.PatchProvider.SetProviderTimestamp(timestamp, useUtc);
-
-        //internal static void SetBuildProviderTimestamp(this BumpVersionDescriptor descriptor
-        //    , DateTime timestamp, bool? useUtc = null)
-        //    => descriptor.BuildProvider.SetProviderTimestamp(timestamp, useUtc);
-
-        //internal static void SetReleaseProviderTimestamp(this BumpVersionDescriptor descriptor
-        //    , DateTime timestamp, bool? useUtc = null)
-        //    => descriptor.ReleaseProvider.SetProviderTimestamp(timestamp, useUtc);
-
-        ///// <summary>
-        ///// Call in order to Set the <see cref="IVersionProvider.MayReset"/> value. Null
-        ///// propagation usage dictates that we are guaranteed an instance.
-        ///// </summary>
-        ///// <param name="provider"></param>
-        ///// <param name="mayReset"></param>
-        //private static void SetProviderMayReset(this IVersionProvider provider, bool mayReset)
-        //    => provider.MayReset = mayReset;
-
-        //internal static void SetMajorProviderMayReset(this BumpVersionDescriptor descriptor, bool mayReset)
-        //    => descriptor.MajorProvider?.SetProviderMayReset(mayReset);
-
-        //internal static void SetMinorProviderMayReset(this BumpVersionDescriptor descriptor, bool mayReset)
-        //    => descriptor.MinorProvider?.SetProviderMayReset(mayReset);
-
-        //internal static void SetPatchProviderMayReset(this BumpVersionDescriptor descriptor, bool mayReset)
-        //    => descriptor.PatchProvider?.SetProviderMayReset(mayReset);
-
-        //internal static void SetBuildProviderMayReset(this BumpVersionDescriptor descriptor, bool mayReset)
-        //    => descriptor.BuildProvider?.SetProviderMayReset(mayReset);
-
-        //internal static void SetReleaseProviderMayReset(this BumpVersionDescriptor descriptor, bool mayReset)
-        //    => descriptor.ReleaseProvider?.SetProviderMayReset(mayReset);
     }
 }
