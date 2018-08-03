@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+
+  <UsingTask AssemblyFile="..\..\BumpAssemblyVersions.dll" TaskName="Bav.BumpVersion" />
+
+  <!-- ReSharper disable once UnknownProperty -->
+  <Target Name="BavBeforeBuild" BeforeTargets="BeforeBuild" Condition="!Exists($(BavLockFilePath))">
+
+    <!-- MSBuild Items / https://msdn.microsoft.com/en-us/library/ms171453.aspx -->
+    <!-- MSBuild Properties1 / https://msdn.microsoft.com/en-us/library/ms171458.aspx -->
+    <!-- Task Writing / https://msdn.microsoft.com/en-us/library/t9883dzc.aspx -->
+    <!-- https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild -->
+    <!-- https://docs.microsoft.com/en-us/visualstudio/msbuild/msbuild-transforms -->
+
+    <!--BumpMajor="$(BumpMajor)"-->
+    <!--BumpMinor="$(BumpMinor)"-->
+    <!--BumpPatch="$(BumpPatch)"-->
+    <!--BumpRevision="$(BumpRevision)"-->
+    <!--BumpLabel="$(BumpLabel)"-->
+    <!--ResetMajor="$(BumpResetMajor)"-->
+    <!--ResetMinor="$(BumpResetMinor)"-->
+    <!--ResetPatch="$(BumpResetPatch)"-->
+    <!--ResetRevision="$(BumpResetRevision)"-->
+    <!--ResetLabel="$(BumpResetLabel)"-->
+    <!--LabelDigits="$(BumpLabelDigits)"-->
+
+    <ItemGroup>
+      <FilesToBump Condition="Exists('Properties\AssemblyInfo.cs')" Include="Properties\AssemblyInfo.cs" />
+    </ItemGroup>
+
+    <!-- ReSharper disable once UnknownTask, UnknownItemGroup -->
+    <BumpVersion Configuration="$(Configuration)" Bumps="@(BumpVersionSpec)" Files="@(FilesToBump)" ProjectFullPath="$(ProjectPath)" />
+    
+    <Message Text="This is a test" />
+    <Message Text="This is only a test" />
+
+  </Target>
+
+  <PropertyGroup>
+    <BumpAssemblyVersionsLoaded>true</BumpAssemblyVersionsLoaded>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- TODO: TBD: it would be better to do this here, but does not seem to happen. So must be done at the CSPROJ level. -->
+    <BumpVersionSpec Update="@(BumpVersionSpec)" Visible="False" />
+    <FilesToBump Update="@(FilesToBump)" Visible="False" />
+  </ItemGroup>
+
+</Project>
