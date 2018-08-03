@@ -26,8 +26,7 @@ namespace Bav
             }
         }
 
-        private static bool TryBumpGivenLinesServices(string fullPath
-            , IEnumerable<string> givenLines
+        private static bool TryBumpGivenLinesServices(IEnumerable<string> givenLines
             , out IEnumerable<string> bumpedLines
             , params IAssemblyInfoBumpVersionService[] bumpVersionServices)
         {
@@ -39,7 +38,7 @@ namespace Bav
             foreach (var service in bumpVersionServices)
             {
                 // ReSharper disable once PossibleMultipleEnumeration
-                if (service.TryBumpVersion(fullPath, bumpedLines, out var servicedLines).AddTo(bumped))
+                if (service.TryBumpVersion(bumpedLines, out var servicedLines).AddTo(bumped))
                 {
                     bumpedLines = servicedLines.ToArray();
                 }
@@ -70,7 +69,7 @@ namespace Bav
         public bool TryBumpVersions(string fullPath
             , params IAssemblyInfoBumpVersionService[] bumpVersionServices)
             => TryReadGivenLinesFromFile(fullPath, out var givenLines)
-               && TryBumpGivenLinesServices(fullPath, givenLines, out var bumpedLines, bumpVersionServices)
+               && TryBumpGivenLinesServices(givenLines, out var bumpedLines, bumpVersionServices)
                && TryWriteBumpedLinesToFile(fullPath, bumpedLines);
     }
 }
