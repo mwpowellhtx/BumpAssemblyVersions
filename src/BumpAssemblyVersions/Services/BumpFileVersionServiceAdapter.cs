@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace Bav
 {
+    // TODO: TBD: this still may be the right thing to do here...
     /// <inheritdoc />
     public class BumpFileVersionServiceAdapter : IBumpFileVersionServiceAdapter
     {
@@ -25,7 +26,8 @@ namespace Bav
             }
         }
 
-        private static bool TryBumpGivenLinesServices(IEnumerable<string> givenLines
+        private static bool TryBumpGivenLinesServices(string fullPath
+            , IEnumerable<string> givenLines
             , out IEnumerable<string> bumpedLines
             , params IAssemblyInfoBumpVersionService[] bumpVersionServices)
         {
@@ -37,7 +39,7 @@ namespace Bav
             foreach (var service in bumpVersionServices)
             {
                 // ReSharper disable once PossibleMultipleEnumeration
-                if (service.TryBumpVersion(bumpedLines, out var servicedLines).AddTo(bumped))
+                if (service.TryBumpVersion(fullPath, bumpedLines, out var servicedLines).AddTo(bumped))
                 {
                     bumpedLines = servicedLines.ToArray();
                 }
@@ -49,7 +51,7 @@ namespace Bav
         private static bool TryWriteBumpedLinesToFile(string fullPath
             , IEnumerable<string> bumpedLines)
         {
-            const FileMode mode = FileMode.CreateNew;
+            const FileMode mode = FileMode.OpenOrCreate;
             const FileAccess access = FileAccess.Write;
             const FileShare share = FileShare.Read;
 
@@ -68,7 +70,7 @@ namespace Bav
         public bool TryBumpVersions(string fullPath
             , params IAssemblyInfoBumpVersionService[] bumpVersionServices)
             => TryReadGivenLinesFromFile(fullPath, out var givenLines)
-               && TryBumpGivenLinesServices(givenLines, out var bumpedLines, bumpVersionServices)
+               && TryBumpGivenLinesServices(fullPath, givenLines, out var bumpedLines, bumpVersionServices)
                && TryWriteBumpedLinesToFile(fullPath, bumpedLines);
     }
 }
