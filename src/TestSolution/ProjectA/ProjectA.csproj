@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <BumpAssemblyVersionFullPath>$(MSBuildProjectDirectory)\..\..\BumpAssemblyVersions\bin\$(Configuration)\netstandard2.0\BumpAssemblyVersions.dll</BumpAssemblyVersionFullPath>    
+    <BumpAssemblyVersionFullPath>$(SolutionDir)..\BumpAssemblyVersions\bin\$(Configuration)\netstandard2.0\BumpAssemblyVersions.dll</BumpAssemblyVersionFullPath>    
   </PropertyGroup>
 
   <UsingTask AssemblyFile="$(BumpAssemblyVersionFullPath)" TaskName="Bav.BumpVersion" />
