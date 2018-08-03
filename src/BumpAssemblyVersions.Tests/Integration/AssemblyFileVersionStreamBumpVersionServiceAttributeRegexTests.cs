@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 
-namespace Bav.Integration
+namespace Bav
 {
     using Xunit;
     using Xunit.Abstractions;
