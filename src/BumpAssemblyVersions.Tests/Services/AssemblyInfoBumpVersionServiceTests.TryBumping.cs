@@ -99,7 +99,7 @@ namespace Bav
 
                         if (typeof(T) == typeof(AssemblyInformationalVersionAttribute))
                         {
-                            return AssemblyInformationVersion;
+                            return AssemblyInformationalVersion;
                         }
 
                         // ReSharper disable once ConvertIfStatementToReturnStatement
