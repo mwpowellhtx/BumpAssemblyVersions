@@ -19,6 +19,7 @@ namespace Bav
         /// </summary>
         Version,
 
+        // ReSharper disable UnusedMember.Global
         /// <summary>
         /// 
         /// </summary>
@@ -42,7 +43,7 @@ namespace Bav
         /// <summary>
         /// 
         /// </summary>
-        AssemblyInformationVersion
+        AssemblyInformationalVersion
     }
 
     /// <summary>
@@ -56,8 +57,7 @@ namespace Bav
         /// <param name="s"></param>
         /// <returns></returns>
         public static VersionKind ToVersionKind(this string s)
-            => Enum.GetValues(typeof(VersionKind))
-                .OfType<VersionKind>().Single(x => $"{x}" == s);
+            => s.ToNullableVersionKind() ?? VersionKind.None;
 
         /// <summary>
         /// 
@@ -65,7 +65,16 @@ namespace Bav
         /// <param name="s"></param>
         /// <returns></returns>
         public static VersionKind? ToNullableVersionKind(this string s)
-            => Enum.GetValues(typeof(VersionKind))
-                .OfType<VersionKind?>().SingleOrDefault(x => $"{x.Value}" == s);
+        {
+            foreach (VersionKind x in Enum.GetValues(typeof(VersionKind)))
+            {
+                if ($"{x}" == s)
+                {
+                    return x;
+                }
+            }
+
+            return null;
+        }
     }
 }
