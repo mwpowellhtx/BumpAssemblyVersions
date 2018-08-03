@@ -6,6 +6,7 @@ namespace Bav
 {
     using Microsoft.Build.Framework;
     using static DateTime;
+    using static VersionKind;
 
     internal partial class BumpVersionDescriptor : IBumpVersionDescriptor
     {
@@ -16,12 +17,19 @@ namespace Bav
         protected DateTime DescriptorTimestamp { private get; set; } = Now;
 
         /// <summary>
+        /// Gets the BumpPath.
+        /// </summary>
+        public string BumpPath { get; }
+
+        /// <summary>
         /// Internal Constructor.
         /// </summary>
         /// <param name="item">Once arranged we no longer require the <see cref="ITaskItem"/>.</param>
         /// <see cref="DescriptorTimestamp"/>
         internal BumpVersionDescriptor(ITaskItem item)
         {
+            BumpPath = item.ItemSpec;
+
             // Gets the Provider Template given the Item.
             IVersionProvider Get(string request) => item.ToVersionProvider(request, DescriptorTimestamp);
 
@@ -34,7 +42,7 @@ namespace Bav
 
         // TODO: TBD: kind happens here agnostic of the Project file version, whether current msbuild/csharp, or legacy
         // TODO: TBD: will need to determine whether we're talking about csharp assembly attributes, or project file level Xml-style specs
-        public VersionKind Kind { get; internal set; }
+        public VersionKind Kind { get; internal set; } = None;
 
         // TODO: TBD: consider exposing an internal setter?
         // TODO: TBD: possibly fixture-ize the descriptor?
