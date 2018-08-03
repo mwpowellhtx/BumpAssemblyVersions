@@ -107,7 +107,7 @@
       <Link>Properties\CommonAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Events\BuildResultEventArgs.cs" />
-    <Compile Include="BumpVersionTests.cs" />
+    <Compile Include="Integration\BumpVersionBuildIntegrationTests.cs" />
     <Compile Include="Events\ConfigureBuildEventArgs.cs" />
     <Compile Include="Events\ConfigureEnvironmentVariablesEventArgs.cs" />
     <Compile Include="Integration\AssemblyFileVersionStreamBumpVersionServiceAttributeRegexTests.cs" />
@@ -146,7 +146,9 @@
       <DependentUpon>AssemblyInfoBumpVersionServiceTests.cs</DependentUpon>
     </Compile>
     <Compile Include="Services\LatestBuildInvocationService.cs" />
+    <Compile Include="Services\LatestBuildInvocationServiceFactory.cs" />
     <Compile Include="Services\MSBuildInvocationService.cs" />
+    <Compile Include="Services\MSBuildInvocationServiceFactory.cs" />
     <Compile Include="Services\NuGetInvocationService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Events\ToolsetRequiredEventArgs.cs" />
