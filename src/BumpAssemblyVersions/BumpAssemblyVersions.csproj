@@ -72,6 +72,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="build\net472\BumpAssemblyVersions.targets">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="BumpVersionTask.Input.cs">
       <DependentUpon>BumpVersionTask.cs</DependentUpon>
     </Compile>
