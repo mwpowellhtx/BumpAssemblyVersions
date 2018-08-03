@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using Microsoft.Build.Utilities;
 
 namespace Bav
 {
@@ -28,6 +30,8 @@ namespace Bav
             => typeof(AssemblyInfoBumpVersionService<>).GetGenericArguments()
                 .First().GetCustomAttributes<ConstrainGenericTypesAttribute>()
                 .SelectMany(constraint => constraint.AllowedTypes);
+
+        public TaskLoggingHelper Log { get; set; }
 
         // ReSharper disable once StaticMemberInGenericType
         /// <summary>
@@ -70,7 +74,7 @@ namespace Bav
                 var se = $@"[a-zA-Z\d{hyp}]+";
                 var xse = $@"({dot}{se})";
                 var semantic = $"(?<semantic>{se}{xse}*)";
-                return $@"\[assembly\: (?<attrib>{attribName})\(""{version}({hyp}{semantic})?""\)\]";
+                return $@"^\[assembly\: (?<attrib>{attribName})\(""{version}({hyp}{semantic})?""\)\]$";
             }
 
             // There may be instances where it does not quite match the pattern.
@@ -97,41 +101,29 @@ namespace Bav
             );
         }
 
-        // ReSharper disable once UnusedAutoPropertyAccessor.Local
-        private IBumpVersionDescriptor BumpVersionDescriptor { get; }
-
         internal AssemblyInfoBumpVersionService(IBumpVersionDescriptor bumpVersionDescriptor)
+            : base(bumpVersionDescriptor)
         {
-            BumpVersionDescriptor = bumpVersionDescriptor;
         }
 
-        private class BumpResult
-        {
-            internal string Line { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <inheritdoc />
+        public event EventHandler<UsingStatementAddedEventArgs> UsingStatementAdded;
 
-            internal string AttributeName { private get; set; }
+        private void OnUsingStatementAdded(string usingStatement)
+            => UsingStatementAdded?.Invoke(this
+                , new UsingStatementAddedEventArgs(usingStatement));
 
-            internal string Result => Build();
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <inheritdoc />
+        public event EventHandler<BumpResultEventArgs> BumpResultFound;
 
-            /// <summary>
-            /// Whether DidBump is a reflection of whether <see cref="VersionString"/>
-            /// <see cref="IsNullOrEmpty"/>.
-            /// </summary>
-            internal bool DidBump => !IsNullOrEmpty(VersionString);
-
-            // TODO: TBD: may or may not need/want to maintain Version Element separation until the last Build moment...
-            internal string VersionString { private get; set; }
-
-            internal string SemanticString { private get; set; }
-
-            private string Build()
-            {
-                const char hyp = '-';
-                return IsNullOrEmpty(SemanticString)
-                    ? $"[assembly: {AttributeName}(\"{VersionString}\")]"
-                    : $"[assembly: {AttributeName}(\"{VersionString}{hyp}{SemanticString}\")]";
-            }
-        }
+        private void OnBumpResultFound(BumpResult result)
+            => BumpResultFound?.Invoke(this, new BumpResultEventArgs(result));
 
         /// <inheritdoc />
         public bool TryBumpVersion(IEnumerable<string> givenLines, out IEnumerable<string> resultLines)
@@ -144,7 +136,12 @@ namespace Bav
 
             bool TryBumpGivenLine(string line, out BumpResult result)
             {
-                result = new BumpResult {Line = line};
+
+#if TASK_LOGGING_HELPER_DIAGNOSTICS
+                Log?.LogWarning($"Trying to bump given line '{line}'.");
+#endif
+
+                result = new BumpResult {AttributeType = AttributeType, Line = line};
 
                 var match = AttributeRegexes.Select(regex => regex.Match(line)).SingleOrDefault(m => m.Success);
 
@@ -176,11 +173,11 @@ namespace Bav
                  also need to have been bumped in a consistent manner, including any More Significant
                  Providers in prior sequences. */
 
-                var versionProviders = BumpVersionDescriptor.VersionProviders.ToArray();
+                var versionProviders = Descriptor.VersionProviders.ToArray();
 
                 // TODO: TBD: should "wildcard" be a special field? potentially, it could even be its own Version Provider, i.e. WildcardVersionProvider ...
                 // TODO: TBD: which would be a long-handed way of saying "*" ... but it might make better sense than reading around the wildcard field ...
-                var versionElements = match.Groups[nameof(version)].Value.Split(dot);
+                var versionElements = (result.OldVersionString = match.Groups[nameof(version)].Value).Split(dot);
                 var hasWildcard = versionElements.Any(x => x == $"{wildcard}");
 
                 var changedElements = versionElements
@@ -205,7 +202,7 @@ namespace Bav
                 if (match.Groups.HasGroupName(nameof(semantic))
                     && match.Groups[nameof(semantic)].Success)
                 {
-                    semantic = match.Groups[nameof(semantic)].Value;
+                    semantic = result.OldSemanticString = match.Groups[nameof(semantic)].Value;
 
                     /* Semantic simply falls through as-is when there is no Provider given.
                      However, not being given a Provider is effectively a NoOp. */
@@ -237,8 +234,19 @@ namespace Bav
 
                     if (!TryBumpGivenLine(line, out var result) || !result.DidBump)
                     {
+
+#if TASK_LOGGING_HELPER_DIAGNOSTICS
+                        Log?.LogWarning($"Did not bump line '{line}'.");
+#endif
+
                         continue;
                     }
+
+#if TASK_LOGGING_HELPER_DIAGNOSTICS
+                    Log?.LogWarning($"Did bump line '{result.Result}'.");
+#endif
+
+                    OnBumpResultFound(result);
 
                     ++bumpCount;
                     bumpedLines[bumpedLines.Count - 1] = result.Result;
@@ -254,6 +262,8 @@ namespace Bav
                         return;
                     }
 
+                    OnUsingStatementAdded(usingStatement);
+
                     bumpedLines.Insert(0, usingStatement);
                 }
 
@@ -266,16 +276,23 @@ namespace Bav
                     AddUsingStatement();
                 }
                 else if (bumpCount == 0
-                         && BumpVersionDescriptor.CreateNew
+                         && Descriptor.CreateNew
                          && TryBumpGivenLine(
                              $"[assembly: {AttributeType.ToShortName()}"
-                             + $"(\"{GetDefaultVersion(BumpVersionDescriptor)}\")]"
+                             + $"(\"{GetDefaultVersion(Descriptor)}\")]"
                              , out var result))
                 {
+
+#if TASK_LOGGING_HELPER_DIAGNOSTICS
+                    Log?.LogWarning($"Creating new version '{result.Result}'.");
+#endif
+
                     AddUsingStatement();
 
-                    bumpedLines.Add(result.Result);
+                    OnBumpResultFound(result);
+
                     ++bumpCount;
+                    bumpedLines.Add(result.Result);
                 }
 
                 return bumpedLines.ToArray();
