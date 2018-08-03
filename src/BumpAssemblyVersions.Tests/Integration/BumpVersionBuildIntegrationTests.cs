@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Microsoft.Build.Execution;
-using Microsoft.Build.Framework;
 
 namespace Bav
 {
@@ -11,32 +10,34 @@ namespace Bav
     using Xunit.Abstractions;
     using static Environment;
     using static BuildResultCode;
-    using static LoggerVerbosity;
 
     /// <summary>
-    /// 
+    /// Building also requires that we ensure that the packages are fully restored. Unfortunately,
+    /// however, this appears to be a step apart from the build service itself.
     /// </summary>
     /// <inheritdoc cref="IClassFixture{T}" />
-    public class BumpVersionTests : IClassFixture<NuGetInvocationService>
+    public class BumpVersionBuildIntegrationTests
+        : IClassFixture<NuGetInvocationService>
+            , IClassFixture<LatestBuildInvocationServiceFactory>
     {
         private ITestOutputHelper OutputHelper { get; }
 
-        private NuGetInvocationService NugetInvocationService { get; }
+        private NuGetInvocationService NuGetInvocationService { get; }
 
         private MSBuildInvocationService BuildInvocationService { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="nugetInvocationService"></param>
+        /// <param name="nuGetInvocationService"></param>
+        /// <param name="buildInvocationServiceFactory"></param>
         /// <param name="outputHelper"></param>
-        public BumpVersionTests(NuGetInvocationService nugetInvocationService, ITestOutputHelper outputHelper)
+        public BumpVersionBuildIntegrationTests(NuGetInvocationService nuGetInvocationService
+            , LatestBuildInvocationServiceFactory buildInvocationServiceFactory, ITestOutputHelper outputHelper)
         {
             OutputHelper = outputHelper;
-            NugetInvocationService = nugetInvocationService;
-            //const LoggerVerbosity desiredVerbosity = Diagnostic;
-            const LoggerVerbosity desiredVerbosity = Normal;
-            BuildInvocationService = new LatestBuildInvocationService(outputHelper, desiredVerbosity);
+            NuGetInvocationService = nuGetInvocationService;
+            BuildInvocationService = buildInvocationServiceFactory.GetService(outputHelper);
         }
 
         //// TODO: TBD: the whole mocking thing was also an attempt to work through the issue
@@ -130,7 +131,7 @@ namespace Bav
                 BuildInvocationService.ConfigureBuild += ConfigureBuildCallback;
                 BuildInvocationService.AfterBuild += AfterBuildCallback;
 
-                NugetInvocationService.Restore(projOrSlnFullPath);
+                NuGetInvocationService.Restore(projOrSlnFullPath);
 
                 BuildInvocationService.Run();
             }
@@ -154,8 +155,13 @@ namespace Bav
             {
                 IEnumerable<object[]> Get()
                 {
-                    var assy = typeof(BumpVersionTests).Assembly;
+                    var assy = typeof(BumpVersionBuildIntegrationTests).Assembly;
                     var assyDir = new FileInfo(assy.Location).Directory;
+                    Assert.NotNull(assyDir);
+                    Assert.NotNull(assyDir.Parent);
+                    Assert.NotNull(assyDir.Parent.Parent);
+                    Assert.NotNull(assyDir.Parent.Parent.Parent);
+                    // TODO: TBD: we want the one solution? or each of the projects?
                     var slnPath = assyDir.Parent.Parent.Parent
                         .GetDirectories("TestSolution").Single()
                         .GetFiles("TestSolution.sln").Single().FullName;
