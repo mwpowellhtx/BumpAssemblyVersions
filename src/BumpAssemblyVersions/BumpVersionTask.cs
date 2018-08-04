@@ -87,8 +87,6 @@ namespace Bav
                     descriptor)).ToArray<IAssemblyInfoBumpVersionService>());
         }
 
-        private static bool Exists(ITaskItem item) => File.Exists(item.ItemSpec);
-
         private static bool TryReadingFileLines(string fullPath, out IEnumerable<string> lines)
         {
             const FileMode mode = FileMode.Open;
@@ -127,11 +125,11 @@ namespace Bav
         /// 
         /// </summary>
         /// <param name="bumps"></param>
-        /// <param name="files"></param>
+        /// <param name="filePaths"></param>
         /// <param name="log"></param>
         /// <returns></returns>
         internal bool TryExecuteAssemblyInfoBumpVersion(IEnumerable<ITaskItem> bumps
-            , IEnumerable<ITaskItem> files, TaskLoggingHelper log = null)
+            , IEnumerable<string> filePaths, TaskLoggingHelper log = null)
         {
             /* BuildEngine.ProjectFileOfTaskNode seems prone to reporting the Targets file,
              * when what we want is the CSPROJ itself. */
@@ -160,10 +158,9 @@ namespace Bav
                        + $" to '{e.Result.VersionAndSemanticString}'";
             }
 
-            foreach (var fileItem in files.Where(Exists))
+            foreach (var fullPath in filePaths.Where(Exists))
             {
                 var bumped = false;
-                var fullPath = fileItem.ItemSpec;
 
                 // ReSharper disable once InvertIf
                 if (TryReadingFileLines(fullPath, out var givenLines))
@@ -250,6 +247,6 @@ namespace Bav
         /// <returns></returns>
         /// <inheritdoc />
         public override bool Execute()
-            => TryExecuteAssemblyInfoBumpVersion(Bumps, Files, WithHelper(Log));
+            => TryExecuteAssemblyInfoBumpVersion(Bumps, Files.Select(file => file.ItemSpec), WithHelper(Log));
     }
 }
