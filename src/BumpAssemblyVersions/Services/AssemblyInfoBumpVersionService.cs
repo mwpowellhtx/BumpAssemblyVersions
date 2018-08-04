@@ -31,8 +31,6 @@ namespace Bav
                 .First().GetCustomAttributes<ConstrainGenericTypesAttribute>()
                 .SelectMany(constraint => constraint.AllowedTypes);
 
-        public TaskLoggingHelper Log { get; set; }
-
         // ReSharper disable once StaticMemberInGenericType
         /// <summary>
         /// Gets the set of SupportedAttributeTypes based on the
@@ -116,17 +114,7 @@ namespace Bav
             => UsingStatementAdded?.Invoke(this
                 , new UsingStatementAddedEventArgs(usingStatement));
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <inheritdoc />
-        public event EventHandler<BumpResultEventArgs> BumpResultFound;
-
-        private void OnBumpResultFound(BumpResult result)
-            => BumpResultFound?.Invoke(this, new BumpResultEventArgs(result));
-
-        /// <inheritdoc />
-        public bool TryBumpVersion(IEnumerable<string> givenLines, out IEnumerable<string> resultLines)
+        public override bool TryBumpVersion(IEnumerable<string> givenLines, out IEnumerable<string> resultLines)
         {
             /* TODO: TBD: this whole regex-based approach is kind of a poor man's way of approaching
              the issue, injecting lines "manually", etc. I'm not sure it would be worth involving

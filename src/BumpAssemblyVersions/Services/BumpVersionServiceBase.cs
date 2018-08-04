@@ -1,5 +1,9 @@
-﻿namespace Bav
+﻿using System;
+using System.Collections.Generic;
+
+namespace Bav
 {
+    using Microsoft.Build.Utilities;
     using static ServiceMode;
 
     /// <summary>
@@ -14,6 +18,8 @@
         /// <inheritdoc />
         public IBumpVersionDescriptor Descriptor { get; }
 
+        public TaskLoggingHelper Log { get; set; }
+
         /// <summary>
         /// Protected Constructor.
         /// </summary>
@@ -22,6 +28,22 @@
         {
             Descriptor = descriptor;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <inheritdoc />
+        public event EventHandler<BumpResultEventArgs> BumpResultFound;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="result"></param>
+        protected void OnBumpResultFound(BumpResult result)
+            => BumpResultFound?.Invoke(this, new BumpResultEventArgs(result));
+
+        /// <inheritdoc />
+        public abstract bool TryBumpVersion(IEnumerable<string> givenLines, out IEnumerable<string> resultLines);
 
         /// <summary>
         /// Indicates whether the Object IsDisposed.
