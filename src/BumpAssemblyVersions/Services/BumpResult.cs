@@ -4,43 +4,48 @@ namespace Bav
 {
     using static String;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public class BumpResult
+    /// <inheritdoc />
+    public abstract class BumpResult : IBumpResult
     {
-        internal Type AttributeType { get; set; }
-
-        internal string Line { get; set; }
-
-        internal string AttributeName { private get; set; }
-
-        internal string Original => $"[assembly: {AttributeName}(\"{OldVersionAndSemanticString}\")]";
-
-        internal string Result => $"[assembly: {AttributeName}(\"{VersionAndSemanticString}\")]";
+        /// <inheritdoc />
+        public IBumpVersionDescriptor Descriptor { get; private set; }
 
         /// <summary>
         /// Whether DidBump is a reflection of whether <see cref="VersionString"/>
         /// <see cref="IsNullOrEmpty"/>.
         /// </summary>
-        internal bool DidBump => !IsNullOrEmpty(VersionString);
+        /// <inheritdoc />
+        public bool DidBump => !IsNullOrEmpty(VersionString);
 
-        internal string OldVersionString { private get; set; }
+        /// <inheritdoc />
+        public string OldVersionString { private get; set; }
 
-        internal string OldSemanticString { private get; set; }
+        /// <inheritdoc />
+        public string OldSemanticString { private get; set; }
 
-        internal string OldVersionAndSemanticString
-            => BuildVersionAndSemanticString(OldVersionString, OldSemanticString);
+        /// <inheritdoc />
+        public string OldVersionAndSemanticString => BuildVersionAndSemanticString(OldVersionString, OldSemanticString);
 
         // TODO: TBD: may or may not need/want to maintain Version Element separation until the last Build moment...
-        internal string VersionString { private get; set; }
+        /// <inheritdoc />
+        public string VersionString { private get; set; }
 
-        internal string SemanticString { private get; set; }
+        /// <inheritdoc />
+        public string SemanticString { private get; set; }
 
-        internal string VersionAndSemanticString
-            => BuildVersionAndSemanticString(VersionString, SemanticString);
+        /// <inheritdoc />
+        public string VersionAndSemanticString => BuildVersionAndSemanticString(VersionString, SemanticString);
 
         private static string BuildVersionAndSemanticString(string versionString, string semanticString, char hyp = '-')
             => IsNullOrEmpty(semanticString) ? versionString : $"{versionString}{hyp}{semanticString}";
+
+        /// <summary>
+        /// Protected Constructor.
+        /// </summary>
+        /// <param name="descriptor"></param>
+        protected BumpResult(IBumpVersionDescriptor descriptor)
+        {
+            Descriptor = descriptor;
+        }
     }
 }
