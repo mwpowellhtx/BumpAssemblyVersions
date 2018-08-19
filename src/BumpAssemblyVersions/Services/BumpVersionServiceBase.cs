@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace Bav
 {
@@ -18,6 +17,7 @@ namespace Bav
         /// <inheritdoc />
         public IBumpVersionDescriptor Descriptor { get; }
 
+        /// <inheritdoc />
         public TaskLoggingHelper Log { get; set; }
 
         /// <summary>
@@ -29,9 +29,6 @@ namespace Bav
             Descriptor = descriptor;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
         /// <inheritdoc />
         public event EventHandler<BumpResultEventArgs> BumpResultFound;
 
@@ -39,11 +36,8 @@ namespace Bav
         /// 
         /// </summary>
         /// <param name="result"></param>
-        protected void OnBumpResultFound(BumpResult result)
+        protected void OnBumpResultFound(IBumpResult result)
             => BumpResultFound?.Invoke(this, new BumpResultEventArgs(result));
-
-        /// <inheritdoc />
-        public abstract bool TryBumpVersion(IEnumerable<string> givenLines, out IEnumerable<string> resultLines);
 
         /// <summary>
         /// Indicates whether the Object IsDisposed.
