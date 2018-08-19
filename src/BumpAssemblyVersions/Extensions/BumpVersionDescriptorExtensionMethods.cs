@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace Bav
 {
@@ -16,7 +18,7 @@ namespace Bav
         /// <param name="descriptor"></param>
         /// <param name="log"></param>
         /// <returns></returns>
-        public static IAssemblyInfoBumpVersionService MakeGetAssemblyInfoBumpVersionService(
+        public static IAssemblyInfoBumpVersionService MakeAssemblyInfoBumpVersionService(
             this IBumpVersionDescriptor descriptor, TaskLoggingHelper log = null)
         {
             // ReSharper disable once SwitchStatementMissingSomeCases
@@ -52,6 +54,30 @@ namespace Bav
 #endif
 
             return null;
+        }
+
+        /// <summary>
+        /// Returns the <see cref="IProjectBasedBumpVersionService"/> corresponding with the
+        /// <paramref name="descriptor"/>.
+        /// </summary>
+        /// <param name="descriptor"></param>
+        /// <param name="log"></param>
+        /// <returns></returns>
+        public static IProjectBasedBumpVersionService MakeProjectBasedBumpVersionService(
+            this IBumpVersionDescriptor descriptor, TaskLoggingHelper log = null)
+        {
+            IEnumerable<VersionKind> GetKinds()
+            {
+                yield return VersionKind.Version;
+                yield return AssemblyVersion;
+                yield return FileVersion;
+                yield return InformationalVersion;
+                yield return PackageVersion;
+            }
+
+            return GetKinds().Contains(descriptor.Kind)
+                ? new ProjectBasedBumpVersionService(descriptor) {Log = log}
+                : null;
         }
     }
 }
