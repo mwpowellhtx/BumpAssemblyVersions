@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml;
 using System.Xml.Linq;
 using Microsoft.Build.Framework;
 
@@ -11,8 +12,9 @@ namespace Bav
     using Microsoft.Build.Utilities;
     using static File;
     using static String;
+    using static XNode;
     using static MessageImportance;
-    using static StringSplitOptions;
+    using static VersionKind;
 
     /// <summary>
     /// 
@@ -87,7 +89,7 @@ namespace Bav
                     descriptor)).ToArray<IAssemblyInfoBumpVersionService>());
         }
 
-        private static bool TryReadingFileLines(string fullPath, out IEnumerable<string> lines)
+        private static bool TryReadingFile(string fullPath, out string lines)
         {
             const FileMode mode = FileMode.Open;
             const FileAccess access = FileAccess.Read;
@@ -97,47 +99,86 @@ namespace Bav
             {
                 using (var sr = new StreamReader(fs))
                 {
-                    lines = sr.ReadToEndAsync().Result.Replace("\r\n", "\n").Split(new[] { "\n" }, None);
+                    lines = sr.ReadToEndAsync().Result;
                 }
             }
 
-            return lines.Any();
+            return !IsNullOrEmpty(lines);
         }
 
-        private static bool TryWritingFileLines(string fullPath, params string[] lines)
+        private static bool TryReadingFileLines(string fullPath, out IEnumerable<string> lines)
         {
-            const FileMode mode = FileMode.OpenOrCreate;
-            const FileAccess access = FileAccess.Write;
-            const FileShare share = FileShare.Read;
+            var tried = TryReadingFile(fullPath, out var s);
 
-            using (var fs = Open(fullPath, mode, access, share))
+            const StringSplitOptions none = StringSplitOptions.None;
+            lines = s.Replace("\r\n", "\n").Split(new[] {"\n"}, none);
+
+            return tried && lines.Any();
+        }
+
+        /// <summary>
+        /// Tries to Write the <paramref name="s"/> text to the <paramref name="fullPath"/> file.
+        /// </summary>
+        /// <param name="fullPath"></param>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        /// <remarks>After experimenting, <see cref="FileMode.OpenOrCreate"/> is not what
+        /// we wanted here after all. In fact, <see cref="FileMode.Create"/> is the perfect
+        /// operation for the job.</remarks>
+        /// <see cref="WriteAllText(string,string)"/>
+        /// <see cref="!:http://docs.microsoft.com/en-us/dotnet/api/system.io.filemode?view=netframework-4.7.2#fields"/>
+        private bool TryWritingFile(string fullPath, string s)
+        {
+            try
             {
-                using (var sr = new StreamWriter(fs))
+                const FileMode mode = FileMode.Create;
+                const FileAccess access = FileAccess.Write;
+                const FileShare share = FileShare.Read;
+
+                using (var fs = Open(fullPath, mode, access, share))
                 {
-                    sr.Write(Join("\r\n", lines));
+                    using (var sw = new StreamWriter(fs))
+                    {
+                        sw.Write(s);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                Log?.LogMessage(High, $"Error writing '{fullPath}': {ex.Message}");
+                return false;
+            }
 
-            return lines.Any();
+            return !IsNullOrEmpty(s);
         }
+
+        private bool TryWritingFileLines(string fullPath, params string[] lines)
+            => TryWritingFile(fullPath, Join("\r\n", lines));
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="bumps"></param>
+        /// <param name="descriptors"></param>
         /// <param name="filePaths"></param>
         /// <param name="log"></param>
         /// <returns></returns>
-        internal bool TryExecuteAssemblyInfoBumpVersion(IEnumerable<ITaskItem> bumps
+        internal bool TryExecuteAssemblyInfoBumpVersion(IEnumerable<IBumpVersionDescriptor> descriptors
             , IEnumerable<string> filePaths, TaskLoggingHelper log = null)
         {
-            /* BuildEngine.ProjectFileOfTaskNode seems prone to reporting the Targets file,
-             * when what we want is the CSPROJ itself. */
-            //var projectPath = GetFileName(BuildEngine.ProjectFileOfTaskNode);
+            /* ProjectFilename should be based on ProjectFullPath,
+             * which should be relayed to us as the $(ProjectPath). */
             var projectFilename = ProjectFilename;
-            var descriptors = bumps.Select(bump => bump.ToDescriptor(log)).ToArray();
 
-            var services = descriptors.Select(d => d.MakeGetAssemblyInfoBumpVersionService(log))
+            // Ensure that we are dealing only with the Descriptors we can.
+            descriptors = descriptors.Where(descriptor => descriptor.Kind.ContainedBy(AssemblyVersion
+                , AssemblyFileVersion, AssemblyInformationalVersion)).ToArray();
+
+            if (!descriptors.Any())
+            {
+                return false;
+            }
+
+            var services = descriptors.Select(d => d.MakeAssemblyInfoBumpVersionService(log))
                 .Where(x => x != null).ToArray();
 
             // ReSharper disable once CollectionNeverQueried.Local
@@ -150,13 +191,23 @@ namespace Bav
 
             void OnBumpResultFound(object sender, BumpResultEventArgs e)
             {
-                (e.Result.DidBump ? log : null)?.LogMessage(High, GetMessage());
+                // ReSharper disable once InvertIf
+                if (e.Result is IAssemblyInfoBumpResult assyInfoResult)
+                {
+                    (assyInfoResult.DidBump ? log : null)?.LogMessage(High, GetMessage());
 
-                string GetMessage()
-                    => $"'{projectFilename}': Bumped '{e.Result.AttributeType.FullName}'"
-                       + $" from '{e.Result.OldVersionAndSemanticString}'"
-                       + $" to '{e.Result.VersionAndSemanticString}'";
+                    string GetMessage()
+                        => $"'{projectFilename}': Bumped '{assyInfoResult.AttributeType.FullName}'"
+                           + $" from '{e.Result.OldVersionAndSemanticString}'"
+                           + $" to '{e.Result.VersionAndSemanticString}'";
+                }
             }
+
+            services.ToList().ForEach(service =>
+            {
+                service.UsingStatementAdded += OnUsingStatementAdded;
+                service.BumpResultFound += OnBumpResultFound;
+            });
 
             foreach (var fullPath in filePaths.Where(Exists))
             {
@@ -169,12 +220,6 @@ namespace Bav
 #if TASK_LOGGING_HELPER_DIAGNOSTICS
                     log?.LogWarning($"Lines read from '{fullPath}'.");
 #endif
-
-                    services.ToList().ForEach(service =>
-                    {
-                        service.UsingStatementAdded += OnUsingStatementAdded;
-                        service.BumpResultFound += OnBumpResultFound;
-                    });
 
                     foreach (var service in services)
                     {
@@ -207,12 +252,6 @@ namespace Bav
                         }
                     }
 
-                    services.ToList().ForEach(service =>
-                    {
-                        service.UsingStatementAdded -= OnUsingStatementAdded;
-                        service.BumpResultFound -= OnBumpResultFound;
-                    });
-
                     if (!bumped)
                     {
                         continue;
@@ -236,17 +275,146 @@ namespace Bav
                 }
             }
 
+            services.ToList().ForEach(service =>
+            {
+                service.UsingStatementAdded -= OnUsingStatementAdded;
+                service.BumpResultFound -= OnBumpResultFound;
+            });
+
             return true;
+        }
+
+        /// <see cref="EqualityComparer"/>
+        private static XNodeEqualityComparer Comparer => EqualityComparer;
+
+        // ReSharper disable once MemberCanBeMadeStatic.Local
+        private bool TryExecuteProjectFileBumpVersion(IEnumerable<IBumpVersionDescriptor> descriptors
+            , TaskLoggingHelper log = null)
+        {
+            /* ProjectFilename should be based on ProjectFullPath,
+             * which should be relayed to us as the $(ProjectPath). */
+            var projectFilename = ProjectFilename;
+
+            const VersionKind version = VersionKind.Version;
+
+            // ReSharper disable once ConvertIfStatementToReturnStatement
+            // Ensure that we are dealing only with the Descriptors we can.
+            descriptors = descriptors.Where(descriptor => descriptor.Kind.ContainedBy(version
+                , AssemblyVersion, FileVersion, InformationalVersion, PackageVersion)).ToArray();
+
+            // ReSharper disable once ConvertIfStatementToReturnStatement
+            if (!descriptors.Any())
+            {
+                return false;
+            }
+
+            void OnBumpResultFound(object sender, BumpResultEventArgs e)
+            {
+                // ReSharper disable once InvertIf
+                if (e.Result is IProjectBumpResult projectResult)
+                {
+                    (projectResult.DidBump ? log : null)?.LogMessage(High, GetMessage());
+
+                    string GetMessage()
+                        => $"'{projectFilename}': Bumped '{projectResult.ProtectedElementName}'"
+                           + $" from '{e.Result.OldVersionAndSemanticString}'"
+                           + $" to '{e.Result.VersionAndSemanticString}'";
+                }
+            }
+
+            bool TryParseDocument(string s, out XDocument result, Func<XElement, bool> verifyRoot)
+            {
+                var parsed = true;
+                try
+                {
+                    const LoadOptions none = LoadOptions.None;
+                    result = XDocument.Parse(s, none);
+                }
+                catch (XmlException)
+                {
+                    parsed = false;
+                    result = new XDocument();
+                }
+
+                // Now verify the Document and do a little vetting for Project criteria.
+                return parsed && verifyRoot(result?.Root);
+            }
+
+            bool DidBumpDocumentVersions<TNode>(TNode aDoc, TNode bDoc)
+                where TNode : XNode
+                => !Comparer.Equals(aDoc, bDoc);
+
+            bool TryFormatNode<TNode>(TNode node, out string s)
+                where TNode : XNode
+            {
+                const SaveOptions none = SaveOptions.None;
+                s = node.ToString(none);
+                return true;
+            }
+
+            var bumped = false;
+
+            var services = descriptors.Select(d => d.MakeProjectBasedBumpVersionService(log))
+                .Where(x => x != null).ToArray();
+
+            services.ToList().ForEach(service =>
+            {
+                // TODO: TBD: I think there must also be BumpResultCreated, probably also for the AssemblyInfo version...
+                service.BumpResultFound += OnBumpResultFound;
+            });
+
+            // TODO: TBD: what's nice about this is that minimum the XDocument work is nicely contained in the block
+            // TODO: TBD: it may make sense to refactor this block into its own local function TryABC method
+            // TODO: TBD: with the goal being to eliminate the need for a Bumped variable altogether
+            // TODO: TBD: and then just string together the different TryXYZ local functions as in other places
+            // TODO: TBD: i.e. try read from file, try matching, try bumping, etc
+            if (TryReadingFile(projectFilename, out var given)
+                && TryParseDocument(given, out var givenDoc,
+                    root => root?.Name.LocalName == "Project"
+                            && root.Attribute("Sdk") is XAttribute a
+                            && a.Value == "Microsoft.NET.Sdk"))
+            {
+                /* Process the Given Doc using the Services in the Aggregate.
+                 Pull the Tried Doc forward when the Bump did Try. */
+                var resultDoc = services.Aggregate(new XDocument(givenDoc)
+                    , (currentDoc, service) => service.TryBumpDocument(currentDoc, out var triedDoc)
+                        ? triedDoc
+                        : currentDoc);
+
+                // We Bumped when the Doc changed and we Formatted to Given.
+                bumped = DidBumpDocumentVersions(givenDoc, resultDoc) && TryFormatNode(resultDoc, out given);
+            }
+
+            services.ToList().ForEach(service =>
+            {
+                service.BumpResultFound -= OnBumpResultFound;
+            });
+
+            return bumped && TryWritingFile(projectFilename, given);
         }
 
         private static TaskLoggingHelper WithHelper(TaskLoggingHelper log = null) => log;
 
+        private IEnumerable<bool> TriedExecuteResults()
+        {
+            var log = WithHelper(Log);
+
+            // Tested through and through and working.
+            yield return TryExecuteAssemblyInfoBumpVersion(BumpDescriptors
+                , Files.Select(file => file.ItemSpec), log);
+
+            // TODO: TBD: next up is to verify this one.
+            yield return TryExecuteProjectFileBumpVersion(BumpDescriptors, log);
+        }
+
+        // TODO: TBD: if I wanted to trap further errors as exceptions, i.e. empty results, that's a slightly more elaborate set of questions
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
         /// <inheritdoc />
         public override bool Execute()
-            => TryExecuteAssemblyInfoBumpVersion(Bumps, Files.Select(file => file.ItemSpec), WithHelper(Log));
+            => TriedExecuteResults().ToArray() is var result
+               && result.Any() && result.Any(x => x);
     }
 }
