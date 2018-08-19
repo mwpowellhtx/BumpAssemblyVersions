@@ -37,6 +37,12 @@ namespace Bav
             set => _bumps = value ?? DefaultTaskItems.ToArray();
         }
 
+        private IEnumerable<IBumpVersionDescriptor> _bumpDescriptors;
+
+        private IEnumerable<IBumpVersionDescriptor> BumpDescriptors
+            => _bumpDescriptors
+               ?? (_bumpDescriptors = Bumps.Select(bump => bump.ToDescriptor())).ToArray();
+
         /// <summary>
         /// 
         /// </summary>
