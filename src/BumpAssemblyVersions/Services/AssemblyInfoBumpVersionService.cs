@@ -1,29 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using Microsoft.Build.Utilities;
 
 namespace Bav
 {
     using static String;
-    using static VersionProviderTemplateRegistry;
     using static RegexOptions;
 
-    internal class AssemblyInfoBumpVersionService<[
-                ConstrainGenericTypes(typeof(AssemblyVersionAttribute)
-                    , typeof(AssemblyFileVersionAttribute)
-                    , typeof(AssemblyInformationalVersionAttribute))]
-            T>
-        : BumpVersionServiceBase, IAssemblyInfoBumpVersionService
-        where T : Attribute
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <inheritdoc />
+    internal abstract class AssemblyInfoBumpVersionService : BumpVersionServiceBase
     {
         /// <summary>
         /// Returns the <see cref="ConstrainGenericTypesAttribute.AllowedTypes"/> specified
-        /// against the <see cref="Type"/> <typeparamref name="T"/>. Note the subtle difference
-        /// in angle brackets usage. We do not want the type specification in this instance.
+        /// against the <see cref="AssemblyInfoBumpVersionService{T}"/> generic
+        /// <see cref="Type"/>. Note the subtle difference in angle brackets usage. We do not
+        /// want the type specification in this instance.
         /// </summary>
         /// <returns></returns>
         private static IEnumerable<Type> GetSupportedAttributeTypes()
@@ -31,7 +27,6 @@ namespace Bav
                 .First().GetCustomAttributes<ConstrainGenericTypesAttribute>()
                 .SelectMany(constraint => constraint.AllowedTypes);
 
-        // ReSharper disable once StaticMemberInGenericType
         /// <summary>
         /// Gets the set of SupportedAttributeTypes based on the
         /// <see cref="ConstrainGenericTypesAttribute"/> decoration.
@@ -39,6 +34,20 @@ namespace Bav
         protected internal static IEnumerable<Type> SupportedAttributeTypes { get; }
             = GetSupportedAttributeTypes().ToArray();
 
+        protected AssemblyInfoBumpVersionService(IBumpVersionDescriptor descriptor)
+            : base(descriptor)
+        {
+        }
+    }
+
+    internal class AssemblyInfoBumpVersionService<[
+                ConstrainGenericTypes(typeof(AssemblyVersionAttribute)
+                    , typeof(AssemblyFileVersionAttribute)
+                    , typeof(AssemblyInformationalVersionAttribute))]
+            T>
+        : AssemblyInfoBumpVersionService, IAssemblyInfoBumpVersionService
+        where T : Attribute
+    {
         /// <summary>
         /// 
         /// </summary>
@@ -54,25 +63,8 @@ namespace Bav
             // We will return the naive pattern matching for faster identification.
             string GetRegexPattern(string attribName)
             {
-                /*
-                 * Went with an abbreviated notation here for brevity:
-                 * wc = wildcard
-                 * v = version
-                 * s = semantic
-                 * e = element
-                 * x = extended, meaning dot delimited
-                 */
-                const string dot = @"\.";
-                const string hyp = @"\-";
-                var wc = $@"({dot}\*)";
-                const string ve = @"(\d)+";
-                var xve = $@"({dot}{ve})";
-                var version = $@"(?<version>{ve}{xve}({wc}|{xve}{wc}?|{xve}{{2}})?)";
-                // SE needs to be One Or More of Any of these Bits.
-                var se = $@"[a-zA-Z\d{hyp}]+";
-                var xse = $@"({dot}{se})";
-                var semantic = $"(?<semantic>{se}{xse}*)";
-                return $@"^\[assembly\: (?<attrib>{attribName})\(""{version}({hyp}{semantic})?""\)\]$";
+                var p = BumpResultCalculator.GetVersionRegexPattern();
+                return $@"^\[assembly\: (?<attrib>{attribName})\(""{p}""\)\]$";
             }
 
             // There may be instances where it does not quite match the pattern.
@@ -84,6 +76,11 @@ namespace Bav
         /// <inheritdoc />
         public IEnumerable<Regex> AttributeRegexes { get; } = GetAttributeRegexes().ToArray();
 
+        /// <summary>
+        /// Handshake the <typeparamref name="T"/> parameter using
+        /// <see cref="AssemblyInfoBumpVersionService.SupportedAttributeTypes"/>
+        /// as a frame of reference.
+        /// </summary>
         static AssemblyInfoBumpVersionService()
         {
             if (SupportedAttributeTypes.Any(type => type == AttributeType))
@@ -114,7 +111,19 @@ namespace Bav
             => UsingStatementAdded?.Invoke(this
                 , new UsingStatementAddedEventArgs(usingStatement));
 
-        public override bool TryBumpVersion(IEnumerable<string> givenLines, out IEnumerable<string> resultLines)
+        public virtual bool TryBumpVersion(string given, out string result)
+        {
+            const char cr = '\r';
+            const char lf = '\n';
+            var crlf = $"{cr}{lf}";
+            var givenLines = given.Replace(crlf, $"{lf}").Split(lf).Select(s => s ?? Empty).ToArray();
+            var tried = TryBumpVersion(givenLines, out var resultLines);
+            result = Join(crlf, (tried ? resultLines : givenLines).ToArray());
+            // Tried, or Given changed from Result, sans any Trimmed Whitespace.
+            return tried || given.Trim() != result.Trim();
+        }
+
+        public virtual bool TryBumpVersion(IEnumerable<string> givenLines, out IEnumerable<string> resultLines)
         {
             /* TODO: TBD: this whole regex-based approach is kind of a poor man's way of approaching
              the issue, injecting lines "manually", etc. I'm not sure it would be worth involving
@@ -122,14 +131,14 @@ namespace Bav
              at least syntactic elements are specified in a prescribed manner. Will reserve that
              consideration for future work. */
 
-            bool TryBumpGivenLine(string line, out BumpResult result)
+            bool TryBumpGivenLine(string line, out AssemblyInfoBumpResult result)
             {
 
 #if TASK_LOGGING_HELPER_DIAGNOSTICS
                 Log?.LogWarning($"Trying to bump given line '{line}'.");
 #endif
 
-                result = new BumpResult {AttributeType = AttributeType, Line = line};
+                result = new AssemblyInfoBumpResult(Descriptor) {AttributeType = AttributeType, Line = line};
 
                 var match = AttributeRegexes.Select(regex => regex.Match(line)).SingleOrDefault(m => m.Success);
 
@@ -138,17 +147,24 @@ namespace Bav
                     return result.DidBump;
                 }
 
-                // TODO: TBD: provide hooks whether to 1) Support Wildcard, and 2) Supports Pre-Release Semantic Version.
-                const char dot = '.';
-                const char wildcard = '*';
+                string overall;
+
+                if (!(match.Groups.HasGroupName(nameof(overall))
+                      || match.Groups[nameof(overall)].Success))
+                {
+                    return result.DidBump;
+                }
+
+                // TODO: TBD: once I have the overall match, then pass this along to the base level calculator
+                // TODO: TBD: eventually, I think, either the Regex overall match based is a calculator
+                // TODO: TBD: additionally, an XDocument based calculator
+                overall = match.Groups[nameof(overall)].Value;
 
                 // ReSharper disable once LocalNameCapturedOnly
-                string attrib, version;
+                string attrib;
 
                 if (!(match.Groups.HasGroupName(nameof(attrib))
-                      || match.Groups.HasGroupName(nameof(version))
-                      || match.Groups[nameof(attrib)].Success
-                      || match.Groups[nameof(version)].Success))
+                      || match.Groups[nameof(attrib)].Success))
                 {
                     return result.DidBump;
                 }
@@ -156,56 +172,11 @@ namespace Bav
                 // ReSharper disable once RedundantAssignment
                 result.AttributeName = attrib = match.Groups[nameof(attrib)].Value;
 
-                /* Capture this once and once only across the breadth of the request. Yes, we want
-                 to capture a whole new collection, because any prior matches in the same file will
-                 also need to have been bumped in a consistent manner, including any More Significant
-                 Providers in prior sequences. */
-
-                var versionProviders = Descriptor.VersionProviders.ToArray();
-
-                // TODO: TBD: should "wildcard" be a special field? potentially, it could even be its own Version Provider, i.e. WildcardVersionProvider ...
-                // TODO: TBD: which would be a long-handed way of saying "*" ... but it might make better sense than reading around the wildcard field ...
-                var versionElements = (result.OldVersionString = match.Groups[nameof(version)].Value).Split(dot);
-                var hasWildcard = versionElements.Any(x => x == $"{wildcard}");
-
-                var changedElements = versionElements
-                    .Take(versionElements.Length - (hasWildcard ? 1 : 0))
-                    .Zip(versionProviders.Take(versionElements.Length - (hasWildcard ? 1 : 0))
-                        , (x, p) => p.TryChange(x, out var y) ? y : x).ToArray();
-
-                result.VersionString = version = Join($"{dot}", changedElements);
-
-                if (hasWildcard)
+                using (var calculator = new BumpResultCalculator(Descriptor))
                 {
-                    // ReSharper disable once RedundantAssignment
-                    result.VersionString = version = Join($"{dot}", version, $"{wildcard}");
-                }
-
-                /* TODO: TBD: there is a corner case in here whereby we would not necessarily want a
-                 Wildcard to coexist with a Semantic, but we will leave that go for the time being... */
-                string semantic;
-
-                // ReSharper disable once InvertIf
-                // Having the Group does not necessarily mean Successful Match.
-                if (match.Groups.HasGroupName(nameof(semantic))
-                    && match.Groups[nameof(semantic)].Success)
-                {
-                    semantic = result.OldSemanticString = match.Groups[nameof(semantic)].Value;
-
-                    /* Semantic simply falls through as-is when there is no Provider given.
-                     However, not being given a Provider is effectively a NoOp. */
-                    var p = versionProviders.OfType<PreReleaseIncrementVersionProvider>().SingleOrDefault()
-                            ?? (IVersionProvider) Registry.NoOp;
-
-                    if (p is PreReleaseIncrementVersionProvider preRelease
-                        && preRelease.TryChange(semantic, out var newSemantic))
+                    if (calculator.TryBumpResult(overall, result) && result.DidBump)
                     {
-                        result.SemanticString = newSemantic;
-                    }
-                    else
-                    {
-                        p.TryChange(semantic, out var noOpSemantic);
-                        result.SemanticString = noOpSemantic;
+                        OnBumpResultFound(result);
                     }
                 }
 
@@ -233,8 +204,6 @@ namespace Bav
 #if TASK_LOGGING_HELPER_DIAGNOSTICS
                     Log?.LogWarning($"Did bump line '{result.Result}'.");
 #endif
-
-                    OnBumpResultFound(result);
 
                     ++bumpCount;
                     bumpedLines[bumpedLines.Count - 1] = result.Result;
