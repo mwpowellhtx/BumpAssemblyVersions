@@ -72,7 +72,21 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="build\netstandard\BumpAssemblyVersions.props" />
+    <None Remove="build\netstandard\BumpAssemblyVersions.targets" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="build\net472\BumpAssemblyVersions.targets">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="build\netstandard\BumpAssemblyVersions.targets">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="build\netstandard\BumpAssemblyVersions.props">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
