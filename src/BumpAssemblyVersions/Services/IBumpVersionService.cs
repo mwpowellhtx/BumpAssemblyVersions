@@ -22,15 +22,6 @@ namespace Bav
         IBumpVersionDescriptor Descriptor { get; }
 
         /// <summary>
-        /// Tries to Bump the Version in the <paramref name="givenLines"/> resulting in the
-        /// <paramref name="resultLines"/>.
-        /// </summary>
-        /// <param name="givenLines"></param>
-        /// <param name="resultLines"></param>
-        /// <returns></returns>
-        bool TryBumpVersion(IEnumerable<string> givenLines, out IEnumerable<string> resultLines);
-
-        /// <summary>
         /// Gets or sets the Log.
         /// </summary>
         TaskLoggingHelper Log { get; set; }
