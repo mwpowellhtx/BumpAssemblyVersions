@@ -414,7 +414,8 @@ namespace Bav
         /// <returns></returns>
         /// <inheritdoc />
         public override bool Execute()
-            => TriedExecuteResults().ToArray() is var result
-               && result.Any() && result.Any(x => x);
+            => !Bumps.Any()
+               || (TriedExecuteResults().ToArray() is var result
+                   && result.Any() && result.Any(x => x));
     }
 }
