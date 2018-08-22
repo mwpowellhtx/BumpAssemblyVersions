@@ -96,9 +96,13 @@ namespace Bav
         /// </summary>
         /// <param name="projOrSlnFullPath"></param>
         /// <param name="expectedResultCode"></param>
+        /// <param name="evaluateException"></param>
         [Theory, MemberData(nameof(BuildVerificationTestCases))]
-        public void Verify_build_results(string projOrSlnFullPath, BuildResultCode expectedResultCode)
+        public void Verify_build_results(string projOrSlnFullPath, BuildResultCode expectedResultCode
+            , Func<InvalidOperationException, bool> evaluateException)
         {
+            OutputHelper.WriteLine($"Attempting to build: '{projOrSlnFullPath}'");
+
             // TODO: TBD: I want to specify the project file itself, not the solution file, I think...
             // TODO: TBD: BuildResultCode is probably still appropriate here
             // TODO: TBD: I want to test for not only build result, but did the expected versions numbers actually bump
@@ -135,7 +139,7 @@ namespace Bav
                 e.GlobalProperties = new Dictionary<string, string>
                 {
                     {"Configuration", "Debug"},
-                    {"Platform", "Any CPU"}
+                    {"Platform", "AnyCPU"}
                 };
 
                 e.ProjectOrSolutionFullPath = projOrSlnFullPath;
@@ -147,7 +151,16 @@ namespace Bav
 
             void OnAfterBuild(object sender, BuildResultEventArgs e)
             {
+                Assert.NotNull(e.Result);
+                Assert.Null(e.Exception);
                 Assert.Equal(expectedResultCode, e.Result.OverallResult);
+            }
+
+            void OnBuildExceptionOccurred(object sender, BuildResultEventArgs e)
+            {
+                Assert.Null(e.Result);
+                Assert.NotNull(e.Exception);
+                Assert.True(evaluateException(e.Exception));
             }
 
             var bis = BuildInvocationService;
@@ -159,6 +172,7 @@ namespace Bav
                 bis.ConfigureEnvironmentVariables += OnConfigureEnvironmentVariables;
                 bis.ConfigureBuild += OnConfigureBuild;
                 bis.AfterBuild += OnAfterBuild;
+                bis.BuildExceptionOccurred += OnBuildExceptionOccurred;
 
                 nis.Restore(projOrSlnFullPath);
 
@@ -170,6 +184,7 @@ namespace Bav
                 bis.ConfigureEnvironmentVariables -= OnConfigureEnvironmentVariables;
                 bis.ConfigureBuild -= OnConfigureBuild;
                 bis.AfterBuild -= OnAfterBuild;
+                bis.BuildExceptionOccurred -= OnBuildExceptionOccurred;
             }
         }
 
@@ -182,8 +197,26 @@ namespace Bav
         {
             get
             {
+                bool SuccessExceptionEvaluation(InvalidOperationException ex) => true;
+
+                bool FailureExceptionEvaluation(InvalidOperationException ex)
+                {
+                    // We would expect Failure result, but we would encounter an Exception first.
+                    Assert.NotNull(ex);
+                    return true;
+                }
+
                 IEnumerable<object[]> Get()
                 {
+                    IEnumerable<object> GetOne(string csprojFullName
+                        , Func<InvalidOperationException, bool> exceptionEvaluation
+                        , BuildResultCode expectedResultCode = Success)
+                    {
+                        yield return csprojFullName;
+                        yield return expectedResultCode;
+                        yield return exceptionEvaluation;
+                    }
+
                     /* Does not seem to be working when I isolate a Project for build.
                      * See issue: BuildManager.Build unable to build a CSPROJ path /
                      * http://github.com/Microsoft/msbuild/issues/3636
@@ -196,13 +229,23 @@ namespace Bav
                     Assert.NotNull(assyDir.Parent.Parent);
                     Assert.NotNull(assyDir.Parent.Parent.Parent);
                     // TODO: TBD: we want the one solution? or each of the projects?
-                    var slnPath = assyDir.Parent.Parent.Parent
-                        .GetDirectories("TestSolution").Single()
-                        .GetFiles("AssyVersion_NetStandard.csproj", AllDirectories)
-                        //.GetFiles("TestSolution.sln")
-                        .Single().FullName;
+                    var slnDir = assyDir.Parent.Parent.Parent
+                        .GetDirectories("TestSolution").Single();
 
-                    yield return new object[] {slnPath, Success};
+                    IEnumerable<object[]> GetAll(BuildResultCode expectedResultCode
+                        , Func<InvalidOperationException, bool> exceptionEvaluation
+                        , params string[] csprojFileNames)
+                    {
+                        foreach (var csprojFileName in csprojFileNames)
+                        {
+                            yield return GetOne(slnDir.GetFiles($"{csprojFileName}.csproj", AllDirectories)
+                                .Single().FullName, exceptionEvaluation, expectedResultCode).ToArray();
+                        }
+                    }
+
+                    return GetAll(Success, SuccessExceptionEvaluation, "AssyVersion_NetStandard"
+                            , "AssyVersion_PatchWildcard", "Proj.NF.AssyVersion")
+                        .Concat(GetAll(Failure, FailureExceptionEvaluation, "ProjectA")).ToArray();
                 }
 
                 return _buildVerificationTestCases ?? (_buildVerificationTestCases = Get());
