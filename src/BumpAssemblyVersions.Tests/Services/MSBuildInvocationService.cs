@@ -6,6 +6,7 @@ namespace Bav
 {
     using Microsoft.Build.Evaluation;
     using static BuildManager;
+    using static BuildResultCode;
 
     /// <summary>
     /// 
@@ -54,6 +55,17 @@ namespace Bav
             => AfterBuild?.Invoke(this, new BuildResultEventArgs(result));
 
         /// <summary>
+        /// I do not know that we are expecting the Build itself to actually throw anything,
+        /// never mind <see cref="InvalidOperationException"/>, but rather simply to respond
+        /// via <see cref="BuildResultCode"/>, with either <see cref="Success"/> or
+        /// <see cref="Failure"/>, for instance.
+        /// </summary>
+        public event EventHandler<BuildResultEventArgs> BuildExceptionOccurred;
+
+        private void OnBuildExceptionOccurred(InvalidOperationException exception)
+            => BuildExceptionOccurred?.Invoke(this, new BuildResultEventArgs(null, exception));
+
+        /// <summary>
         /// 
         /// </summary>
         public void Run()
@@ -79,11 +91,16 @@ namespace Bav
                 var parameters = new BuildParameters(pc) {Loggers = e.Loggers.ToArray()};
 
                 var requestData = new BuildRequestData(e.ProjectOrSolutionFullPath, e.GlobalProperties
-                    , ts.ToolsVersion, e.TargetsToBuild.ToArray(), null);
+                , ts.ToolsVersion, e.TargetsToBuild.ToArray(), null);
 
-                var result = DefaultBuildManager.Build(parameters, requestData);
-
-                OnAfterBuild(result);
+                try
+                {
+                    OnAfterBuild(DefaultBuildManager.Build(parameters, requestData));
+                }
+                catch (InvalidOperationException ioex)
+                {
+                    OnBuildExceptionOccurred(ioex);
+                }
             }
         }
     }
