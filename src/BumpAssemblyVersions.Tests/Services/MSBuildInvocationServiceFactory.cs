@@ -14,23 +14,14 @@ namespace Bav
         where T : MSBuildInvocationService
     {
         /// <summary>
-        /// 
+        /// Gets the OutputHelper.
         /// </summary>
-        public ITestOutputHelper OutputHelper { get; }
+        public ITestOutputHelper OutputHelper { get; internal set; }
 
         /// <summary>
-        /// 
+        /// Gets the Verbosity.
         /// </summary>
         public LoggerVerbosity Verbosity { get; set; } = Normal;
-
-        /// <summary>
-        /// Protected Constructor.
-        /// </summary>
-        /// <param name="outputHelper"></param>
-        protected MSBuildInvocationServiceFactory(ITestOutputHelper outputHelper)
-        {
-            OutputHelper = outputHelper;
-        }
 
         /// <summary>
         /// 
