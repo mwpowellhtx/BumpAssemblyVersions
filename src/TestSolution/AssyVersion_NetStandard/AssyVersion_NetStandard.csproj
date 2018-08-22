@@ -13,8 +13,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyVersion>1.2.35.0</AssemblyVersion>
-    <FileVersion>1.2.35.0</FileVersion>
-    <InformationalVersion>1.2.35.0</InformationalVersion>
+    <AssemblyVersion>1.2.36.0</AssemblyVersion>
+    <FileVersion>1.2.36.0</FileVersion>
+    <InformationalVersion>1.2.36.0</InformationalVersion>
   </PropertyGroup>
 </Project>
