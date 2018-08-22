@@ -52,5 +52,5 @@
   <ItemGroup>
     <FilesToBump Condition="Exists('Properties\TestAssemblyInfo.cs')" Include="Properties\TestAssemblyInfo.cs" />
   </ItemGroup>
-  <Import Project="$(SolutionDir)..\BumpAssemblyVersions\bin\$(Configuration)\netstandard2.0\build\net472\BumpAssemblyVersions.targets" />
+  <Import Project="$(ProjectDir)..\..\BumpAssemblyVersions\bin\$(Configuration)\netstandard2.0\build\net472\BumpAssemblyVersions.targets" />
 </Project>
