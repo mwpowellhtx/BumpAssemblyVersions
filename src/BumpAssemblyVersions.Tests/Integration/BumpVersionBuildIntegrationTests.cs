@@ -197,14 +197,8 @@ namespace Bav
         {
             get
             {
-                bool SuccessExceptionEvaluation(InvalidOperationException ex) => true;
-
-                bool FailureExceptionEvaluation(InvalidOperationException ex)
-                {
-                    // We would expect Failure result, but we would encounter an Exception first.
-                    Assert.NotNull(ex);
-                    return true;
-                }
+                bool SuccessExceptionEvaluation(InvalidOperationException ex) => ex == null;
+                bool FailureExceptionEvaluation(InvalidOperationException ex) => ex != null;
 
                 IEnumerable<object[]> Get()
                 {
@@ -220,7 +214,9 @@ namespace Bav
                     /* Does not seem to be working when I isolate a Project for build.
                      * See issue: BuildManager.Build unable to build a CSPROJ path /
                      * http://github.com/Microsoft/msbuild/issues/3636
-                     *
+                     * It was necessary to update not only Visual Studio, but also the
+                     * packages which I referenced in order for it to work properly.
+                     * TODO: TBD: http://docs.microsoft.com/en-us/visualstudio/msbuild/updating-an-existing-application
                      */
                     var assy = typeof(BumpVersionBuildIntegrationTests).Assembly;
                     var assyDir = new FileInfo(assy.Location).Directory;
