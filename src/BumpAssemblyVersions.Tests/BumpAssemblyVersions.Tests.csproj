@@ -114,6 +114,8 @@
     <Compile Include="Events\ConfigureBuildEventArgs.cs" />
     <Compile Include="Events\ConfigureEnvironmentVariablesEventArgs.cs" />
     <Compile Include="Integration\AssemblyFileVersionStreamBumpVersionServiceAttributeRegexTests.cs" />
+    <Compile Include="Integration\Filters\FilterSources.cs" />
+    <Compile Include="Integration\Filters\VersionFilters.cs" />
     <Compile Include="Providers\ChangedVersionProvider.cs" />
     <Compile Include="Providers\ChangedVersionProviderTests.cs" />
     <Compile Include="Providers\DayOfYearVersionProviderTests.cs" />
