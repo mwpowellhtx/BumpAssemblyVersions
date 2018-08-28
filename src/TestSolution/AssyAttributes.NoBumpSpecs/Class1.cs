@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Proj.NF.AssyVersion
+namespace AssyAttributes.NoBumpSpecs
 {
     public class Class1
     {
