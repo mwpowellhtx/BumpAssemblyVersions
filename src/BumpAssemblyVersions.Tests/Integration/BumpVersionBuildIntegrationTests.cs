@@ -54,77 +54,24 @@ namespace Bav
             };
         }
 
-        //// TODO: TBD: the whole mocking thing was also an attempt to work through the issue
-        //// TODO: TBD: however, I really do want the build to work, and to analyze hard measurable before/after results...
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="buildProject"></param>
-        ///// <param name="consoleOutput"></param>
-        ///// <returns></returns>
-        //public bool CallMsBuild(string buildProject, out string consoleOutput)
-        //{var p = new ProjectCollection();
-        //    var mockEngine = new Mock<IBuildEngine>();
-        //    var task = new BumpVersionTask();
-        //    task.BuildEngine = mockEngine.Object;
-        //    consoleOutput = string.Empty;
-        //    return task.Execute();
-        //}
-
-        //[Fact]
-        //public void Test()
-        //{
-        //    CallMsBuild(string.Empty, out var s);
-        //}
-
-        //// TODO: TBD: Interesting, but probably unnecessary after all...
-        //private string GetToolsetInstallationPath()
-        //{
-        //    return new SetupConfiguration()
-        //        .GetInstanceForCurrentProcess().GetInstallationPath();
-        //}
-        //private bool IsComponentInstalled(string packageId)
-        //{
-        //    if (packageId == null)
-        //    {
-        //        throw new ArgumentNullException(nameof(packageId));
-        //    }
-
-        //    var instance = (ISetupInstance2) new SetupConfiguration().GetInstanceForCurrentProcess();
-        //    return instance.GetPackages().Any(package => string.Equals(
-        //        package.GetId(), packageId, StringComparison.OrdinalIgnoreCase));
-        //}
-
         /// <summary>
-        /// 
+        /// Verifies the Build Results given the Inputs.
         /// </summary>
         /// <param name="projOrSlnFullPath"></param>
+        /// <param name="buildTargets"></param>
+        /// <param name="globalProperties"></param>
         /// <param name="expectedResultCode"></param>
         /// <param name="evaluateException"></param>
         /// <param name="verifyVersions"></param>
         /// <param name="filterSources"></param>
         [Theory, MemberData(nameof(BuildVerificationTestCases))]
-        public void Verify_build_results(string projOrSlnFullPath, BuildResultCode expectedResultCode
-            , Func<InvalidOperationException, bool> evaluateException
-            , Action<IEnumerable<string>, IEnumerable<string>> verifyVersions
-            , IEnumerable<IFilterSource> filterSources)
+        public void Verify_build_results(string projOrSlnFullPath
+            , IDictionary<string, string> globalProperties, IEnumerable<string> buildTargets
+            , BuildResultCode expectedResultCode, Func<InvalidOperationException, bool> evaluateException
+            , Action<IEnumerable<string>, IEnumerable<string>> verifyVersions, IEnumerable<IFilterSource> filterSources)
         {
             OutputHelper.WriteLine($"Attempting to build: '{projOrSlnFullPath}'");
 
-            // TODO: TBD: I want to specify the project file itself, not the solution file, I think...
-            // TODO: TBD: BuildResultCode is probably still appropriate here
-            // TODO: TBD: I want to test for not only build result, but did the expected versions numbers actually bump
-            // TODO: TBD: somehow open the project, glimpse its Items for their actual paths
-            // TODO: TBD: find the Xml and/or Assembly Attribute based versions
-            // TODO: TBD: compare the before with the after/expected values
-            // TODO: TBD: requires some planning foreknowledge of the solution/projects under test
-            // TODO: TBD: which fortunately we have, but could we better capture those?
-            // TODO: TBD: a couple of things to check: first, given the project path
-            // TODO: TBD: given some getters for before and after verification
-            // TODO: TBD: which getters should be able to open the specific files from the test cases
-            // TODO: TBD: opening the file in the subdirectory from the project file
-            // TODO: TBD: could probably just expose the bits with simple regex patterns
-            // TODO: TBD: although it might be nice to also validate that the Xml is valid after the project based is complete
             void OnToolsetRequired(object sender, ToolsetRequiredEventArgs e)
             {
                 const string expectedToolsVersion = "15.0";
@@ -143,18 +90,10 @@ namespace Bav
 
             void OnConfigureBuild(object sender, ConfigureBuildEventArgs e)
             {
-                // TODO: TBD: things like Configuration, Platform, etc, may be injected...
-                e.GlobalProperties = new Dictionary<string, string>
-                {
-                    {"Configuration", "Debug"},
-                    {"Platform", "AnyCPU"}
-                };
-
+                e.GlobalProperties = globalProperties;
                 e.ProjectOrSolutionFullPath = projOrSlnFullPath;
-
-                // TODO: TBD: additionally, things like TargetsToBuild may also be injected...
-                const string rebuild = "Rebuild";
-                e.TargetsToBuild = new[] {rebuild};
+                // ReSharper disable once PossibleMultipleEnumeration
+                e.TargetsToBuild = buildTargets.ToArray();
             }
 
             void OnAfterBuild(object sender, BuildResultEventArgs e)
@@ -233,6 +172,16 @@ namespace Bav
 
                 IEnumerable<object[]> Get()
                 {
+                    var globalProperties = new Dictionary<string, string>
+                    {
+                        {"Configuration", "Debug"},
+                        {"Platform", "AnyCPU"}
+                    };
+
+                    IEnumerable<string> GetBuildTargets(params string[] targets) => targets;
+
+                    var buildTargets = GetBuildTargets("Rebuild");
+
                     IFilterSource GetAssemblyAttributeVersionFilterSource(
                         string projectFullPath, string relativePath
                         , params IVersionFilter[] filters)
@@ -251,7 +200,8 @@ namespace Bav
                         , params IFilterSource[] filterSources)
                     {
                         yield return csprojFullName;
-                        // TODO: TBD: work out the particulars here; make sure that it aligns with the test method, etc...
+                        yield return globalProperties;
+                        yield return buildTargets;
                         yield return expectedResultCode;
                         // ReSharper disable once SwitchStatementMissingSomeCases
                         switch (expectedResultCode)
@@ -292,24 +242,10 @@ namespace Bav
                     Assert.NotNull(assyDir.Parent);
                     Assert.NotNull(assyDir.Parent.Parent);
                     Assert.NotNull(assyDir.Parent.Parent.Parent);
-                    // TODO: TBD: we want the one solution? or each of the projects?
-                    var slnDir = assyDir.Parent.Parent.Parent
-                        .GetDirectories("TestSolution").Single();
-                    // TODO: TBD: may not be the best possible factoring for these methods?
-                    string GetProjectFullPath(string fileName, string extension = ".csproj")
-                        => slnDir.GetFiles($"{fileName}{extension}", AllDirectories).Single().FullName;
+                    var slnDir = assyDir.Parent.Parent.Parent.GetDirectories("TestSolution").Single();
 
-                    //// TODO: TBD: get away from "get all" for this part; we do need to contain each test case, including filter sources and version filters...
-                    //IEnumerable<object[]> GetAll(BuildResultCode expectedResultCode
-                    //    , Func<InvalidOperationException, bool> exceptionEvaluation
-                    //    , params string[] csprojFileNames)
-                    //{
-                    //    foreach (var csprojFileName in csprojFileNames)
-                    //    {
-                    //        yield return GetOne(slnDir.GetFiles($"{csprojFileName}.csproj", AllDirectories)
-                    //            .Single().FullName, exceptionEvaluation, expectedResultCode).ToArray();
-                    //    }
-                    //}
+                    string GetProjectFullPath(string fileName)
+                        => slnDir.GetFiles($"{fileName}.csproj", AllDirectories).Single().FullName;
 
                     // TODO: TBD: I believe this gets me a bit closer to what I wanted to accomplish in these scenarios...
                     // TODO: TBD: next is to evaluate the filters before compilation and after compilation
