@@ -334,9 +334,9 @@ namespace Bav
                         )
                     ).ToArray();
 
-                    yield return GetOne(GetProjectFullPath("Proj.NF.AssyVersion"), Success, AllEqual
+                    yield return GetOne(GetProjectFullPath("AssyAttributes.NoBumpSpecs"), Success, AllEqual
                         , GetAssemblyAttributeVersionFilterSource(
-                            GetProjectFullPath("Proj.NF.AssyVersion")
+                            GetProjectFullPath("AssyAttributes.NoBumpSpecs")
                             , Combine("Properties", "AssemblyInfo.cs")
                             , new ShortAssemblyAttributeVersionFilter<AssemblyVersionAttribute>()
                             , new ShortAssemblyAttributeVersionFilter<AssemblyFileVersionAttribute>()
