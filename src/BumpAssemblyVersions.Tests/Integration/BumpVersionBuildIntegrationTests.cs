@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Build.Execution;
 using Microsoft.Build.Framework;
 
@@ -10,9 +11,12 @@ namespace Bav
     using Xunit;
     using Xunit.Abstractions;
     using static Environment;
+    using static Path;
+    using static String;
     using static BuildResultCode;
     using static LoggerVerbosity;
     using static SearchOption;
+    using static VersionKind;
 
     /// <summary>
     /// Building also requires that we ensure that the packages are fully restored. Unfortunately,
@@ -97,9 +101,13 @@ namespace Bav
         /// <param name="projOrSlnFullPath"></param>
         /// <param name="expectedResultCode"></param>
         /// <param name="evaluateException"></param>
+        /// <param name="verifyVersions"></param>
+        /// <param name="filterSources"></param>
         [Theory, MemberData(nameof(BuildVerificationTestCases))]
         public void Verify_build_results(string projOrSlnFullPath, BuildResultCode expectedResultCode
-            , Func<InvalidOperationException, bool> evaluateException)
+            , Func<InvalidOperationException, bool> evaluateException
+            , Action<IEnumerable<string>, IEnumerable<string>> verifyVersions
+            , IEnumerable<IFilterSource> filterSources)
         {
             OutputHelper.WriteLine($"Attempting to build: '{projOrSlnFullPath}'");
 
@@ -127,7 +135,7 @@ namespace Bav
             void OnConfigureEnvironmentVariables(object sender, ConfigureEnvironmentVariablesEventArgs e)
             {
                 /* These do not seem to impact one way or another, but probably should be done just
-                 for sake of consistency regardless of the MSBuild version we're running against. */
+                 * for sake of consistency regardless of the MSBuild version we're running against. */
                 SetEnvironmentVariable("VSINSTALLDIR", e.InstallDirectoryName);
                 SetEnvironmentVariable("MSBUILD_EXE_PATH", e.Toolset.ToolsPath);
                 SetEnvironmentVariable("VisualStudioVersion", e.Toolset.ToolsVersion);
@@ -163,6 +171,17 @@ namespace Bav
                 Assert.True(evaluateException(e.Exception));
             }
 
+            void ReportVersions(string message, params string[] versions)
+            {
+                if (!versions.Any())
+                {
+                    OutputHelper.WriteLine("There are no versions reported.");
+                    return;
+                }
+
+                OutputHelper.WriteLine($"{message}: {Join(", ", versions.Select(v => $"'{v}'"))}");
+            }
+
             var bis = BuildInvocationService;
             var nis = NuGetInvocationService;
 
@@ -174,9 +193,21 @@ namespace Bav
                 bis.AfterBuild += OnAfterBuild;
                 bis.BuildExceptionOccurred += OnBuildExceptionOccurred;
 
+                // ReSharper disable once PossibleMultipleEnumeration
+                var versionsBefore = filterSources.SelectMany(source => source.Versions).ToArray();
+
+                ReportVersions("In no particular order, the version(s) of interest before are", versionsBefore);
+
                 nis.Restore(projOrSlnFullPath);
 
                 bis.Run();
+
+                // ReSharper disable once PossibleMultipleEnumeration
+                var versionsAfter = filterSources.SelectMany(source => source.Versions).ToArray();
+
+                ReportVersions("In no particular order, the version(s) of interest after are", versionsAfter);
+
+                verifyVersions?.Invoke(versionsBefore, versionsAfter);
             }
             finally
             {
@@ -202,22 +233,59 @@ namespace Bav
 
                 IEnumerable<object[]> Get()
                 {
-                    IEnumerable<object> GetOne(string csprojFullName
-                        , Func<InvalidOperationException, bool> exceptionEvaluation
-                        , BuildResultCode expectedResultCode = Success)
+                    IFilterSource GetAssemblyAttributeVersionFilterSource(
+                        string projectFullPath, string relativePath
+                        , params IVersionFilter[] filters)
+                        => new AssemblyAttributeVersionFilterSource(filters)
+                        {
+                            ProjectFullPath = projectFullPath,
+                            RelativePath = relativePath
+                        };
+
+                    IFilterSource GetProjectXmlVersionFilterSource(string projectFullPath
+                        , params IVersionFilter[] filters)
+                        => new ProjectXmlVersionFilterSource(filters) {ProjectFullPath = projectFullPath};
+
+                    IEnumerable<object> GetOne(string csprojFullName, BuildResultCode expectedResultCode
+                        , Action<IEnumerable<string>, IEnumerable<string>> verifyVersions
+                        , params IFilterSource[] filterSources)
                     {
                         yield return csprojFullName;
+                        // TODO: TBD: work out the particulars here; make sure that it aligns with the test method, etc...
                         yield return expectedResultCode;
-                        yield return exceptionEvaluation;
+                        // ReSharper disable once SwitchStatementMissingSomeCases
+                        switch (expectedResultCode)
+                        {
+                            case Success:
+                                yield return (Func<InvalidOperationException, bool>) SuccessExceptionEvaluation;
+                                break;
+                            case Failure:
+                                yield return (Func<InvalidOperationException, bool>) FailureExceptionEvaluation;
+                                break;
+                        }
+
+                        yield return verifyVersions;
+
+                        // Return FilterSources as an Enumerable.
+                        var fs = (IEnumerable<IFilterSource>) filterSources;
+                        yield return fs;
                     }
+
+                    void AllDifferent(IEnumerable<string> before, IEnumerable<string> after)
+                        => Assert.All(before.Zip(after, (b, a) => b != a), Assert.True);
+
+                    void AllEqual(IEnumerable<string> before, IEnumerable<string> after)
+                        => Assert.All(before.Zip(after, (b, a) => b == a), Assert.True);
+
+                    void NoneGiven(IEnumerable<string> before, IEnumerable<string> after)
+                        => Assert.False(before.Any() || after.Any());
 
                     /* Does not seem to be working when I isolate a Project for build.
                      * See issue: BuildManager.Build unable to build a CSPROJ path /
                      * http://github.com/Microsoft/msbuild/issues/3636
                      * It was necessary to update not only Visual Studio, but also the
                      * packages which I referenced in order for it to work properly.
-                     * TODO: TBD: http://docs.microsoft.com/en-us/visualstudio/msbuild/updating-an-existing-application
-                     */
+                     * TODO: TBD: http://docs.microsoft.com/en-us/visualstudio/msbuild/updating-an-existing-application */
                     var assy = typeof(BumpVersionBuildIntegrationTests).Assembly;
                     var assyDir = new FileInfo(assy.Location).Directory;
                     Assert.NotNull(assyDir);
@@ -227,21 +295,58 @@ namespace Bav
                     // TODO: TBD: we want the one solution? or each of the projects?
                     var slnDir = assyDir.Parent.Parent.Parent
                         .GetDirectories("TestSolution").Single();
+                    // TODO: TBD: may not be the best possible factoring for these methods?
+                    string GetProjectFullPath(string fileName, string extension = ".csproj")
+                        => slnDir.GetFiles($"{fileName}{extension}", AllDirectories).Single().FullName;
 
-                    IEnumerable<object[]> GetAll(BuildResultCode expectedResultCode
-                        , Func<InvalidOperationException, bool> exceptionEvaluation
-                        , params string[] csprojFileNames)
-                    {
-                        foreach (var csprojFileName in csprojFileNames)
-                        {
-                            yield return GetOne(slnDir.GetFiles($"{csprojFileName}.csproj", AllDirectories)
-                                .Single().FullName, exceptionEvaluation, expectedResultCode).ToArray();
-                        }
-                    }
+                    //// TODO: TBD: get away from "get all" for this part; we do need to contain each test case, including filter sources and version filters...
+                    //IEnumerable<object[]> GetAll(BuildResultCode expectedResultCode
+                    //    , Func<InvalidOperationException, bool> exceptionEvaluation
+                    //    , params string[] csprojFileNames)
+                    //{
+                    //    foreach (var csprojFileName in csprojFileNames)
+                    //    {
+                    //        yield return GetOne(slnDir.GetFiles($"{csprojFileName}.csproj", AllDirectories)
+                    //            .Single().FullName, exceptionEvaluation, expectedResultCode).ToArray();
+                    //    }
+                    //}
 
-                    return GetAll(Success, SuccessExceptionEvaluation, "AssyVersion_NetStandard"
-                            , "AssyVersion_PatchWildcard", "Proj.NF.AssyVersion")
-                        .Concat(GetAll(Failure, FailureExceptionEvaluation, "ProjectA")).ToArray();
+                    // TODO: TBD: I believe this gets me a bit closer to what I wanted to accomplish in these scenarios...
+                    // TODO: TBD: next is to evaluate the filters before compilation and after compilation
+                    // TODO: TBD: and which ever bits are being screened should see a marked change
+                    // TODO: TBD: after that, may see about a NuGetVersion friendly result
+                    // TODO: TBD: which I think should support not only Version but also the <version/>-<prereleaselabel/>
+                    yield return GetOne(GetProjectFullPath("AssyVersion_NetStandard"), Success, AllDifferent
+                        , GetProjectXmlVersionFilterSource(GetProjectFullPath("AssyVersion_NetStandard")
+                            , new ProjectXmlVersionFilter {Kind = AssemblyVersion}
+                            , new ProjectXmlVersionFilter {Kind = FileVersion}
+                            , new ProjectXmlVersionFilter {Kind = InformationalVersion}
+                        )
+                    ).ToArray();
+
+                    yield return GetOne(GetProjectFullPath("AssyVersion_PatchWildcard"), Success, AllDifferent
+                        , GetAssemblyAttributeVersionFilterSource(
+                            GetProjectFullPath("AssyVersion_PatchWildcard")
+                            , Combine("Properties", "AssemblyInfo.cs")
+                            , new ShortAssemblyAttributeVersionFilter<AssemblyVersionAttribute>()
+                            , new ShortAssemblyAttributeVersionFilter<AssemblyFileVersionAttribute>()
+                            , new ShortAssemblyAttributeVersionFilter<AssemblyInformationalVersionAttribute>()
+                        )
+                    ).ToArray();
+
+                    yield return GetOne(GetProjectFullPath("Proj.NF.AssyVersion"), Success, AllEqual
+                        , GetAssemblyAttributeVersionFilterSource(
+                            GetProjectFullPath("Proj.NF.AssyVersion")
+                            , Combine("Properties", "AssemblyInfo.cs")
+                            , new ShortAssemblyAttributeVersionFilter<AssemblyVersionAttribute>()
+                            , new ShortAssemblyAttributeVersionFilter<AssemblyFileVersionAttribute>()
+                            , new ShortAssemblyAttributeVersionFilter<AssemblyInformationalVersionAttribute>()
+                        )
+                    ).ToArray();
+
+                    // TODO: TBD: this bit is not testing anything apart from the test theory plumbing itself...
+                    // TODO: TBD: nothing to compare here, or we might even expect them all to be empty...
+                    yield return GetOne(GetProjectFullPath("ProjectA"), Failure, NoneGiven).ToArray();
                 }
 
                 return _buildVerificationTestCases ?? (_buildVerificationTestCases = Get());
