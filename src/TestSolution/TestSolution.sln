@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProjectA", "ProjectA\Projec
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssyAttributes.NoBumpSpecs", "AssyAttributes.NoBumpSpecs\AssyAttributes.NoBumpSpecs.csproj", "{4CB428EE-1C92-4DA7-B3B5-4518D7926F75}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssyVersion_PatchWildcard", "AssyVersion_PatchWildcard\AssyVersion_PatchWildcard.csproj", "{4F0CF203-2F45-4A97-ACED-476E3C19A705}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssyInfo.FileInfoVersions.IncludeWildcards", "AssyInfo.FileInfoVersions.IncludeWildcards\AssyInfo.FileInfoVersions.IncludeWildcards.csproj", "{4F0CF203-2F45-4A97-ACED-476E3C19A705}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AssyVersion_NetStandard", "AssyVersion_NetStandard\AssyVersion_NetStandard.csproj", "{CB6B5E48-83F6-484C-9022-D3ECD11F9101}"
 EndProject
