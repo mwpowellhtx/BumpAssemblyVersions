@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Proj.Template
+namespace AssyInfo.FileInfoVersions.IncludeWildcards
 {
     public class Class1
     {

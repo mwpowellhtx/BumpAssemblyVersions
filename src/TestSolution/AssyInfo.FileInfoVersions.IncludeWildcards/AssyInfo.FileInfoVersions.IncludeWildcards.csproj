@@ -7,8 +7,8 @@
     <ProjectGuid>{4F0CF203-2F45-4A97-ACED-476E3C19A705}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Proj.Template</RootNamespace>
-    <AssemblyName>AssyVersion_PatchWildcard</AssemblyName>
+    <RootNamespace>AssyInfo.FileInfoVersions.IncludeWildcards</RootNamespace>
+    <AssemblyName>AssyInfo.FileInfoVersions.IncludeWildcards</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>

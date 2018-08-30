@@ -260,9 +260,9 @@ namespace Bav
                         )
                     ).ToArray();
 
-                    yield return GetOne(GetProjectFullPath("AssyVersion_PatchWildcard"), Success, AllDifferent
+                    yield return GetOne(GetProjectFullPath("AssyInfo.FileInfoVersions.IncludeWildcards"), Success, AllDifferent
                         , GetAssemblyAttributeVersionFilterSource(
-                            GetProjectFullPath("AssyVersion_PatchWildcard")
+                            GetProjectFullPath("AssyInfo.FileInfoVersions.IncludeWildcards")
                             , Combine("Properties", "AssemblyInfo.cs")
                             , new ShortAssemblyAttributeVersionFilter<AssemblyVersionAttribute>()
                             , new ShortAssemblyAttributeVersionFilter<AssemblyFileVersionAttribute>()
