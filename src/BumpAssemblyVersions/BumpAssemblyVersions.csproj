@@ -72,23 +72,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="build\netstandard\BumpAssemblyVersions.props" />
-    <None Remove="build\netstandard\BumpAssemblyVersions.targets" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="build\net472\BumpAssemblyVersions.targets">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="build\netstandard\BumpAssemblyVersions.targets">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="build\netstandard\BumpAssemblyVersions.props">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Compile Remove="build\net472\**" />
+    <Compile Remove="build\netstandard\**" />
+    <Content Remove="build\net472\**" />
+    <Content Remove="build\netstandard\**" />
+    <EmbeddedResource Remove="build\net472\**" />
+    <EmbeddedResource Remove="build\netstandard\**" />
+    <None Remove="build\net472\**" />
+    <None Remove="build\netstandard\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -101,6 +92,15 @@
     <Compile Update="BumpVersionDescriptor.Protected.cs">
       <DependentUpon>BumpVersionDescriptor.cs</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="build\BumpAssemblyVersions.props">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="build\BumpAssemblyVersions.targets">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <Target Name="PackTaskDependencies" AfterTargets="Build" BeforeTargets="GenerateNuspec">
