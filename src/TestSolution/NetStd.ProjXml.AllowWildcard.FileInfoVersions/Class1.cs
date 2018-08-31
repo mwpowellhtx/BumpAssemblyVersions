@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AssyVersion_NetStandard
+namespace NetStd.ProjXml.AllowWildcard.FileInfoVersions
 {
     public class Class1
     {

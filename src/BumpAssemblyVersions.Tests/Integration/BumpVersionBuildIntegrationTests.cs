@@ -252,8 +252,8 @@ namespace Bav
                     // TODO: TBD: and which ever bits are being screened should see a marked change
                     // TODO: TBD: after that, may see about a NuGetVersion friendly result
                     // TODO: TBD: which I think should support not only Version but also the <version/>-<prereleaselabel/>
-                    yield return GetOne(GetProjectFullPath("AssyVersion_NetStandard"), Success, AllDifferent
-                        , GetProjectXmlVersionFilterSource(GetProjectFullPath("AssyVersion_NetStandard")
+                    yield return GetOne(GetProjectFullPath("NetStd.ProjXml.AllowWildcard.FileInfoVersions"), Success, AllDifferent
+                        , GetProjectXmlVersionFilterSource(GetProjectFullPath("NetStd.ProjXml.AllowWildcard.FileInfoVersions")
                             , new ProjectXmlVersionFilter {Kind = AssemblyVersion}
                             , new ProjectXmlVersionFilter {Kind = FileVersion}
                             , new ProjectXmlVersionFilter {Kind = InformationalVersion}
