@@ -15,6 +15,7 @@ namespace Bav
     using static XNode;
     using static MessageImportance;
     using static VersionKind;
+    using static LoadOptions;
 
     /// <summary>
     /// 
@@ -37,7 +38,8 @@ namespace Bav
             {
                 using (var sr = new StreamReader(fs))
                 {
-                    return XDocument.Parse(sr.ReadToEnd());
+                    // Yes, we want to Preserve the Whitespace in the file.
+                    return XDocument.Parse(sr.ReadToEnd(), PreserveWhitespace);
                 }
             }
         }
@@ -327,8 +329,7 @@ namespace Bav
                 var parsed = true;
                 try
                 {
-                    const LoadOptions none = LoadOptions.None;
-                    result = XDocument.Parse(s, none);
+                    result = XDocument.Parse(s, PreserveWhitespace);
                 }
                 catch (XmlException)
                 {
@@ -347,8 +348,7 @@ namespace Bav
             bool TryFormatNode<TNode>(TNode node, out string s)
                 where TNode : XNode
             {
-                const SaveOptions none = SaveOptions.None;
-                s = node.ToString(none);
+                s = node.ToString(SaveOptions.None);
                 return true;
             }
 
