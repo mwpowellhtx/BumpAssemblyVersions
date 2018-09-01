@@ -167,9 +167,6 @@ namespace Bav
         {
             get
             {
-                bool SuccessExceptionEvaluation(InvalidOperationException ex) => ex == null;
-                bool FailureExceptionEvaluation(InvalidOperationException ex) => ex != null;
-
                 IEnumerable<object[]> Get()
                 {
                     var globalProperties = new Dictionary<string, string>
@@ -207,10 +204,10 @@ namespace Bav
                         switch (expectedResultCode)
                         {
                             case Success:
-                                yield return (Func<InvalidOperationException, bool>) SuccessExceptionEvaluation;
+                                yield return (Func<InvalidOperationException, bool>) (ex => ex == null);
                                 break;
                             case Failure:
-                                yield return (Func<InvalidOperationException, bool>) FailureExceptionEvaluation;
+                                yield return (Func<InvalidOperationException, bool>) (ex => ex != null);
                                 break;
                         }
 
