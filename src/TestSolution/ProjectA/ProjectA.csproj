@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <BumpVersionSpec Include="Version2" Kind="Version2" />
+    <BumpVersionSpec Include="AssemblyVersion2" Kind="AssemblyVersion2" />
+    <BumpVersionSpec Include="FileVersion2" Kind="FileVersion2" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <BumpAssemblyVersionFullPath>$(ProjectDir)..\..\BumpAssemblyVersions\bin\$(Configuration)\netstandard2.0\BumpAssemblyVersions.dll</BumpAssemblyVersionFullPath>    
+  </PropertyGroup>
+
+  <UsingTask AssemblyFile="$(BumpAssemblyVersionFullPath)" TaskName="Bav.BumpVersion" />
+
+  <Target Name="BavBeforeBuild" BeforeTargets="BeforeBuild">
+
+    <Message Importance="high" Text="Task found in '$(BumpAssemblyVersionFullPath)' ..." />
+ 
+    <Message Text="This is a test" />
+
+    <BumpVersion ProjectFullPath="$(MSBuildProjectFullPath)" Bumps="@(BumpVersionSpec)" Configuration="$(Configuration)">
+    </BumpVersion>
+
+    <Message Text="This is only a test" />
+
+  </Target>
+
+</Project>

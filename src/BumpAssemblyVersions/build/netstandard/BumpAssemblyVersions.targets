@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+
+  <UsingTask AssemblyFile="..\..\BumpAssemblyVersions.dll" TaskName="Bav.BumpVersion" />
+
+  <!-- ReSharper disable once UnknownProperty -->
+  <Target Name="BavBeforeBuild" BeforeTargets="BeforeBuild" Condition="!Exists($(BavLockFilePath))">
+
+    <ItemGroup>
+      <FilesToBump Condition="Exists('Properties\AssemblyInfo.cs')" Include="Properties\AssemblyInfo.cs" />
+    </ItemGroup>
+
+    <!-- ReSharper disable once UnknownTask, UnknownItemGroup -->
+    <BumpVersion Configuration="$(Configuration)" Bumps="@(BumpVersionSpec)" Files="@(FilesToBump)" ProjectFullPath="$(ProjectPath)" />
+
+  </Target>
+
+  <PropertyGroup>
+    <BumpAssemblyVersionsLoaded>true</BumpAssemblyVersionsLoaded>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- TODO: TBD: it would be better to do this here, but does not seem to happen. So must be done at the CSPROJ level. -->
+    <BumpVersionSpec Update="@(BumpVersionSpec)" Visible="False" />
+    <FilesToBump Update="@(FilesToBump)" Visible="False" />
+  </ItemGroup>
+
+</Project>

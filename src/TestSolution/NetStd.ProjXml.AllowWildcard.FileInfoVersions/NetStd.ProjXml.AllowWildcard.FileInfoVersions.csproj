@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <BumpVersionSpec Include="AssemblyVersion" UseUtc="false" IncludeWildcard="true" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" />
+    <BumpVersionSpec Include="FileVersion" UseUtc="false" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" />
+    <BumpVersionSpec Include="InformationalVersion" UseUtc="false" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <BumpVersionSpec Update="@(BumpVersionSpec)" Visible="False" />
+    <FilesToBump Update="@(FilesToBump)" Visible="False" />
+  </ItemGroup>
+
+  <Import Project="$(ProjectDir)..\..\BumpAssemblyVersions\bin\$(Configuration)\netstandard2.0\build\BumpAssemblyVersions.targets" />
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <AssemblyVersion>1.2.47.0</AssemblyVersion>
+    <FileVersion>1.2.47.0</FileVersion>
+    <InformationalVersion>1.2.47.0</InformationalVersion>
+  </PropertyGroup>
+
+</Project>
