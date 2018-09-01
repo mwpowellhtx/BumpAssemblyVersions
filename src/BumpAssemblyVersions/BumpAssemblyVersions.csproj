@@ -50,36 +50,21 @@
   <!-- TODO: TBD: Microsoft.Build.* is not compatible with netstandard1.6 / https://github.com/Microsoft/msbuild/issues/3435 -->
   <ItemGroup>
     <PackageReference Include="Microsoft.Build" Version="15.7.179" />
-    <PackageReference Include="Microsoft.Build.Engine" />
+    <PackageReference Include="Microsoft.Build.Engine" Version="15.7.179" />
     <PackageReference Include="Microsoft.Build.Framework" Version="15.7.179" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.7.179" />
-    <PackageReference Include="Microsoft.CSharp" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="NuGet.Versioning" Version="4.6.2" />
     <PackageReference Include="System.Xml.XDocument" Version="4.3.0" />
     <PackageReference Include="System.Xml.XPath.XDocument" Version="4.3.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Update="@(PackageReference)" PrivateAssets="All" />
-    <PackageReference Update="Microsoft.Build.Engine" Version="15.7.179" />
-    <PackageReference Update="Microsoft.CSharp" Version="4.5.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="build\*" PackagePath="build\" CopyToOutput="true">
-      <IncludeInPackage>true</IncludeInPackage>
-    </Content>
+    <Content Include="build\*" PackagePath="build\" />
     <!-- TODO: TBD: ditto multi-targeting; (not yet) -->
     <!--<Content Include="buildMultiTargeting\*" PackagePath="buildMultiTargeting\" />-->
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="build\net472\**" />
-    <Compile Remove="build\netstandard\**" />
-    <Content Remove="build\net472\**" />
-    <Content Remove="build\netstandard\**" />
-    <EmbeddedResource Remove="build\net472\**" />
-    <EmbeddedResource Remove="build\netstandard\**" />
-    <None Remove="build\net472\**" />
-    <None Remove="build\netstandard\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -108,13 +93,13 @@
     <!-- The include needs to happen after output has been copied to build
     output folder but before NuGet generates a nuspec. -->
 
-    <ItemGroup>
+     <ItemGroup>
       <_PackageFiles Include="bin\$(Configuration)\**\*.dll">
         <PackagePath>tasks\%(RecursiveDir)</PackagePath>
         <Visible>false</Visible>
         <BuildAction>Content</BuildAction>
       </_PackageFiles>
-    </ItemGroup>
+    </ItemGroup> 
   </Target>
 
 </Project>
