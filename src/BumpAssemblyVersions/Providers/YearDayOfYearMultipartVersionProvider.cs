@@ -33,22 +33,22 @@ namespace Bav
         protected override IEnumerable<MultipartTimestampCallback> MultipartCallbacks
             => _callbacks ?? (_callbacks = GetMultipartCallbacks().ToArray());
 
+        // ReSharper disable once SuggestBaseTypeForParameter, UnusedMember.Local
         /// <summary>
         /// Private Copy Constructor.
         /// </summary>
         /// <param name="other"></param>
         /// <inheritdoc />
-        // ReSharper disable once SuggestBaseTypeForParameter, UnusedMember.Local
         private YearDayOfYearMultipartVersionProvider(YearDayOfYearMultipartVersionProvider other)
             : base(other)
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         /// <summary>
         /// Internal Default Constructor.
         /// </summary>
         /// <inheritdoc />
-        // ReSharper disable once UnusedMember.Global
         internal YearDayOfYearMultipartVersionProvider()
         {
         }

@@ -121,19 +121,19 @@ namespace Bav
             => _midnightTimestamp ?? (_midnightTimestamp = new DateTime(
                    ProtectedTimestamp.Year, ProtectedTimestamp.Month, ProtectedTimestamp.Day)).Value;
 
+        // ReSharper disable once UnusedMember.Global
         /// <summary>
         /// Default Protected Constructor.
         /// </summary>
-        // ReSharper disable once UnusedMember.Global
         protected VersionProviderBase()
         {
         }
 
+        // ReSharper disable once SuggestBaseTypeForParameter
         /// <summary>
         /// Protected Copy Constructor.
         /// </summary>
         /// <param name="other"></param>
-        // ReSharper disable once SuggestBaseTypeForParameter
         protected VersionProviderBase(VersionProviderBase other)
         {
             SetTimestamp(other.Timestamp, other.UseUtc);

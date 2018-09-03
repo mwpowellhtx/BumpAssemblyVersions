@@ -24,11 +24,11 @@ namespace Bav
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         /// <summary>
         /// Internal Default Constructor.
         /// </summary>
         /// <inheritdoc />
-        // ReSharper disable once UnusedMember.Global
         internal DeltaDays2000VersionProvider()
         {
         }

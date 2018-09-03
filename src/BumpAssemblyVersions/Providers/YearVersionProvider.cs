@@ -26,17 +26,18 @@ namespace Bav
         public override bool TryChange(string current, out string result)
             => Changed = (result = $"{GetYear()}") != current;
 
+        // ReSharper disable once SuggestBaseTypeForParameter, UnusedMember.Local
         /// <summary>
         /// Private Copy Constructor.
         /// </summary>
         /// <param name="other"></param>
         /// <inheritdoc />
-        // ReSharper disable once SuggestBaseTypeForParameter, UnusedMember.Local
         private YearVersionProvider(YearVersionProvider other)
             : base(other)
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         /// <summary>
         /// Internal Default Constructor.
         /// </summary>

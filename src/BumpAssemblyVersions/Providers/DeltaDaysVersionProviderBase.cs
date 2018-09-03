@@ -32,6 +32,7 @@ namespace Bav
         public sealed override bool TryChange(string current, out string result)
             => Changed = (result = $"{((ProtectedTimestamp - BaseTimestamp).Days + 1) % MaxValue}") != current;
 
+        // ReSharper disable once UnusedMember.Global
         /// <summary>
         /// Protected Default Constructor.
         /// </summary>
@@ -40,12 +41,12 @@ namespace Bav
         {
         }
 
+        // ReSharper disable once SuggestBaseTypeForParameter
         /// <summary>
         /// Protected Copy Constructor.
         /// </summary>
         /// <param name="other"></param>
         /// <inheritdoc />
-        // ReSharper disable once SuggestBaseTypeForParameter
         protected DeltaDaysVersionProviderBase(DeltaDaysVersionProviderBase other)
             : base(other)
         {

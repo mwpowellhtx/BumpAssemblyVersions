@@ -65,23 +65,23 @@ namespace Bav
         /// <inheritdoc />
         public virtual bool ShouldDiscard { get; internal set; }
 
+        // ReSharper disable once SuggestBaseTypeForParameter, UnusedMember.Local
         /// <summary>
         /// Private Copy Constructor.
         /// </summary>
         /// <param name="other"></param>
         /// <inheritdoc />
-        // ReSharper disable once SuggestBaseTypeForParameter, UnusedMember.Local
         private PreReleaseIncrementVersionProvider(PreReleaseIncrementVersionProvider other)
             : base(other)
         {
             Copy(other);
         }
 
+        // ReSharper disable once UnusedMember.Global
         /// <summary>
         /// Internal Default Constructor.
         /// </summary>
         /// <inheritdoc />
-        // ReSharper disable once UnusedMember.Global
         internal PreReleaseIncrementVersionProvider() => Initialize();
 
         /// <summary>

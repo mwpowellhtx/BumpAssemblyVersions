@@ -41,22 +41,22 @@ namespace Bav
             => Changed = (result = Join(Empty, MultipartCallbacks.Select(
                              callback => callback(ProtectedTimestamp)))) != current;
 
+        // ReSharper disable once SuggestBaseTypeForParameter
         /// <summary>
         /// Private Copy Constructor.
         /// </summary>
         /// <param name="other"></param>
         /// <inheritdoc />
-        // ReSharper disable once SuggestBaseTypeForParameter
         protected MultipartTimestampVersionProviderBase(MultipartTimestampVersionProviderBase other)
             : base(other)
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         /// <summary>
         /// Protected Default Constructor.
         /// </summary>
         /// <inheritdoc />
-        // ReSharper disable once UnusedMember.Global
         protected MultipartTimestampVersionProviderBase()
         {
         }
