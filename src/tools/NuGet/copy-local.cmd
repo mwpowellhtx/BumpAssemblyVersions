@@ -3,14 +3,21 @@
 setlocal
 
 :setvars
-set local_dir=G:\Dev\NuGet\local\packages
+set local_dir=%2
 set nupkg_ext=.nupkg
+
+if ("%local_dir%" === "") {
+    set local_dir=G:\Dev\NuGet\local\packages
+}
 
 :setconfig
 set config=%1
 if ("%config%" === "") (
     set config=Release
 )
+
+echo config=%config%
+echo local_dir=%local_dir%
 
 :: Do the main areas here.
 pushd ..\..
