@@ -58,7 +58,7 @@
     <Error Condition="!Exists('..\packages\BumpAssemblyVersions.1.0.0\build\BumpAssemblyVersions.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\BumpAssemblyVersions.1.0.0\build\BumpAssemblyVersions.props'))" />
     <Error Condition="!Exists('..\packages\BumpAssemblyVersions.1.0.0\build\BumpAssemblyVersions.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\BumpAssemblyVersions.1.0.0\build\BumpAssemblyVersions.targets'))" />
   </Target>
-  <ItemGroup>
+  <ItemGroup Condition="Exists('..\packages\BumpAssemblyVersions.1.0.0\build\BumpAssemblyVersions.targets')">
     <BumpVersionSpec Include="AssemblyVersion" IncludeWildcard="true" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" />
     <BumpVersionSpec Include="AssemblyFileVersion" UseUtc="true" PatchProviderTemplate="MonthDayOfMonth" BuildProviderTemplate="Increment" BuildProviderTemplateMayReset="true" />
     <BumpVersionSpec Include="AssemblyInformationalVersion" UseUtc="true" PatchProviderTemplate="MonthDayOfMonth" BuildProviderTemplate="Increment" BuildProviderTemplateMayReset="true" />
