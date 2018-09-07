@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\BumpAssemblyVersions.1.0.1\build\BumpAssemblyVersions.props" Condition="Exists('..\packages\BumpAssemblyVersions.1.0.1\build\BumpAssemblyVersions.props')" />
+  <Import Project="..\packages\BumpAssemblyVersions.1.1.0\build\BumpAssemblyVersions.props" Condition="Exists('..\packages\BumpAssemblyVersions.1.1.0\build\BumpAssemblyVersions.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -52,7 +52,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <ItemGroup Condition="Exists('..\packages\BumpAssemblyVersions.1.0.1\build\BumpAssemblyVersions.targets')">
+  <ItemGroup Condition="Exists('..\packages\BumpAssemblyVersions.1.1.0\build\BumpAssemblyVersions.targets')">
     <BumpVersionSpec Include="AssemblyVersion" IncludeWildcard="true" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" />
     <BumpVersionSpec Include="AssemblyFileVersion" UseUtc="true" PatchProviderTemplate="MonthDayOfMonth" BuildProviderTemplate="Increment" BuildProviderTemplateMayReset="true" />
     <BumpVersionSpec Include="AssemblyInformationalVersion" UseUtc="true" PatchProviderTemplate="MonthDayOfMonth" BuildProviderTemplate="Increment" BuildProviderTemplateMayReset="true" />
@@ -61,8 +61,8 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\BumpAssemblyVersions.1.0.1\build\BumpAssemblyVersions.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\BumpAssemblyVersions.1.0.1\build\BumpAssemblyVersions.props'))" />
-    <Error Condition="!Exists('..\packages\BumpAssemblyVersions.1.0.1\build\BumpAssemblyVersions.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\BumpAssemblyVersions.1.0.1\build\BumpAssemblyVersions.targets'))" />
+    <Error Condition="!Exists('..\packages\BumpAssemblyVersions.1.1.0\build\BumpAssemblyVersions.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\BumpAssemblyVersions.1.1.0\build\BumpAssemblyVersions.props'))" />
+    <Error Condition="!Exists('..\packages\BumpAssemblyVersions.1.1.0\build\BumpAssemblyVersions.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\BumpAssemblyVersions.1.1.0\build\BumpAssemblyVersions.targets'))" />
   </Target>
-  <Import Project="..\packages\BumpAssemblyVersions.1.0.1\build\BumpAssemblyVersions.targets" Condition="Exists('..\packages\BumpAssemblyVersions.1.0.1\build\BumpAssemblyVersions.targets')" />
+  <Import Project="..\packages\BumpAssemblyVersions.1.1.0\build\BumpAssemblyVersions.targets" Condition="Exists('..\packages\BumpAssemblyVersions.1.1.0\build\BumpAssemblyVersions.targets')" />
 </Project>
