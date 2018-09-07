@@ -257,6 +257,16 @@ namespace Bav
                         )
                     ).ToArray();
 
+                    yield return GetOne(GetProjectFullPath("NetStd.ProjXml.TestLookupNoDups"), Success, AllDifferent
+                        , GetProjectXmlVersionFilterSource(GetProjectFullPath("NetStd.ProjXml.TestLookupNoDups")
+                            , new ProjectXmlVersionFilter {Kind = VersionKind.Version}
+                            , new ProjectXmlVersionFilter {Kind = AssemblyVersion}
+                            , new ProjectXmlVersionFilter {Kind = FileVersion}
+                            , new ProjectXmlVersionFilter {Kind = InformationalVersion}
+                            , new ProjectXmlVersionFilter {Kind = PackageVersion}
+                        )
+                    ).ToArray();
+
                     yield return GetOne(GetProjectFullPath("AssyInfo.FileInfoVersions.IncludeWildcards"), Success, AllDifferent
                         , GetAssemblyAttributeVersionFilterSource(
                             GetProjectFullPath("AssyInfo.FileInfoVersions.IncludeWildcards")
