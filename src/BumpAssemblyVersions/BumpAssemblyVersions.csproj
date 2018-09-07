@@ -19,9 +19,9 @@
 
   <PropertyGroup>
     <Title>BumpAssemblyVersions</Title>
-    <PackageVersion>1.0.1</PackageVersion>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
-    <FileVersion>1.0.1.0</FileVersion>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <PackageVersion>1.1.0</PackageVersion>
     <Description>Bumps assembly versions according to user provided specifications.</Description>
     <IsTool>true</IsTool>
   </PropertyGroup>
@@ -123,6 +123,10 @@
          <BuildAction>Content</BuildAction>
        </_PackageFiles>
     </ItemGroup>
+  </Target>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="if exist &quot;bin\$(ConfigurationName)\*.nupkg&quot; del &quot;bin\$(ConfigurationName)\*.nupkg&quot;" />
   </Target>
 
 </Project>
