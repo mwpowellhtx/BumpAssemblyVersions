@@ -36,6 +36,7 @@ namespace Bav
         public override bool TryChange(string current, out string result)
             => Changed = (result = $"{(ShouldReset ? 0 : Increment(Parse(current)))}") != current;
 
+        // ReSharper disable once SuggestBaseTypeForParameter
         /// <summary>
         /// Protected Copy Constructor
         /// </summary>
@@ -43,17 +44,16 @@ namespace Bav
         /// <inheritdoc />
         /// <remarks>This Copy Constructor is Protected due to the fact that it will be
         /// utilized by at least one Class deriving from it.</remarks>
-        // ReSharper disable once SuggestBaseTypeForParameter
         protected IncrementVersionProvider(IncrementVersionProvider other)
             : base(other)
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         /// <summary>
         /// Internal Default Constructor.
         /// </summary>
         /// <inheritdoc />
-        // ReSharper disable once UnusedMember.Global
         internal IncrementVersionProvider()
         {
         }

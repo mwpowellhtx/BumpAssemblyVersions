@@ -18,6 +18,11 @@ namespace Bav
     public abstract class VersionProviderBase : IVersionProvider
     {
         /// <summary>
+        /// Gets or sets the associated Descriptor For Internal Use.
+        /// </summary>
+        internal IBumpVersionDescriptor Descriptor { get; set; }
+
+        /// <summary>
         /// Gets whether the Provider is ForInternalUseOnly.
         /// </summary>
         /// <inheritdoc />
@@ -41,6 +46,8 @@ namespace Bav
         /// <inheritdoc />
         public DateTime Timestamp { get; internal set; }
 
+        // TODO: TBD: now with the advent of Descriptor property, consider whether to re-work how UseUtc is set from the configuration
+        // TODO: TBD: ... and how it propagates from descriptor to the version providers.
         /// <summary>
         /// Gets whether to UseUtc when performing the Change.
         /// </summary>
@@ -86,11 +93,18 @@ namespace Bav
         /// <inheritdoc />
         public IEnumerable<IVersionProvider> MoreSignificantProviders { get; internal set; }
 
+        private bool _mayReset;
+
         /// <summary>
         /// Gets or sets whether MayReset.
         /// </summary>
+        /// <see cref="Descriptor"/>
         /// <inheritdoc />
-        public bool MayReset { get; set; }
+        public bool MayReset
+        {
+            get => _mayReset || Descriptor?.MayReset == true;
+            set => _mayReset = value;
+        }
 
         /// <summary>
         /// Gets whether Should Reset. Should Reset is stronger than <see cref="MayReset"/>
@@ -121,19 +135,19 @@ namespace Bav
             => _midnightTimestamp ?? (_midnightTimestamp = new DateTime(
                    ProtectedTimestamp.Year, ProtectedTimestamp.Month, ProtectedTimestamp.Day)).Value;
 
+        // ReSharper disable once UnusedMember.Global
         /// <summary>
         /// Default Protected Constructor.
         /// </summary>
-        // ReSharper disable once UnusedMember.Global
         protected VersionProviderBase()
         {
         }
 
+        // ReSharper disable once SuggestBaseTypeForParameter
         /// <summary>
         /// Protected Copy Constructor.
         /// </summary>
         /// <param name="other"></param>
-        // ReSharper disable once SuggestBaseTypeForParameter
         protected VersionProviderBase(VersionProviderBase other)
         {
             SetTimestamp(other.Timestamp, other.UseUtc);

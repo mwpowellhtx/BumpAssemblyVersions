@@ -19,9 +19,9 @@
 
   <PropertyGroup>
     <Title>BumpAssemblyVersions</Title>
-    <PackageVersion>1.0.0</PackageVersion>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <PackageVersion>1.0.1</PackageVersion>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
     <Description>Bumps assembly versions according to user provided specifications.</Description>
     <IsTool>true</IsTool>
   </PropertyGroup>
@@ -31,7 +31,7 @@
     <PackageProjectUrl>http://github.com/mwpowellhtx/BumpAssemblyVersions</PackageProjectUrl>
     <PackageLicenseUrl>http://github.com/mwpowellhtx/BumpAssemblyVersions/LICENSE</PackageLicenseUrl>
     <PackageDescription>$(Description)</PackageDescription>
-    <PackageTags>version; versions; assembly; assemblies; bump</PackageTags>
+    <PackageTags>version; versions; assembly; assemblies; bump; bumps; bumped; nuget; restore; restored; msbuild; provider; registry; may; should; reset; use; utc; universal; coordinated; time; stamp; timestamp; label; value; width; discard; create; new; include; wildcard; default; kind; file; files; informational; package; spec; specification; specifications; targets; template; major; minor; patch; build; release; prerelease; element; elements; import; item; group; more; significant; change; changed</PackageTags>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
@@ -54,6 +54,9 @@
     <PackageReference Include="Microsoft.Build.Framework" Version="15.7.179" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="15.7.179" />
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+    <PackageReference Include="Microsoft.VisualStudio.SlowCheetah" Version="3.1.66">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="NuGet.Versioning" Version="4.6.2" />
     <PackageReference Include="System.Xml.XDocument" Version="4.3.0" />
@@ -61,12 +64,7 @@
     <PackageReference Update="@(PackageReference)" PrivateAssets="All" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="build\*" PackagePath="build\" />
-    <!-- TODO: TBD: ditto multi-targeting; (not yet) -->
-    <!--<Content Include="buildMultiTargeting\*" PackagePath="buildMultiTargeting\" />-->
-  </ItemGroup>
-
+  <!-- TODO: TBD: ditto multi-targeting; (not yet) -->
   <ItemGroup>
     <Compile Update="BumpVersionTask.Input.cs">
       <DependentUpon>BumpVersionTask.cs</DependentUpon>
@@ -80,12 +78,28 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="build\BumpAssemblyVersions.props">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Update="build\BumpAssemblyVersions.targets">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <None Update="build\BumpAssemblyVersions.Debug.props">
+      <IsTransformFile>true</IsTransformFile>
+      <DependentUpon>BumpAssemblyVersions.props</DependentUpon>
+    </None>
+    <None Update="build\BumpAssemblyVersions.Debug.targets">
+      <IsTransformFile>true</IsTransformFile>
+      <DependentUpon>BumpAssemblyVersions.targets</DependentUpon>
+    </None>
+    <None Update="build\BumpAssemblyVersions.props">
+      <TransformOnBuild>true</TransformOnBuild>
+    </None>
+    <None Update="build\BumpAssemblyVersions.Release.props">
+      <IsTransformFile>true</IsTransformFile>
+      <DependentUpon>BumpAssemblyVersions.props</DependentUpon>
+    </None>
+    <None Update="build\BumpAssemblyVersions.Release.targets">
+      <IsTransformFile>true</IsTransformFile>
+      <DependentUpon>BumpAssemblyVersions.targets</DependentUpon>
+    </None>
+    <None Update="build\BumpAssemblyVersions.targets">
+      <TransformOnBuild>true</TransformOnBuild>
+    </None>
   </ItemGroup>
 
   <Target Name="PackTaskDependencies" AfterTargets="Build" BeforeTargets="GenerateNuspec">
@@ -94,12 +108,21 @@
     output folder but before NuGet generates a nuspec. -->
 
      <ItemGroup>
-      <_PackageFiles Include="bin\$(Configuration)\**\*.dll">
-        <PackagePath>tasks\%(RecursiveDir)</PackagePath>
-        <Visible>false</Visible>
-        <BuildAction>Content</BuildAction>
-      </_PackageFiles>
-    </ItemGroup> 
+       <_PackageFiles Include="bin\$(Configuration)\$(TargetFramework)\*.*">
+         <PackagePath>tasks\$(TargetFramework)\%(RecursiveDir)</PackagePath>
+         <Visible>false</Visible>
+         <BuildAction>Content</BuildAction>
+       </_PackageFiles>
+       <!-- This is a perfectly adequate workaround for the Content v SlowCheetah
+       transformation confusion. Although these are "content", we do not let MSBuild/NuGet
+       consider them Content in the Contentiness way of considering them as such. Rather,
+       let SC do its work, then capture them afterwards prior to the GenerateNuspec task. -->
+       <_PackageFiles Include="bin\$(Configuration)\$(TargetFramework)\build\*.*">
+         <PackagePath>build\%(RecursiveDir)</PackagePath>
+         <Visible>false</Visible>
+         <BuildAction>Content</BuildAction>
+       </_PackageFiles>
+    </ItemGroup>
   </Target>
 
 </Project>

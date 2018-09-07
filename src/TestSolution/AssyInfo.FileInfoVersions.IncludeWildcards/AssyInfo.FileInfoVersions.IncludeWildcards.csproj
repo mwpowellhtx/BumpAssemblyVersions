@@ -53,8 +53,6 @@
     <FilesToBump Condition="Exists('Properties\TestAssemblyInfo.cs')" Include="Properties\TestAssemblyInfo.cs" />
 	<!-- TODO: TBD: it would be better for these to happen from the targets file perspective if possible.
 	Given the new project format, *.props may be a better choice. -->
-    <BumpVersionSpec Update="@(BumpVersionSpec)" Visible="False" />
-    <FilesToBump Update="@(FilesToBump)" Visible="False" />
   </ItemGroup>
   <Import Project="$(ProjectDir)..\..\BumpAssemblyVersions\bin\$(Configuration)\netstandard2.0\build\BumpAssemblyVersions.targets" />
 </Project>

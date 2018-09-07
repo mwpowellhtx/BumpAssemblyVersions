@@ -48,6 +48,11 @@ namespace Bav
         bool CreateNew { get; set; }
 
         /// <summary>
+        /// Gets or sets whether to MayReset.
+        /// </summary>
+        bool MayReset { get; set; }
+
+        /// <summary>
         /// Gets or sets whether to IncludeWildcard.
         /// </summary>
         bool IncludeWildcard { get; set; }

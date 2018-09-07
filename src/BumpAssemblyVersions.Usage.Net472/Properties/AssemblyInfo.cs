@@ -1,15 +1,14 @@
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("AssyInfo.FileInfoVersions.IncludeWildcards")]
+[assembly: AssemblyTitle("BumpAssemblyVersions.Usage.Net472")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("AssyInfo.FileInfoVersions.IncludeWildcards")]
+[assembly: AssemblyProduct("BumpAssemblyVersions.Usage.Net472")]
 [assembly: AssemblyCopyright("Copyright © 2018")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("4f0cf203-2f45-4a97-aced-476e3c19a705")]
+[assembly: Guid("338ae871-b7b9-44fa-9421-714a5aa93263")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -31,8 +30,7 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
-//[assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.44.*")]
-[assembly: AssemblyFileVersion("1.0.44.0")]
-
-[assembly: AssemblyInformationalVersion("1.0.41")]
+// [assembly: AssemblyVersion("1.0.*")]
+[assembly: AssemblyVersion("1.0.9.*")]
+[assembly: AssemblyFileVersion("1.0.0906.0")]
+[assembly: AssemblyInformationalVersion("1.0.0906.0")]

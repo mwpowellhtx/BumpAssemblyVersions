@@ -24,22 +24,22 @@
         public override bool TryChange(string current, out string result)
             => Changed = (result = ShouldReset ? "0" : current) != current;
 
+        // ReSharper disable once SuggestBaseTypeForParameter, UnusedMember.Local
         /// <summary>
         /// Private Copy Constructor.
         /// </summary>
         /// <param name="other"></param>
         /// <inheritdoc />
-        // ReSharper disable once SuggestBaseTypeForParameter, UnusedMember.Local
         private NoOpVersionProvider(NoOpVersionProvider other)
             : base(other)
         {
         }
 
+        // ReSharper disable once UnusedMember.Global
         /// <summary>
         /// Internal Default Constructor.
         /// </summary>
         /// <inheritdoc />
-        // ReSharper disable once UnusedMember.Global
         internal NoOpVersionProvider()
         {
         }
