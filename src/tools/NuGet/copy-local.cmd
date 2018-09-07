@@ -6,18 +6,19 @@ setlocal
 set local_dir=%2
 set nupkg_ext=.nupkg
 
-if ("%local_dir%" === "") {
+if "%local_dir%" equ "" (
     set local_dir=G:\Dev\NuGet\local\packages
-}
+)
 
 :setconfig
 set config=%1
-if ("%config%" === "") (
+if "%config%" equ "" (
     set config=Release
 )
 
-echo config=%config%
-echo local_dir=%local_dir%
+:::: TODO: TBD: for debugging and troubleshooting purposes only...
+:: echo config=%config%
+:: echo local_dir=%local_dir%
 
 :: Do the main areas here.
 pushd ..\..
