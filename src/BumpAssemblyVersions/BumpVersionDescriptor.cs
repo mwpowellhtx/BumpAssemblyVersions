@@ -60,6 +60,9 @@ namespace Bav
         public bool CreateNew { get; set; }
 
         /// <inheritdoc />
+        public bool MayReset { get; set; }
+
+        /// <inheritdoc />
         public bool IncludeWildcard { get; set; }
 
         /// <inheritdoc />
@@ -106,6 +109,7 @@ namespace Bav
                 VersionProviderBase CloneCurrent(IVersionProvider currentProvider)
                 {
                     var clone = (VersionProviderBase) currentProvider.Clone();
+                    clone.Descriptor = this;
                     clone.SetTimestamp(DescriptorTimestamp, UseUtc);
                     return clone;
                 }

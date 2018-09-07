@@ -19,6 +19,7 @@ namespace Bav
         {
             internal const string UseUtc = nameof(UseUtc);
             internal const string CreateNew = nameof(CreateNew);
+            internal const string MayReset = nameof(MayReset);
             internal const string IncludeWildcard = nameof(IncludeWildcard);
             internal const string DefaultVersion = nameof(DefaultVersion);
         }
@@ -48,6 +49,7 @@ namespace Bav
 
             SetPropertyFromMetadata(UseUtc, bool.Parse, (d, x) => d.UseUtc = x);
             SetPropertyFromMetadata(CreateNew, bool.Parse, (d, x) => d.CreateNew = x);
+            SetPropertyFromMetadata(MayReset, bool.Parse, (d, x) => d.MayReset = x);
             SetPropertyFromMetadata(IncludeWildcard, bool.Parse, (d, x) => d.IncludeWildcard = x);
             SetPropertyFromMetadata(DefaultVersion, s => s, (d, s) => d.DefaultVersion = s);
 
