@@ -21,11 +21,22 @@ namespace Bav
         {
             var providerType = typeof(IVersionProvider);
 
-            var requestedType = providerType.Assembly.GetTypes()
-                .Where(type => providerType.IsAssignableFrom(type)
-                               && type.IsClass
-                               && !(type.IsInterface || type.IsAbstract))
-                .SingleOrDefault(type => type.Name.StartsWith(providerRequest));
+            Type requestedType;
+
+            try
+            {
+                requestedType = providerType.Assembly.GetTypes()
+                    .Where(type => providerType.IsAssignableFrom(type)
+                                   && type.IsClass
+                                   && !(type.IsInterface || type.IsAbstract))
+                    .SingleOrDefault(type => type.Name.StartsWith(providerRequest));
+            }
+            catch (InvalidOperationException ioex)
+            {
+                throw new InvalidOperationException(
+                    $"Unable to determine '{typeof(IVersionProvider).FullName}'"
+                    + $" given '{providerRequest}'.", ioex);
+            }
 
             if (requestedType == null)
             {
