@@ -69,6 +69,14 @@ namespace Bav
         /// <see cref="EqualityComparer"/>
         private static XNodeEqualityComparer Comparer => EqualityComparer;
 
+        // TODO: TBD: actually, there could potentially be many of them, depending on the usage, filtering due to Configuration, etc...
+        // ReSharper disable once ImplicitlyCapturedClosure
+        internal static bool TryGetVersionElement<TContainer>(TContainer container, string parentName
+            , string propertyName, out IEnumerable<XElement> elements)
+            where TContainer : XContainer
+            => (elements = container.Descendants(parentName).SelectMany(
+                propertyGroup => propertyGroup.Descendants(propertyName)).ToArray()).Any();
+
         /// <inheritdoc />
         public virtual bool TryBumpDocument(XDocument given, out XDocument result)
         {
@@ -77,17 +85,11 @@ namespace Bav
             // ReSharper disable once InconsistentNaming
             const string PropertyGroup = nameof(PropertyGroup);
 
-            // ReSharper disable once ImplicitlyCapturedClosure
-            bool TryGetVersionElement<TContainer>(TContainer container, out IEnumerable<XElement> elements)
+            // Named accordingly so as not to collide with the static method.
+            // ReSharper disable once InconsistentNaming, ImplicitlyCapturedClosure
+            bool _TryGetVersionElement<TContainer>(TContainer container, out IEnumerable<XElement> elements)
                 where TContainer : XContainer
-            {
-                var kind = $"{descriptor.Kind}";
-
-                // TODO: TBD: actually, there could potentially be many of them, depending on the usage, filtering due to Configuration, etc...
-                elements = container.Descendants(PropertyGroup).SelectMany(
-                    propertyGroup => propertyGroup.Descendants(kind)).ToArray();
-                return elements.Any();
-            }
+                => TryGetVersionElement(container, PropertyGroup, $"{descriptor.Kind}", out elements);
 
             // ReSharper disable once ImplicitlyCapturedClosure
             bool TryCreateNewVersionElement(XDocument doc, out IEnumerable<XElement> elements)
@@ -97,12 +99,12 @@ namespace Bav
                 {
                     return false;
                 }
-
+               
                 doc?.Root?.AddFirst(new XElement(PropertyGroup
                     , new XElement($"{descriptor.Kind}", descriptor.DefaultVersion))
                 );
 
-                return TryGetVersionElement(doc, out elements);
+                return _TryGetVersionElement(doc, out elements);
             }
 
             bool TryBumpVersionElements(params XElement[] elements)
@@ -145,7 +147,7 @@ namespace Bav
                 where TNode : XNode
                 => !Comparer.Equals(aDoc, bDoc);
 
-            return (TryGetVersionElement(result = new XDocument(given), out var versionElements)
+            return (_TryGetVersionElement(result = new XDocument(given), out var versionElements)
                     || TryCreateNewVersionElement(result, out versionElements))
                    && TryBumpVersionElements(versionElements.ToArray())
                    // TODO: TBD: this is where it gets really interesting...

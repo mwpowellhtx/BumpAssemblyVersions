@@ -8,89 +8,22 @@ using Microsoft.Build.Framework;
 
 namespace Bav
 {
-    using Microsoft.Build.Evaluation;
     using Microsoft.Build.Utilities;
     using static File;
+    using static ProjectBasedBumpVersionService;
     using static String;
     using static XNode;
     using static MessageImportance;
     using static VersionKind;
     using static LoadOptions;
 
+    // ReSharper disable once UnusedMember.Global
     /// <summary>
     /// 
     /// </summary>
     /// <inheritdoc />
     public partial class BumpVersion : Task
     {
-        //// TODO: TBD: not sure exactly what this was going to be... capture services at this level? may not be necessary, or even desired...
-        //private AssemblyInfoBumpVersionService AssemblyInfoBumpVersion { get; } = new AssemblyInfoBumpVersionService();
-
-        private IEnumerable<FileInfo> _filePaths;
-
-        private IEnumerable<FileInfo> FilePaths
-            => _filePaths ?? (_filePaths
-                   = Files.Select(item => new FileInfo(item.ItemSpec))).ToArray();
-
-        private static XDocument GetDocument(string xmlFullPath)
-        {
-            using (var fs = Open(xmlFullPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-            {
-                using (var sr = new StreamReader(fs))
-                {
-                    // Yes, we want to Preserve the Whitespace in the file.
-                    return XDocument.Parse(sr.ReadToEnd(), PreserveWhitespace);
-                }
-            }
-        }
-
-        private static bool TryBumpingProjectXmlVersions(string projectFileFullPath
-            , params BumpVersionDescriptor[] descriptors)
-        {
-            bool TryVettingProjectXml(string fullPath, out XDocument vettedDoc)
-            {
-                vettedDoc = GetDocument(fullPath);
-
-                if (vettedDoc.Root == null
-                    || vettedDoc.Root.Name != nameof(Project)
-                    || !vettedDoc.Root.HasAttributes)
-                {
-                    return false;
-                }
-
-                var sdkAttrib = vettedDoc.Root.Attribute("Sdk");
-
-                return sdkAttrib != null && sdkAttrib.Value == "Microsoft.NET.Sdk";
-            }
-
-            // TODO: TBD: add bits concerning Version Xml properties...
-
-            bool TryBumpingVettedDocument(XDocument vettedDoc, BumpVersionDescriptor descriptor)
-            {
-                return false;
-            }
-
-            return descriptors.Any()
-                   && TryVettingProjectXml(projectFileFullPath, out var projectDoc)
-                   && descriptors.Any(d => TryBumpingVettedDocument(projectDoc, d));
-        }
-
-        /// <summary>
-        /// Versions of this form are typically found in an AssemblyInfo file, but they do not
-        /// necessarily reside there exclusively.
-        /// </summary>
-        /// <param name="sourceFileFullPath"></param>
-        /// <param name="descriptors"></param>
-        /// <returns></returns>
-        private static bool TryBumpingAssemblyInfoVersion<T>(string sourceFileFullPath
-            , params IBumpVersionDescriptor[] descriptors)
-            where T : Attribute
-        {
-            return new BumpFileVersionServiceAdapter().TryBumpVersions(sourceFileFullPath
-                , descriptors.Select(descriptor => new AssemblyInfoBumpVersionService<T>(
-                    descriptor)).ToArray<IAssemblyInfoBumpVersionService>());
-        }
-
         private static bool TryReadingFile(string fullPath, out string lines)
         {
             const FileMode mode = FileMode.Open;
@@ -155,6 +88,7 @@ namespace Bav
         }
 
         private bool TryWritingFileLines(string fullPath, params string[] lines)
+        // TODO: TBD: actually, the separator depends on the platform. Would be appropriate to discern Windows (CrLf) from Linux (Lf), for example.
             => TryWritingFile(fullPath, Join("\r\n", lines));
 
         /// <summary>
@@ -357,11 +291,8 @@ namespace Bav
             var services = descriptors.Select(d => d.MakeProjectBasedBumpVersionService(log))
                 .Where(x => x != null).ToArray();
 
-            services.ToList().ForEach(service =>
-            {
-                // TODO: TBD: I think there must also be BumpResultCreated, probably also for the AssemblyInfo version...
-                service.BumpResultFound += OnBumpResultFound;
-            });
+            // TODO: TBD: I think there must also be BumpResultCreated, probably also for the AssemblyInfo version...
+            services.ToList().ForEach(service => { service.BumpResultFound += OnBumpResultFound; });
 
             // TODO: TBD: what's nice about this is that minimum the XDocument work is nicely contained in the block
             // TODO: TBD: it may make sense to refactor this block into its own local function TryABC method
@@ -377,19 +308,43 @@ namespace Bav
                 /* Process the Given Doc using the Services in the Aggregate.
                  Pull the Tried Doc forward when the Bump did Try. */
                 var resultDoc = services.Aggregate(new XDocument(givenDoc)
-                    , (currentDoc, service) => service.TryBumpDocument(currentDoc, out var triedDoc)
-                        ? triedDoc
-                        : currentDoc);
+                    , (currentDoc, service) =>
+                    {
+                        // TODO: TBD: sort of beggars the question at this point; 
+                        // TODO: TBD: if we did set the version property via the custom task
+                        // TODO: TBD: then is it really that necessary to re-write the file afterwards?
+                        // TODO: TBD: yes, for AssemblyInfo Assembly Attribute based work, of course
+                        // TODO: TBD: but for CSPROJ Project based work? perhaps not... TBD, TBD, TBD ...
+                        var tried = service.TryBumpDocument(currentDoc, out var triedDoc);
+
+                        // ReSharper disable once InvertIf
+                        if (tried)
+                        {
+                            // ReSharper disable once InconsistentNaming
+                            const string PropertyGroup = nameof(PropertyGroup);
+
+                            // TODO: TBD: do we need an actual property get/set pair for the Output?
+                            if (TryGetVersionElement(triedDoc, PropertyGroup, $"{service.Descriptor.Kind}"
+                                , out var elements))
+                            {
+                                // TODO: TBD: also take into consideration things like Configuration re: multiple returned elements...
+                                // Do not miss this. These are the hooks that inform the Task Output properties.
+                                ProjectVersions[service.Descriptor.Kind] = elements.Single().Value;
+                            }
+                        }
+
+                        return tried ? triedDoc : currentDoc;
+                    });
 
                 // We Bumped when the Doc changed and we Formatted to Given.
                 bumped = DidBumpDocumentVersions(givenDoc, resultDoc) && TryFormatNode(resultDoc, out given);
             }
 
-            services.ToList().ForEach(service =>
-            {
-                service.BumpResultFound -= OnBumpResultFound;
-            });
+            services.ToList().ForEach(service => { service.BumpResultFound -= OnBumpResultFound; });
 
+            /* We do still need to re-write the file. But we also need to connect the
+             TryBumpDocument with the actual Custom Task Output(s), in order to realize
+             comprehensive integration at the time the Properties are being resolved. */
             return bumped && TryWritingFile(projectFilename, given);
         }
 
