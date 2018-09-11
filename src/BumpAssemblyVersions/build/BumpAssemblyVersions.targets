@@ -12,7 +12,21 @@
 
     <!-- ReSharper disable UnknownItemGroup, ReSharper disable once UnknownTask -->
     <BumpVersion Configuration="$(Configuration)" Bumps="@(BumpVersionSpec)"
-                 Files="@(FilesToBump)" ProjectFullPath="$(ProjectPath)" />
+                 Files="@(FilesToBump)" ProjectFullPath="$(ProjectPath)">
+      <Output TaskParameter="NewVersion" PropertyName="BumpVersionNewVersion" />
+      <Output TaskParameter="NewAssemblyVersion" PropertyName="BumpVersionNewAssemblyVersion" />
+      <Output TaskParameter="NewFileVersion" PropertyName="BumpVersionNewFileVersion" />
+      <Output TaskParameter="NewInformationalVersion" PropertyName="BumpVersionNewInformationalVersion" />
+      <Output TaskParameter="NewPackageVersion" PropertyName="BumpVersionNewPackageVersion" />
+    </BumpVersion>
+
+    <PropertyGroup>
+      <Version Condition="$(BumpVersionNewVersion) != ''">$(BumpVersionNewVersion)</Version>
+      <AssemblyVersion Condition="$(BumpVersionNewAssemblyVersion) != ''">$(BumpVersionNewAssemblyVersion)</AssemblyVersion>
+      <FileVersion Condition="$(BumpVersionNewFileVersion) != ''">$(BumpVersionNewFileVersion)</FileVersion>
+      <InformationalVersion Condition="$(BumpVersionNewInformationalVersion) != ''">$(BumpVersionNewInformationalVersion)</InformationalVersion>
+      <PackageVersion Condition="$(BumpVersionNewPackageVersion) != ''">$(BumpVersionNewPackageVersion)</PackageVersion>
+    </PropertyGroup>
 
   </Target>
 
