@@ -9,6 +9,7 @@ namespace Bav
     using static Path;
     using static String;
 
+    // ReSharper disable once UnusedMember.Global
     public partial class BumpVersion
     {
         /// <summary>
@@ -43,6 +44,7 @@ namespace Bav
             => _bumpDescriptors
                ?? (_bumpDescriptors = Bumps.Select(bump => bump.ToDescriptor())).ToArray();
 
+        // ReSharper disable once UnusedMember.Global
         /// <summary>
         /// 
         /// </summary>
