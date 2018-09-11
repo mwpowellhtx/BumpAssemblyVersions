@@ -2,19 +2,19 @@
   <!-- "CreateNew" does in fact work. This is what results.
   We could potentially inject some whitespace, but this is perfectly fine for now. -->
   <PropertyGroup>
-    <PackageVersion>2018.249.1418.1</PackageVersion>
+    <PackageVersion>2018.253.1813.0</PackageVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <InformationalVersion>2018.249.1418.1</InformationalVersion>
+    <InformationalVersion>2018.253.1813.0</InformationalVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <FileVersion>2018.249.1418.1</FileVersion>
+    <FileVersion>2018.253.1813.0</FileVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyVersion>2018.249.1418.1</AssemblyVersion>
+    <AssemblyVersion>2018.253.1813.0</AssemblyVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <Version>2018.249.1418.1</Version>
+    <Version>2018.253.1813.0</Version>
   </PropertyGroup>
 
   <Import Project="$(ProjectDir)..\..\BumpAssemblyVersions\bin\$(Configuration)\netstandard2.0\build\BumpAssemblyVersions.targets" />
