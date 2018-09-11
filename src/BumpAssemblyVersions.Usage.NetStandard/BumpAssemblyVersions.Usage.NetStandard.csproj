@@ -1,37 +1,28 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <!-- "CreateNew" does in fact work. This is what results.
   We could potentially inject some whitespace, but this is perfectly fine for now. -->
   <PropertyGroup>
-    <PackageVersion>2018.250.1446.0</PackageVersion>
+    <PackageVersion>2018.254.1329.0</PackageVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <InformationalVersion>2018.250.1446.0</InformationalVersion>
+    <InformationalVersion>2018.254.1329.0</InformationalVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <FileVersion>2018.250.1446.0</FileVersion>
+    <FileVersion>2018.254.1329.0</FileVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyVersion>2018.250.1446.0</AssemblyVersion>
+    <AssemblyVersion>2018.254.1329.0</AssemblyVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <Version>2018.250.1446.0</Version>
+    <Version>2018.254.1329.0</Version>
   </PropertyGroup>
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
-  <!-- Remember to update any package paths to include the currently installed package reference. -->
-  <Import Project="$(ProjectDir)..\packages\BumpAssemblyVersions.1.1.0\build\BumpAssemblyVersions.targets" Condition="Exists('$(ProjectDir)..\packages\BumpAssemblyVersions.1.1.0\build\BumpAssemblyVersions.targets')" />
-
-  <ItemGroup>
-    <PackageReference Include="BumpAssemblyVersions" Version="1.1.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup Condition="Exists('$(ProjectDir)..\packages\BumpAssemblyVersions.1.1.0\build\BumpAssemblyVersions.targets')">
+  <ItemGroup Condition="Exists('G:\Dev\NuGet\global\packages\BumpAssemblyVersions\1.2.0\build\BumpAssemblyVersions.targets')">
     <!-- Legit, "Year" will, in fact, yield two or more such providers. This is by design in order to avoid errant provider references,
     and I now call it out by name when it happens. Need to specify something more than that, like "YearVersion". -->
     <BumpVersionSpec Include="Version" DefaultVersion="0.0.0.0" CreateNew="true" UseUtc="true" MayReset="true" MajorProviderTemplate="YearVersion" MinorProviderTemplate="DayOfYear" PatchProviderTemplate="HourMinute" BuildProviderTemplate="Increment" />
@@ -41,6 +32,13 @@
     <BumpVersionSpec Include="FileVersion" DefaultVersion="0.0.0.0" CreateNew="true" UseUtc="true" MayReset="true" MajorProviderTemplate="YearVersion" MinorProviderTemplate="DayOfYear" PatchProviderTemplate="HourMinute" BuildProviderTemplate="Increment" />
     <BumpVersionSpec Include="InformationalVersion" DefaultVersion="0.0.0.0" CreateNew="true" UseUtc="true" MayReset="true" MajorProviderTemplate="YearVersion" MinorProviderTemplate="DayOfYear" PatchProviderTemplate="HourMinute" BuildProviderTemplate="Increment" />
     <BumpVersionSpec Include="PackageVersion" DefaultVersion="0.0.0.0" CreateNew="true" UseUtc="true" MayReset="true" MajorProviderTemplate="YearVersion" MinorProviderTemplate="DayOfYear" PatchProviderTemplate="HourMinute" BuildProviderTemplate="Increment" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BumpAssemblyVersions" Version="1.2.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
 </Project>
