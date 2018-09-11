@@ -6,11 +6,6 @@
     <BumpVersionSpec Include="InformationalVersion" UseUtc="false" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" />
   </ItemGroup>
 
-  <ItemGroup>
-    <BumpVersionSpec Update="@(BumpVersionSpec)" Visible="False" />
-    <FilesToBump Update="@(FilesToBump)" Visible="False" />
-  </ItemGroup>
-
   <Import Project="$(ProjectDir)..\..\BumpAssemblyVersions\bin\$(Configuration)\netstandard2.0\build\BumpAssemblyVersions.targets" />
 
   <PropertyGroup>
@@ -18,9 +13,9 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <AssemblyVersion>1.2.49.0</AssemblyVersion>
-    <FileVersion>1.2.49.0</FileVersion>
-    <InformationalVersion>1.2.49.0</InformationalVersion>
+    <AssemblyVersion>1.2.50.0</AssemblyVersion>
+    <FileVersion>1.2.50.0</FileVersion>
+    <InformationalVersion>1.2.50.0</InformationalVersion>
   </PropertyGroup>
 
 </Project>
