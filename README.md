@@ -156,7 +156,7 @@ The first thing you must do is specify the bump targets:
 </Project>
 ```
 
-For argument's sake, let's call ``\path\to\package\build`` something like ``$(ProjectDir)..\packages\BumpAssemblyVersions.1.0.1\build``. Basically, this is the relative path from your consumer project to the package. You may specify an absolute path if the package is landing elsewhere. You may use built-in predefined macros such as ``$(ProjectDir)``.
+For argument's sake, let's call ``\path\to\package\build`` something like ``$(ProjectDir)..\packages\BumpAssemblyVersions.1.0.1\build`` or ``path\to\your\global\packages\BumpAssemblyVersions\1.0.1\build``, depending on how you add your package references, your [version of NuGet](http://www.nuget.org/downloads), and so on. Basically, this is the relative path from your consumer project to the package. You may specify an absolute path if the package is landing elsewhere. You may use built-in predefined macros such as ``$(ProjectDir)``.
 
 Refer to the targets similarly with the new project file format:
 
@@ -166,6 +166,18 @@ Refer to the targets similarly with the new project file format:
   <Import Project="\path\to\package\build\BumpAssemblyVersions.targets" />
   ...
 </Project>
+```
+
+If you are using the new style ``<PackageReference />`` then it is likely the *targets* assets are already included and would not need to be imported. For example:
+
+```Xml
+<ItemGroup>
+  <PackageReference Include="BumpAssemblyVersions" Version="1.2.0">
+    <PrivateAssets>all</PrivateAssets>
+    <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    <!--                    ^^^^^ -->
+  </PackageReference>
+</ItemGroup>
 ```
 
 ### Files to Bump
