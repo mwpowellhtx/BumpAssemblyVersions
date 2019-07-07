@@ -3,8 +3,7 @@
 
   <UsingTask AssemblyFile="..\BumpAssemblyVersions.dll" TaskName="Bav.BumpVersion" />
 
-  <!-- ReSharper disable once UnknownProperty -->
-  <Target Name="BavBeforeBuild" BeforeTargets="BeforeBuild" Condition="!Exists($(BavLockFilePath))">
+  <Target Name="GeneralBumpAssemblyVersions">
 
     <ItemGroup>
       <FilesToBump Condition="Exists('Properties\AssemblyInfo.cs')" Include="Properties\AssemblyInfo.cs" />
@@ -29,6 +28,18 @@
     </PropertyGroup>
 
   </Target>
+
+  <!-- ReSharper disable UnknownProperty -->
+  <!-- This works perfectly in the single-target scenario, but we need to condition our response based on whether TargetFrameworks was there. -->
+  <Target Name="BumpAssemblyVersionsBeforeBuild" BeforeTargets="BeforeBuild" Condition="'$(TargetFrameworks)' == ''">
+    <CallTarget Targets="GeneralBumpAssemblyVersions" />
+  </Target>
+
+  <!-- BeforeBuild occurs for each of the targets individually in a multi-target scenario, so we must Bump relative to the Outer loop Dispatch. -->
+  <Target Name="BumpAssemblyVersionsBeforeDispatchToInnerBuilds" BeforeTargets="DispatchToInnerBuilds" Condition="'$(TargetFrameworks)' != ''">
+    <CallTarget Targets="GeneralBumpAssemblyVersions" />
+  </Target>
+  <!-- ReSharper restore UnknownProperty -->
 
   <PropertyGroup>
     <BumpAssemblyVersionsLoaded>true</BumpAssemblyVersionsLoaded>

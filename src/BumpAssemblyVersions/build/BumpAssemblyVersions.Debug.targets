@@ -3,7 +3,7 @@
 <Project xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
 
   <!-- ReSharper disable once UnknownProperty -->
-  <Target xdt:Transform="Insert" Name="ReportBavDebugMessages" AfterTargets="BavBeforeBuild">
+  <Target xdt:Transform="Insert" Name="ReportBumpAssemblyVersionsDebugMessages" AfterTargets="BumpAssemblyVersionsBeforeBuild">
     <!-- ReSharper disable once UnknownProperty -->
     <Warning Text="BumpVersionNewVersion=$(BumpVersionNewVersion)" />
     <!-- ReSharper disable once UnknownProperty -->
