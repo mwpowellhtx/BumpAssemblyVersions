@@ -17,6 +17,7 @@
   <files>
     <file src="bin\$configuration$\**\$id$.dll" target="tasks"/>
     <file src="bin\$configuration$\**\$id$.xml" target="tasks"/>
-    <file src="build\*.*" target="build"/>
+    <!-- ReSharper disable MarkupAttributeTypo -->
+    <file src="obj\Release\netstandard2.0\build\*.*" target="build"/>
   </files>
 </package>
