@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project TreatAsLocalProperty="TaskFolder">
 
+  <!-- ReSharper disable UnknownProperty -->
   <PropertyGroup>
     <!-- TODO: TBD: don't care about multi-targeting (yet) ... -->
     <TaskFolder>netstandard2.0</TaskFolder>
@@ -8,11 +9,14 @@
     <!--<TaskFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net46</TaskFolder>-->
     <BavPath>$(MSBuildThisFileDirectory)..\tasks\$(TaskFolder)</BavPath>
   </PropertyGroup>
+  <!-- ReSharper restore UnknownProperty -->
 
   <!-- See also: https://msdn.microsoft.com/en-us/library/ms164309.aspx (MSBuild Reserved and Well-Known Properties) -->
   <UsingTask AssemblyFile="$(BavPath)\BumpAssemblyVersions.dll" TaskName="Bav.BumpVersionTask" />
 
   <PropertyGroup>
+    <!-- TODO: TBD: not sure what a `lock file´ was all about... -->
+    <!-- TODO: TBD: we may not need this after all provided we can arrest the target/condition issue? -->
     <BavLockFilePath>$(MSBuildProjectDirectory)\$(MSBuildProjectName).bav.lock</BavLockFilePath>
   </PropertyGroup>
 
