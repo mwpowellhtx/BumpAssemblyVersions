@@ -10,8 +10,8 @@
     </ItemGroup>
 
     <!-- ReSharper disable UnknownItemGroup, ReSharper disable once UnknownTask -->
-    <BumpVersion Configuration="$(Configuration)" Bumps="@(BumpVersionSpec)"
-                 Files="@(FilesToBump)" ProjectFullPath="$(ProjectPath)">
+    <!-- We need MSBuildProjectFullPath here and not ProjectPath, because, depending on when the target hits, ProjectPath may not yet be defined. -->
+    <BumpVersion Configuration="$(Configuration)" Bumps="@(BumpVersionSpec)" Files="@(FilesToBump)" ProjectFullPath="$(MSBuildProjectFullPath)">
       <Output TaskParameter="NewVersion" PropertyName="BumpVersionNewVersion" />
       <Output TaskParameter="NewAssemblyVersion" PropertyName="BumpVersionNewAssemblyVersion" />
       <Output TaskParameter="NewFileVersion" PropertyName="BumpVersionNewFileVersion" />
