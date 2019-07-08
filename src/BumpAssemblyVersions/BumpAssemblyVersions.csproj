@@ -10,9 +10,9 @@
     <IsTool>true</IsTool>
     <RootNamespace>Bav</RootNamespace>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyVersion>1.3.0</AssemblyVersion>
-    <FileVersion>1.3.0</FileVersion>
-    <PackageVersion>1.3.0</PackageVersion>
+    <AssemblyVersion>1.3.1</AssemblyVersion>
+    <FileVersion>1.3.1</FileVersion>
+    <PackageVersion>1.3.1</PackageVersion>
     <Description>Bumps assembly versions according to user provided specifications.</Description>
   </PropertyGroup>
 
@@ -121,7 +121,7 @@
   </Target>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="if exist &quot; bin\$(ConfigurationName)\*.nupkg&quot; del &quot; bin\$(ConfigurationName)\*.nupkg&quot; " />
+    <Exec Command="if exist &quot;bin\$(ConfigurationName)\*.nupkg&quot; del &quot;bin\$(ConfigurationName)\*.nupkg&quot;" />
   </Target>
 
   <Import Project="..\Licensing.props" />
