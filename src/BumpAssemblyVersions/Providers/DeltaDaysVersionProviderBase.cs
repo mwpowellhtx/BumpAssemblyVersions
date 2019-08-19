@@ -17,10 +17,16 @@ namespace Bav
         protected abstract DateTime BaseTimestamp { get; }
 
         /// <summary>
+        /// Gets the Actual Days involved during the Change attempt.
+        /// </summary>
+        protected internal int ActualDaysValue => (ProtectedTimestamp - BaseTimestamp).Days + 1;
+
+        /// <summary>
         /// Gets the Provider Name.
         /// </summary>
+        /// <see cref="ActualDaysValue"/>
         /// <inheritdoc />
-        public sealed override string Name => $"Days Since {BaseTimestamp:d}";
+        public sealed override string Name => $"{ActualDaysValue} Days Since {BaseTimestamp:O}";
 
         /// <summary>
         /// Performs the Provider Strategy.
@@ -28,9 +34,9 @@ namespace Bav
         /// <param name="current"></param>
         /// <param name="result"></param>
         /// <returns></returns>
+        /// <see cref="ActualDaysValue"/>
         /// <inheritdoc />
-        public sealed override bool TryChange(string current, out string result)
-            => Changed = (result = $"{((ProtectedTimestamp - BaseTimestamp).Days + 1) % MaxValue}") != current;
+        public sealed override bool TryChange(string current, out string result) => Changed = (result = $"{ActualDaysValue % MaxValue}") != current;
 
         // ReSharper disable once UnusedMember.Global
         /// <summary>
