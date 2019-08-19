@@ -28,6 +28,7 @@ namespace Bav
         {
             var types = GetProviderTypes().ToArray();
 
+            // ReSharper disable once IdentifierTypo
             var ctors = types.Select(x => x.GetConstructor(Instance | NonPublic, DefaultBinder, new Type[] { }, null)).ToArray();
 
             return ctors.Select(ctor => ctor?.Invoke(new object[] { }) as IVersionProvider)
@@ -63,6 +64,8 @@ namespace Bav
                         return provider is T ? typeName.Substring(1, typeName.Length - 1) : null;
                     }
 
+                    // TODO: TBD: may want to rethink why we are using an EO here...
+                    // TODO: TBD: and how it is keyed... positionally? Major, Minor, Patch, Build, etc ... ?
                     var result = new ExpandoObject();
                     var dictionary = (IDictionary<string, object>) result;
                     foreach (var provider in Providers.Values)
