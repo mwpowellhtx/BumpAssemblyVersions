@@ -30,6 +30,33 @@ namespace Bav
             OutputHelper = outputHelper;
         }
 
+        /// <summary>
+        /// Verifies that the Registry is correct.
+        /// </summary>
+        [Fact]
+        public void VerifyRegistry()
+        {
+            bool TryGetRegistry(out IDictionary<string, object> x)
+            {
+                var y = Registry;
+                Assert.NotNull(y);
+                x = Assert.IsAssignableFrom<IDictionary<string, object>>(y);
+                return x != null;
+            }
+
+            Assert.True(TryGetRegistry(out var registry));
+
+            Assert.IsAssignableFrom<ExpandoObject>(registry);
+
+            /* We can verify this deeper, but, if we have assurance that the Dictionary
+             * keyed on Version Provider Name works, then that is sufficient. */
+            var dictionary = registry.ToDictionary(provider => Assert.IsAssignableFrom<IVersionProvider>(provider.Value).Name);
+
+            Assert.NotNull(dictionary);
+
+            Assert.Equal(dictionary.Count, registry.Count);
+        }
+
         private static void VerifyProviderObject(Type providerType, object providerObject
             , bool expectedChanged = false, bool expectedMayReset = false)
         {
