@@ -13,12 +13,10 @@ namespace Bav
         public Guid Id { get; } = Guid.NewGuid();
 
         // TODO: TBD: starting with Timestamp specified here at the Descriptor level ...
-        // TODO: TBD: it may be preferrable to draw this from the task/build event(s) instead, if possible ...
+        // TODO: TBD: it may be preferable to draw this from the task/build event(s) instead, if possible ...
         protected DateTime DescriptorTimestamp { private get; set; } = Now;
 
-        /// <summary>
-        /// Gets the BumpPath.
-        /// </summary>
+        /// <inheritdoc />
         public string BumpPath { get; }
 
         /// <summary>
@@ -46,14 +44,19 @@ namespace Bav
 
         // TODO: TBD: consider exposing an internal setter?
         // TODO: TBD: possibly fixture-ize the descriptor?
+        /// <inheritdoc />
         public IVersionProvider MajorProviderTemplate { get; }
 
+        /// <inheritdoc />
         public IVersionProvider MinorProviderTemplate { get; }
 
+        /// <inheritdoc />
         public IVersionProvider PatchProviderTemplate { get; }
 
+        /// <inheritdoc />
         public IVersionProvider BuildProviderTemplate { get; }
 
+        /// <inheritdoc />
         public IVersionProvider ReleaseProviderTemplate { get; }
 
         /// <inheritdoc />
