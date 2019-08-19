@@ -29,8 +29,9 @@ namespace Bav
 
         // ReSharper disable once ConvertToAutoProperty
         /// <summary>
-        /// 
+        /// Gets the Required Bumps items.
         /// </summary>
+        /// <see cref="ITaskItem"/>
         [Required]
         public ITaskItem[] Bumps
         {
@@ -40,9 +41,41 @@ namespace Bav
 
         private IEnumerable<IBumpVersionDescriptor> _bumpDescriptors;
 
+        /// <summary>
+        /// Gets the Most Recently specified <see cref="IBumpVersionDescriptor"/> instances
+        /// according to their <see cref="IBumpVersionDescriptor.BumpPath"/>.
+        /// </summary>
+        /// <see cref="IBumpVersionDescriptor.BumpPath"/>
+        /// <remarks>We do this in lieu of `ItemGroup´ items Include, followed by Remove, then
+        /// the desired Include.</remarks>
         private IEnumerable<IBumpVersionDescriptor> BumpDescriptors
-            => _bumpDescriptors
-               ?? (_bumpDescriptors = Bumps.Select(bump => bump.ToDescriptor())).ToArray();
+        {
+            get
+            {
+                // Returns the set of most-recently specified Descriptors in Reverse Order.
+                IEnumerable<IBumpVersionDescriptor> GetMostRecentDescriptorSpecs(IEnumerable<ITaskItem> bumps)
+                {
+                    // Keeps track of the Descriptors that have been returned thus far.
+                    var specified = new Dictionary<string, bool>();
+
+                    // Responds with only the Most Recently Specified Descriptors.
+                    foreach (var descriptor in bumps.Select(x => x.ToDescriptor()).Reverse().Where(x =>
+                    {
+                        // Filter the ones that have not yet been filtered.
+                        var shouldReturn = !specified.ContainsKey(x.BumpPath);
+                        specified[x.BumpPath] = true;
+                        return shouldReturn;
+                    }))
+                    {
+                        yield return descriptor;
+                    }
+                }
+
+                return _bumpDescriptors ?? (_bumpDescriptors
+                           = GetMostRecentDescriptorSpecs(Bumps).Reverse().ToArray()
+                       );
+            }
+        }
 
         // ReSharper disable once UnusedMember.Global
         /// <summary>
