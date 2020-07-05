@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <!-- "CreateNew" does in fact work. This is what results.
+     We could potentially inject some whitespace, but this is perfectly fine for now. -->
+    <PropertyGroup>
+        <PackageVersion>2020.187.0106.1</PackageVersion>
+        <InformationalVersion>2020.187.0106.1</InformationalVersion>
+        <AssemblyVersion>2020.187.0106.1</AssemblyVersion>
+        <FileVersion>2020.187.0106.1</FileVersion>
+        <Version>2020.187.0106.1</Version>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <RootNamespace>Usage.Examples.Multitarget.Hybrid</RootNamespace>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <BumpAssemblyVersionsVersion>1.5.0</BumpAssemblyVersionsVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BumpAssemblyVersions" Version="$(BumpAssemblyVersionsVersion)" PrivateAssets="All">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup Condition="Exists('..\packages\bumpassemblyversions\$(BumpAssemblyVersionsVersion)\build\BumpAssemblyVersions.targets')">
+        <!-- Legit, "Year" will, in fact, yield two or more such providers. This is by design in order to avoid errant provider references,
+         and I now call it out by name when it happens. Need to specify something more than that, like "YearVersion". -->
+        <BumpVersionSpec Include="Version" DefaultVersion="0.0.0.0" CreateNew="true" UseUtc="true" MayReset="true" MajorProviderTemplate="YearVersion" MinorProviderTemplate="DayOfYear" PatchProviderTemplate="HourMinute" BuildProviderTemplate="Increment" />
+        <!-- Additionally, "MayReset" now is be applicable in a provider agnostic manner.
+         Documentation in the README is already up to date with this design decision. -->
+        <BumpVersionSpec Include="AssemblyVersion" DefaultVersion="0.0.0.0" CreateNew="true" UseUtc="true" MayReset="true" MajorProviderTemplate="YearVersion" MinorProviderTemplate="DayOfYear" PatchProviderTemplate="HourMinute" BuildProviderTemplate="Increment" />
+        <BumpVersionSpec Include="FileVersion" DefaultVersion="0.0.0.0" CreateNew="true" UseUtc="true" MayReset="true" MajorProviderTemplate="YearVersion" MinorProviderTemplate="DayOfYear" PatchProviderTemplate="HourMinute" BuildProviderTemplate="Increment" />
+        <BumpVersionSpec Include="InformationalVersion" DefaultVersion="0.0.0.0" CreateNew="true" UseUtc="true" MayReset="true" MajorProviderTemplate="YearVersion" MinorProviderTemplate="DayOfYear" PatchProviderTemplate="HourMinute" BuildProviderTemplate="Increment" />
+        <BumpVersionSpec Include="PackageVersion" DefaultVersion="0.0.0.0" CreateNew="true" UseUtc="true" MayReset="true" MajorProviderTemplate="YearVersion" MinorProviderTemplate="DayOfYear" PatchProviderTemplate="HourMinute" BuildProviderTemplate="Increment" />
+    </ItemGroup>
+
+</Project>
