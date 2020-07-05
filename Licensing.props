@@ -1,0 +1,37 @@
+<Project>
+
+    <!-- This is a kluge workaround to a failure on Microsoft's part to properly execute on the licensing migration path.
+   This does package the LICENSE file, but it also leaves a `deprecateLicenseUrl´ artifact in the package `nuspec´ file. -->
+
+    <PropertyGroup>
+        <_LicenseFileDirectory>..\..\</_LicenseFileDirectory>
+        <_SourceLicenseFileName>LICENSE.</_SourceLicenseFileName>
+        <DestinationLicenseFileName>LICENSE.txt</DestinationLicenseFileName>
+        <_SourceLicenseFilePath>$(_LicenseFileDirectory)$(_SourceLicenseFileName)</_SourceLicenseFilePath>
+        <_DestinationLicenseFilePath>$(DestinationLicenseFileName)</_DestinationLicenseFilePath>
+    </PropertyGroup>
+
+    <!-- TODO: TBD: specify one or the other, the LICENSE file is preferred, we think. -->
+    <PropertyGroup>
+        <PackageLicenseFile>$(DestinationLicenseFileName)</PackageLicenseFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="$(DestinationLicenseFileName)" />
+    </ItemGroup>
+
+    <PropertyGroup>
+        <!--<PackageLicenseExpression Condition="!Exists('$(_DestinationLicenseFilePath)')">GPL-3.0-only</PackageLicenseExpression>-->
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="$(_DestinationLicenseFilePath)" Pack="true" PackagePath="$(DestinationLicenseFileName)">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <Target Name="CopyLicenseFileForPackagingPurposes" BeforeTargets="BeforeBuild" Condition="!Exists('$(_DestinationLicenseFilePath)')">
+        <Copy SourceFiles="$(_SourceLicenseFilePath)" DestinationFiles="$(_DestinationLicenseFilePath)" />
+    </Target>
+
+</Project>
