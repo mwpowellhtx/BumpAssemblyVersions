@@ -1,129 +1,128 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <Authors>Michael W. Powell</Authors>
-    <Company>Kingdom Software</Company>
-    <Copyright>Copyright (c) 2018-2019</Copyright>
-  </PropertyGroup>
+    <PropertyGroup>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <DevelopmentDependency>true</DevelopmentDependency>
+        <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <NoWarn>$(NoWarn);NU5100</NoWarn>
+    </PropertyGroup>
 
-  <PropertyGroup>
-    <IsTool>true</IsTool>
-    <RootNamespace>Bav</RootNamespace>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyVersion>1.4.0</AssemblyVersion>
-    <FileVersion>1.4.0</FileVersion>
-    <PackageVersion>1.4.0</PackageVersion>
-    <Description>Bumps assembly versions according to user provided specifications.</Description>
-  </PropertyGroup>
+    <PropertyGroup>
+        <IsTool>true</IsTool>
+        <RootNamespace>Bav</RootNamespace>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <AssemblyVersion>1.5.0</AssemblyVersion>
+        <FileVersion>1.5.0</FileVersion>
+        <PackageVersion>1.5.0</PackageVersion>
+    </PropertyGroup>
 
-  <PropertyGroup>
-    <Title>BumpAssemblyVersions</Title>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <DevelopmentDependency>true</DevelopmentDependency>
-    <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-  </PropertyGroup>
+    <PropertyGroup>
+        <Title>BumpAssemblyVersions</Title>
+        <Summary>A dotnet flexible assembly version bumping tool.</Summary>
+        <Description>Bumps assembly versions according to user provided specifications.</Description>
+        <PackageId>BumpAssemblyVersions</PackageId>
+        <PackageTags>version; versions; assembly; assemblies; bump; bumps; bumped; nuget; restore; restored; msbuild; provider; registry; may; should; reset; use; utc; universal; coordinated; time; stamp; timestamp; label; value; width; discard; create; new; include; wildcard; default; kind; file; files; informational; package; spec; specification; specifications; target; targets; template; major; minor; patch; build; release; prerelease; element; elements; import; item; group; more; significant; change; changed; single; multi; multiple; cross; targeting; dispatch; before; outer; inner; loop</PackageTags>
+        <PackageProjectUrl>https://github.com/mwpowellhtx/BumpAssemblyVersions</PackageProjectUrl>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
+    </PropertyGroup>
 
-  <PropertyGroup>
-    <PackageId>BumpAssemblyVersions</PackageId>
-    <PackageProjectUrl>https://github.com/mwpowellhtx/BumpAssemblyVersions</PackageProjectUrl>
-    <PackageDescription>$(Description)</PackageDescription>
-    <PackageTags>version; versions; assembly; assemblies; bump; bumps; bumped; nuget; restore; restored; msbuild; provider; registry; may; should; reset; use; utc; universal; coordinated; time; stamp; timestamp; label; value; width; discard; create; new; include; wildcard; default; kind; file; files; informational; package; spec; specification; specifications; target; targets; template; major; ; minor; patch; build; release; prerelease; element; elements; import; item; group; more; significant; change; changed; single; multi; multiple; cross; targeting; dispatch; before; outer; inner; loop</PackageTags>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Platform)'=='AnyCPU'">
-    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\BumpAssemblyVersions.xml</DocumentationFile>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <NewtonsoftJsonVersion>12.0.2</NewtonsoftJsonVersion>
-    <NuGetVersioningVersion>4.9.4</NuGetVersioningVersion>
-    <MicrosoftBuildVersion>15.9.20</MicrosoftBuildVersion>
-    <MicrosoftCSharpVersion>4.5.0</MicrosoftCSharpVersion>
-    <MicrosoftVisualStudioSlowCheetahVersion>3.2.20</MicrosoftVisualStudioSlowCheetahVersion>
-    <SystemXmlVersion>4.3.0</SystemXmlVersion>
-  </PropertyGroup>
-
-  <!-- TODO: TBD: Microsoft.Build.* is not compatible with netstandard1.6 / https://github.com/Microsoft/msbuild/issues/3435 -->
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Build" Version="$(MicrosoftBuildVersion)" />
-    <PackageReference Include="Microsoft.Build.Engine" Version="$(MicrosoftBuildVersion)" />
-    <PackageReference Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildVersion)" />
-    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildVersion)" />
-    <PackageReference Include="Microsoft.CSharp" Version="$(MicrosoftCSharpVersion)" />
-    <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
-    <PackageReference Include="NuGet.Versioning" Version="$(NuGetVersioningVersion)" />
-    <PackageReference Include="System.Xml.XDocument" Version="$(SystemXmlVersion)" />
-    <PackageReference Include="System.Xml.XPath.XDocument" Version="$(SystemXmlVersion)" />
-    <PackageReference Include="Microsoft.VisualStudio.SlowCheetah" Version="$(MicrosoftVisualStudioSlowCheetahVersion)">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-    <PackageReference Update="@(PackageReference)" PrivateAssets="All" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="BumpVersionTask.Input.cs">
-      <DependentUpon>BumpVersionTask.cs</DependentUpon>
-    </Compile>
-    <Compile Update="BumpVersionTask.Output.cs">
-      <DependentUpon>BumpVersionTask.cs</DependentUpon>
-    </Compile>
-    <Compile Update="BumpVersionDescriptor.Protected.cs">
-      <DependentUpon>BumpVersionDescriptor.cs</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="build\BumpAssemblyVersions.Debug.props">
-      <IsTransformFile>true</IsTransformFile>
-      <DependentUpon>BumpAssemblyVersions.props</DependentUpon>
-    </None>
-    <None Update="build\BumpAssemblyVersions.Debug.targets">
-      <IsTransformFile>true</IsTransformFile>
-      <DependentUpon>BumpAssemblyVersions.targets</DependentUpon>
-    </None>
-    <None Update="build\BumpAssemblyVersions.props">
-      <TransformOnBuild>true</TransformOnBuild>
-    </None>
-    <None Update="build\BumpAssemblyVersions.Release.props">
-      <IsTransformFile>true</IsTransformFile>
-      <DependentUpon>BumpAssemblyVersions.props</DependentUpon>
-    </None>
-    <None Update="build\BumpAssemblyVersions.Release.targets">
-      <IsTransformFile>true</IsTransformFile>
-      <DependentUpon>BumpAssemblyVersions.targets</DependentUpon>
-    </None>
-    <None Update="build\BumpAssemblyVersions.targets">
-      <TransformOnBuild>true</TransformOnBuild>
-    </None>
-  </ItemGroup>
-
-  <Target Name="PackTaskDependencies" AfterTargets="Build" BeforeTargets="GenerateNuspec">
-    <!-- The include needs to happen after output has been copied to build output folder but
-     before NuGet generates a nuspec. -->
-     <ItemGroup>
-       <_PackageFiles Include="bin\$(Configuration)\$(TargetFramework)\*.*">
-         <PackagePath>tasks\$(TargetFramework)\%(RecursiveDir)</PackagePath>
-         <Visible>false</Visible>
-         <BuildAction>Content</BuildAction>
-       </_PackageFiles>
-       <!-- This is a perfectly adequate workaround for the Content v SlowCheetah transformation
-        confusion. Although these are "content", we do not let MSBuild/NuGet consider them Content
-        in the Contentiness way of considering them as such. Rather, let SC do its work, then
-        capture them afterwards prior to the GenerateNuspec task. -->
-       <_PackageFiles Include="obj\$(Configuration)\$(TargetFramework)\build\*.*">
-         <PackagePath>build\%(RecursiveDir)</PackagePath>
-         <Visible>false</Visible>
-         <BuildAction>Content</BuildAction>
-       </_PackageFiles>
+    <ItemGroup>
+        <None Remove="*.DotSettings" />
     </ItemGroup>
-  </Target>
 
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="if exist &quot;bin\$(ConfigurationName)\*.nupkg&quot; del &quot;bin\$(ConfigurationName)\*.nupkg&quot;" />
-  </Target>
+    <PropertyGroup Condition="'$(Platform)' == 'AnyCPU'">
+        <DocumentationFile>bin\$(Configuration)\netstandard2.0\BumpAssemblyVersions.xml</DocumentationFile>
+    </PropertyGroup>
 
-  <Import Project="..\Licensing.props" />
+    <!-- TODO: TBD: Microsoft.Build.* is not compatible with netstandard1.6 / https://github.com/Microsoft/msbuild/issues/3435 -->
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Build" Version="$(MicrosoftBuildVersion)" />
+        <PackageReference Include="Microsoft.Build.Engine" Version="$(MicrosoftBuildVersion)" />
+        <PackageReference Include="Microsoft.Build.Framework" Version="$(MicrosoftBuildVersion)" />
+        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="$(MicrosoftBuildVersion)" />
+        <PackageReference Include="Microsoft.CSharp" Version="$(MicrosoftCSharpVersion)" />
+        <PackageReference Include="Newtonsoft.Json" Version="$(NewtonsoftJsonVersion)" />
+        <PackageReference Include="NuGet.Versioning" Version="$(NuGetVersioningVersion)" />
+        <PackageReference Include="System.Xml.XDocument" Version="$(SystemXmlVersion)" />
+        <PackageReference Include="System.Xml.XPath.XDocument" Version="$(SystemXmlVersion)" />
+        <PackageReference Include="Microsoft.VisualStudio.SlowCheetah" Version="$(MicrosoftVisualStudioSlowCheetahVersion)">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+        <PackageReference Update="@(PackageReference)" PrivateAssets="All" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="BumpVersionTask.Input.cs">
+            <DependentUpon>BumpVersionTask.cs</DependentUpon>
+        </Compile>
+        <Compile Update="BumpVersionTask.Output.cs">
+            <DependentUpon>BumpVersionTask.cs</DependentUpon>
+        </Compile>
+        <Compile Update="BumpVersionDescriptor.Protected.cs">
+            <DependentUpon>BumpVersionDescriptor.cs</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Update="build\BumpAssemblyVersions.Debug.props">
+            <IsTransformFile>true</IsTransformFile>
+            <DependentUpon>BumpAssemblyVersions.props</DependentUpon>
+        </None>
+        <None Update="build\BumpAssemblyVersions.Debug.targets">
+            <IsTransformFile>true</IsTransformFile>
+            <DependentUpon>BumpAssemblyVersions.targets</DependentUpon>
+        </None>
+        <None Update="build\BumpAssemblyVersions.props">
+            <TransformOnBuild>true</TransformOnBuild>
+        </None>
+        <None Update="build\BumpAssemblyVersions.Release.props">
+            <IsTransformFile>true</IsTransformFile>
+            <DependentUpon>BumpAssemblyVersions.props</DependentUpon>
+        </None>
+        <None Update="build\BumpAssemblyVersions.Release.targets">
+            <IsTransformFile>true</IsTransformFile>
+            <DependentUpon>BumpAssemblyVersions.targets</DependentUpon>
+        </None>
+        <None Update="build\BumpAssemblyVersions.targets">
+            <TransformOnBuild>true</TransformOnBuild>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>Test.$(MSBuildProjectName)</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+    <Import Project="..\..\Licensing.props" />
+
+    <Target Name="RelayNuspecPropertiesBeforeBuild" AfterTargets="PreBuild" BeforeTargets="BeforeBuild">
+
+        <ItemGroup>
+            <NuspecProperty Include="packageTags=$(PackageTags.Replace(';', ''))" />
+            <NuspecProperty Include="id=$(MSBuildProjectName)" />
+            <NuspecProperty Include="version=$(PackageVersion)" />
+            <NuspecProperty Include="title=$(Title)" />
+            <NuspecProperty Include="author=$(Authors)" />
+            <NuspecProperty Include="owners=$(Company)" />
+            <NuspecProperty Include="summary=$(Summary)" />
+            <NuspecProperty Include="description=$(Description)" />
+            <NuspecProperty Include="developmentDependency=$(DevelopmentDependency)" />
+            <NuspecProperty Include="requireLicenseAcceptance=$(PackageRequireLicenseAcceptance)" />
+            <NuspecProperty Include="projectUrl=$(PackageProjectUrl)" />
+            <NuspecProperty Include="licenseFile=$(PackageLicenseFile)" />
+            <NuspecProperty Include="config=$(Configuration)" />
+            <NuspecProperty Include="targetFramework=$(TargetFramework)" />
+        </ItemGroup>
+
+        <PropertyGroup>
+            <NuspecProperties>@(NuspecProperty, ';')</NuspecProperties>
+        </PropertyGroup>
+
+        <Message Importance="high" Text="Nuspec properties are: $(NuspecProperties)" Condition="'$(Configuration)' == 'Debug'" />
+
+    </Target>
 
 </Project>

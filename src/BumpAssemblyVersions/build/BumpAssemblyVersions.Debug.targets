@@ -2,18 +2,33 @@
 <!--For more information on using transformations see the web.config examples at http://go.microsoft.com/fwlink/?LinkId=214134. -->
 <Project xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
 
-  <!-- ReSharper disable once UnknownProperty -->
-  <Target xdt:Transform="Insert" Name="ReportBumpAssemblyVersionsDebugMessages" AfterTargets="BumpAssemblyVersionsBeforeBuild">
-    <!-- ReSharper disable once UnknownProperty -->
-    <Warning Text="BumpVersionNewVersion=$(BumpVersionNewVersion)" />
-    <!-- ReSharper disable once UnknownProperty -->
-    <Warning Text="BumpVersionNewVersion=$(BumpVersionNewAssemblyVersion)" />
-    <!-- ReSharper disable once UnknownProperty -->
-    <Warning Text="BumpVersionNewVersion=$(BumpVersionNewFileVersion)" />
-    <!-- ReSharper disable once UnknownProperty -->
-    <Warning Text="BumpVersionNewVersion=$(BumpVersionNewInformationalVersion)" />
-    <!-- ReSharper disable once UnknownProperty -->
-    <Warning Text="BumpVersionNewVersion=$(BumpVersionNewPackageVersion)" />
-  </Target>
+    <!-- ReSharper disable UnknownProperty -->
+    <Target xdt:Transform="Insert" Name="ReportBumpAssemblyVersionsDebugMessages" AfterTargets="BumpAssemblyVersionsBeforeBuild">
+
+        <!-- TODO: TBD: Code is not reporting through the IDE "Tooling" (quote unquote). -->
+        <PropertyGroup>
+            <_BumpAssemblyVersionsReportCode>BAV0001</_BumpAssemblyVersionsReportCode>
+            <_BumpAssemblyVersionReportPrefix>Configuration=$(Configuration)</_BumpAssemblyVersionReportPrefix>
+        </PropertyGroup>
+
+        <ItemGroup>
+            <BumpAssemblyVersionsReport Include="Version changed: $(BumpVersionNewVersion)" Condition="'$(BumpVersionNewVersion)' != ''" />
+            <BumpAssemblyVersionsReport Include="AssemblyVersion changed: $(BumpVersionNewAssemblyVersion)" Condition="'$(BumpVersionNewAssemblyVersion)' != ''" />
+            <BumpAssemblyVersionsReport Include="FileVersion changed: $(BumpVersionNewFileVersion)" Condition="'$(BumpVersionNewFileVersion)' != ''" />
+            <BumpAssemblyVersionsReport Include="InformationalVersion changed: $(BumpVersionNewInformationalVersion)" Condition="'$(BumpVersionNewInformationalVersion)' != ''" />
+            <BumpAssemblyVersionsReport Include="PackageVersion changed: $(BumpVersionNewPackageVersion)" Condition="'$(BumpVersionNewPackageVersion)' != ''" />
+
+            <BumpAssemblyVersionsReport Include="Version did not change" Condition="'$(BumpVersionNewVersion)' == ''" />
+            <BumpAssemblyVersionsReport Include="AssemblyVersion did not change" Condition="'$(BumpVersionNewAssemblyVersion)' == ''" />
+            <BumpAssemblyVersionsReport Include="FileVersion did not change" Condition="'$(BumpVersionNewFileVersion)' == ''" />
+            <BumpAssemblyVersionsReport Include="InformationalVersion did not change" Condition="'$(BumpVersionNewInformationalVersion)' == ''" />
+            <BumpAssemblyVersionsReport Include="PackageVersion did not change" Condition="'$(BumpVersionNewPackageVersion)' == ''" />
+        </ItemGroup>
+
+        <!-- This is a lot more efficient use of MSBuild pipeline. -->
+        <Warning Code="$(_BumpAssemblyVersionReportCode)" Text="[$(_BumpAssemblyVersionReportPrefix)] %(BumpAssemblyVersionsReport.Identity)" />
+
+    </Target>
+    <!-- ReSharper restore UnknownProperty -->
 
 </Project>

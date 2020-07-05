@@ -1,54 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
 
-  <UsingTask AssemblyFile="..\BumpAssemblyVersions.dll" TaskName="Bav.BumpVersion" />
+    <UsingTask AssemblyFile="..\BumpAssemblyVersions.dll" TaskName="Bav.BumpVersion" />
 
-  <Target Name="GeneralBumpAssemblyVersions">
+    <Target Name="GeneralBumpAssemblyVersions">
 
-    <ItemGroup>
-      <FilesToBump Condition="Exists('Properties\AssemblyInfo.cs')" Include="Properties\AssemblyInfo.cs" />
-    </ItemGroup>
+        <ItemGroup>
+            <FilesToBump Condition="Exists('Properties\AssemblyInfo.cs')" Include="Properties\AssemblyInfo.cs" />
+        </ItemGroup>
 
-    <!-- ReSharper disable UnknownItemGroup, ReSharper disable once UnknownTask -->
-    <!-- We need MSBuildProjectFullPath here and not ProjectPath, because, depending on when the target hits, ProjectPath may not yet be defined. -->
-    <BumpVersion Configuration="$(Configuration)" Bumps="@(BumpVersionSpec)" Files="@(FilesToBump)" ProjectFullPath="$(MSBuildProjectFullPath)">
-      <Output TaskParameter="NewVersion" PropertyName="BumpVersionNewVersion" />
-      <Output TaskParameter="NewAssemblyVersion" PropertyName="BumpVersionNewAssemblyVersion" />
-      <Output TaskParameter="NewFileVersion" PropertyName="BumpVersionNewFileVersion" />
-      <Output TaskParameter="NewInformationalVersion" PropertyName="BumpVersionNewInformationalVersion" />
-      <Output TaskParameter="NewPackageVersion" PropertyName="BumpVersionNewPackageVersion" />
-    </BumpVersion>
+        <!-- ReSharper disable UnknownItemGroup, ReSharper disable once UnknownTask -->
+        <!-- We need MSBuildProjectFullPath here and not ProjectPath, because, depending on when the target hits, ProjectPath may not yet be defined. -->
+        <BumpVersion Configuration="$(Configuration)" Bumps="@(BumpVersionSpec)" Files="@(FilesToBump)" ProjectFullPath="$(MSBuildProjectFullPath)">
+            <Output TaskParameter="NewVersion" PropertyName="BumpVersionNewVersion" />
+            <Output TaskParameter="NewAssemblyVersion" PropertyName="BumpVersionNewAssemblyVersion" />
+            <Output TaskParameter="NewFileVersion" PropertyName="BumpVersionNewFileVersion" />
+            <Output TaskParameter="NewInformationalVersion" PropertyName="BumpVersionNewInformationalVersion" />
+            <Output TaskParameter="NewPackageVersion" PropertyName="BumpVersionNewPackageVersion" />
+        </BumpVersion>
+
+        <PropertyGroup>
+            <Version Condition="$(BumpVersionNewVersion) != ''">$(BumpVersionNewVersion)</Version>
+            <AssemblyVersion Condition="$(BumpVersionNewAssemblyVersion) != ''">$(BumpVersionNewAssemblyVersion)</AssemblyVersion>
+            <FileVersion Condition="$(BumpVersionNewFileVersion) != ''">$(BumpVersionNewFileVersion)</FileVersion>
+            <InformationalVersion Condition="$(BumpVersionNewInformationalVersion) != ''">$(BumpVersionNewInformationalVersion)</InformationalVersion>
+            <PackageVersion Condition="$(BumpVersionNewPackageVersion) != ''">$(BumpVersionNewPackageVersion)</PackageVersion>
+        </PropertyGroup>
+
+    </Target>
+
+    <!-- ReSharper disable UnknownProperty -->
+    <!-- This works perfectly in the single-target scenario, but we need to condition our response based on whether TargetFrameworks was there. -->
+    <Target Name="BumpAssemblyVersionsBeforeBuild" BeforeTargets="BeforeBuild" Condition="'$(TargetFrameworks)' == ''">
+        <CallTarget Targets="GeneralBumpAssemblyVersions" />
+    </Target>
+
+    <!-- BeforeBuild occurs for each of the targets individually in a multi-target scenario, so we must Bump relative to the Outer loop Dispatch. -->
+    <Target Name="BumpAssemblyVersionsBeforeDispatchToInnerBuilds" BeforeTargets="DispatchToInnerBuilds" Condition="'$(TargetFrameworks)' != ''">
+        <CallTarget Targets="GeneralBumpAssemblyVersions" />
+    </Target>
+    <!-- ReSharper restore UnknownProperty -->
 
     <PropertyGroup>
-      <Version Condition="$(BumpVersionNewVersion) != ''">$(BumpVersionNewVersion)</Version>
-      <AssemblyVersion Condition="$(BumpVersionNewAssemblyVersion) != ''">$(BumpVersionNewAssemblyVersion)</AssemblyVersion>
-      <FileVersion Condition="$(BumpVersionNewFileVersion) != ''">$(BumpVersionNewFileVersion)</FileVersion>
-      <InformationalVersion Condition="$(BumpVersionNewInformationalVersion) != ''">$(BumpVersionNewInformationalVersion)</InformationalVersion>
-      <PackageVersion Condition="$(BumpVersionNewPackageVersion) != ''">$(BumpVersionNewPackageVersion)</PackageVersion>
+        <BumpAssemblyVersionsLoaded>true</BumpAssemblyVersionsLoaded>
     </PropertyGroup>
 
-  </Target>
-
-  <!-- ReSharper disable UnknownProperty -->
-  <!-- This works perfectly in the single-target scenario, but we need to condition our response based on whether TargetFrameworks was there. -->
-  <Target Name="BumpAssemblyVersionsBeforeBuild" BeforeTargets="BeforeBuild" Condition="'$(TargetFrameworks)' == ''">
-    <CallTarget Targets="GeneralBumpAssemblyVersions" />
-  </Target>
-
-  <!-- BeforeBuild occurs for each of the targets individually in a multi-target scenario, so we must Bump relative to the Outer loop Dispatch. -->
-  <Target Name="BumpAssemblyVersionsBeforeDispatchToInnerBuilds" BeforeTargets="DispatchToInnerBuilds" Condition="'$(TargetFrameworks)' != ''">
-    <CallTarget Targets="GeneralBumpAssemblyVersions" />
-  </Target>
-  <!-- ReSharper restore UnknownProperty -->
-
-  <PropertyGroup>
-    <BumpAssemblyVersionsLoaded>true</BumpAssemblyVersionsLoaded>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <!-- TODO: TBD: it would be better to do this here, but does not seem to happen. So must be done at the CSPROJ level. --> 
-    <BumpVersionSpec Update="@(BumpVersionSpec)" Visible="False" />
-    <FilesToBump Update="@(FilesToBump)" Visible="False" />
-  </ItemGroup>
+    <ItemGroup>
+        <!-- TODO: TBD: it would be better to do this here, but does not seem to happen. So must be done at the CSPROJ level. -->
+        <BumpVersionSpec Update="@(BumpVersionSpec)" Visible="False" />
+        <FilesToBump Update="@(FilesToBump)" Visible="False" />
+    </ItemGroup>
 
 </Project>

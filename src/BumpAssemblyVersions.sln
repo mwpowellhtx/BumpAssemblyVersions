@@ -1,26 +1,35 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27703.2035
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30204.135
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BumpAssemblyVersions", "BumpAssemblyVersions\BumpAssemblyVersions.csproj", "{06F8C231-D48B-4D3D-91B1-27A8106B5014}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BumpAssemblyVersions.Tests", "BumpAssemblyVersions.Tests\BumpAssemblyVersions.Tests.csproj", "{BACEFD07-7014-4251-A706-BF97683E64D5}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{2E8205F7-E31F-44D0-9203-D0347DB7F239}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".sln", ".sln", "{2E8205F7-E31F-44D0-9203-D0347DB7F239}"
 	ProjectSection(SolutionItems) = preProject
-		tools\Common\CommonAssemblyInfo.cs = tools\Common\CommonAssemblyInfo.cs
+		Directory.Build.props = Directory.Build.props
+		Unit.Testing.props = Unit.Testing.props
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{52AA40F1-000A-4564-A495-D6154917F3C1}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{52AA40F1-000A-4564-A495-D6154917F3C1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{A886EE03-D3EC-408B-80E0-FA21ECF1927B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{A886EE03-D3EC-408B-80E0-FA21ECF1927B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Usage", "Usage", "{0AE9C6A3-68BC-480C-8631-E8E24FDF7121}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BumpAssemblyVersions", "BumpAssemblyVersions\BumpAssemblyVersions.csproj", "{06F8C231-D48B-4D3D-91B1-27A8106B5014}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BumpAssemblyVersions.Usage.NetStandard", "BumpAssemblyVersions.Usage.NetStandard\BumpAssemblyVersions.Usage.NetStandard.csproj", "{B7A616C8-8E34-4B3D-9B40-B747EF80DA30}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.BumpAssemblyVersions", "Test.BumpAssemblyVersions\Test.BumpAssemblyVersions.csproj", "{BACEFD07-7014-4251-A706-BF97683E64D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BumpAssemblyVersions.Usage.Net472", "BumpAssemblyVersions.Usage.Net472\BumpAssemblyVersions.Usage.Net472.csproj", "{338AE871-B7B9-44FA-9421-714A5AA93263}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".parent", ".parent", "{DA78EB12-8B31-4519-A03B-7A40742FBF12}"
+	ProjectSection(SolutionItems) = preProject
+		..\.gitignore = ..\.gitignore
+		..\LICENSE = ..\LICENSE
+		..\Licensing.props = ..\Licensing.props
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A744A4E5-87EF-4508-9B69-B5C8FEB6327E}"
+	ProjectSection(SolutionItems) = preProject
+		NuGet.Config = NuGet.Config
+		tools\NuGet\publish.cmd = tools\NuGet\publish.cmd
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,15 +41,9 @@ Global
 		{06F8C231-D48B-4D3D-91B1-27A8106B5014}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06F8C231-D48B-4D3D-91B1-27A8106B5014}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06F8C231-D48B-4D3D-91B1-27A8106B5014}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BACEFD07-7014-4251-A706-BF97683E64D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BACEFD07-7014-4251-A706-BF97683E64D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BACEFD07-7014-4251-A706-BF97683E64D5}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{BACEFD07-7014-4251-A706-BF97683E64D5}.Debug|Any CPU.Build.0 = Release|Any CPU
 		{BACEFD07-7014-4251-A706-BF97683E64D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B7A616C8-8E34-4B3D-9B40-B747EF80DA30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B7A616C8-8E34-4B3D-9B40-B747EF80DA30}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B7A616C8-8E34-4B3D-9B40-B747EF80DA30}.Release|Any CPU.Build.0 = Release|Any CPU
-		{338AE871-B7B9-44FA-9421-714A5AA93263}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{338AE871-B7B9-44FA-9421-714A5AA93263}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{338AE871-B7B9-44FA-9421-714A5AA93263}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,8 +51,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{06F8C231-D48B-4D3D-91B1-27A8106B5014} = {52AA40F1-000A-4564-A495-D6154917F3C1}
 		{BACEFD07-7014-4251-A706-BF97683E64D5} = {A886EE03-D3EC-408B-80E0-FA21ECF1927B}
-		{B7A616C8-8E34-4B3D-9B40-B747EF80DA30} = {0AE9C6A3-68BC-480C-8631-E8E24FDF7121}
-		{338AE871-B7B9-44FA-9421-714A5AA93263} = {0AE9C6A3-68BC-480C-8631-E8E24FDF7121}
+		{DA78EB12-8B31-4519-A03B-7A40742FBF12} = {2E8205F7-E31F-44D0-9203-D0347DB7F239}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {49CFE172-BD59-4C4E-9AB0-F32BCE43CAB9}
