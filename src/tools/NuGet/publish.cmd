@@ -2,20 +2,23 @@
 
 setlocal
 
-rem Which is set in the Environment Variables for security reasons.
+:set_vars
 set nuget_api_key=%MY_NUGET_API_KEY%
-set nuget_api_src=https://api.nuget.org/v3/index.json
-rem Set debug=1 to Debug for any reason.
-set debug=false
+
+rem We do not publish the API key as part of the script itself.
+if /i "%nuget_api_key%" equ "" (
+    echo You are prohibited from making these sorts of changes.
+    goto :end
+)
 
 rem Default list delimiter is Comma (,).
 :redefine_delim
-if "%delim%" == "" (
+if /i "%delim%" equ "" (
     set delim=,
 )
 rem Redefine the delimiter when a Dot (.) is discovered.
 rem Anticipates potentially accepting Delimiter as a command line arg.
-if "%delim%" == "." (
+if /i "%delim%" equ "." (
     set delim=
     goto :redefine_delim
 )
@@ -25,89 +28,92 @@ rem Go ahead and pre-seed the Projects up front.
 set projects=
 rem Setup All Projects
 set all_projects=BumpAssemblyVersions
-rem Setup Bump Assembly Versions
+rem Setup Bump Projects
 set bump_projects=BumpAssemblyVersions
 
 :parse_args
-:next_arg
 
-:set_debug
-if "%1"=="--debug" (
-  set debug=true
-  goto :fini_arg
+:set_drive_letter
+if /i "%1" equ "--drive-letter" (
+    set drive=%2
+    shift
+    goto :next_arg
+)
+if /i "%1" equ "--drive" (
+    set drive=%2
+    shift
+    goto :next_arg
 )
 
 :set_destination
-if "%1"=="--local" (
-  set destination=local
-  goto :fini_arg
+if /i "%1" equ "--nuget" (
+    set destination=nuget
+    goto :next_arg
 )
-if "%1"=="--nuget" (
-  set destination=nuget
-  goto :fini_arg
+if /i "%1" equ "--local" (
+    set destination=local
+    goto :next_arg
 )
 
 :set_dry_run
-if "%1" == "--dry" (
+if /i "%1" equ "--dry" (
     set dry=true
-    goto :fini_arg
+    goto :next_arg
 )
-if "%1" == "--dry-run" (
+if /i "%1" equ "--dry-run" (
     set dry=true
-    goto :fini_arg
+    goto :next_arg
 )
-if "%1" == "--wet" (
+if /i "%1" equ "--wet" (
     set dry=false
-    goto :fini_arg
+    goto :next_arg
 )
-if "%1" == "--wet-run" (
+if /i "%1" equ "--wet-run" (
     set dry=false
-    goto :fini_arg
+    goto :next_arg
 )
 
 :set_config
-if "%1"=="--config" (
-  set config=%2
-  shift
-  goto :fini_arg
+if /i "%1" equ "--config" (
+    set config=%2
+    shift
+    goto :next_arg
 )
 
-:add_bump
-if "%1" == "--roslyn" (
-    if "%projects%" == "" (
+:add_bump_projects
+if /i "%1" equ "--bump" (
+    if /i "%projects%" equ "" (
         set projects=%bump_projects%
     ) else (
         set projects=%projects%%delim%%bump_projects%
     )
-    goto :fini_arg
+    goto :next_arg
 )
 
 :add_all_projects
-if "%1" == "--all" (
-    rem Prepare to publish All Projects.
+if /i "%1" equ "--all" (
     set projects=%all_projects%
-    goto :fini_arg
+    goto :next_arg
 )
 
 :add_project
-if "%1" == "--project" (
-    rem Add a Project to the Projects list.
-    if "%projects%" == "" (
+if /i "%1" equ "--project" (
+    if /i "%projects%" equ "" (
         set projects=%2
     ) else (
         set projects=%projects%%delim%%2
     )
     shift
-    goto :fini_arg
+    goto :next_arg
 )
 
-:fini_arg
+:next_arg
 
 shift
 
-if "%1"=="" goto :end_args
+if /i "%1" equ "" goto :end_args
 
-goto :next_arg
+goto :parse_args
 
 :end_args
 
@@ -115,39 +121,28 @@ goto :next_arg
 
 :verify_dry
 rem Assumes we want a Live (Wet) Run when unspecified.
-if "%dry%" == "" set dry=false
+if /i "%dry%" equ "" set dry=false
 
 :verify_destination
-rem Do not accidentally Publish anything to NuGet.
-if "%destination%" == "" set destination=local
-
-rem A NuGet API Key is required when the Destination is NuGet (lowercase).
-if "%destination%%nuget_api_key%"=="nuget" (
-  echo "NuGet API Key required in your 'MY_NUGET_API_KEY' Environment Variable."
-  goto :fini
-)
+if /i "%destination%" equ "" set destination=local
 
 :verify_config
 rem Assumes Release Configuration when not otherwise specified.
-if "%config%" == "" set config=Release
+if /i "%config%" equ "" set config=Release
 
-:eval_publications
+:publish_projects
 
-if "%debug%"=="true" (
-  echo config=%config%
-  echo destination=%destination%
-  echo nuget_api_key=%nuget_api_key%
-  echo nuget_api_src=%nuget_api_src%
-  echo publish_local_dir=%publish_local_dir%
-  goto :fini
-)
-
-set nupkg_ext=.nupkg
+:set_vars
 
 set xcopy_exe=xcopy.exe
-set publish_local_dir=G:\Dev\NuGet\local\packages
+set nuget_exe=NuGet.exe
 
-set nuget_exe=nuget.exe
+set nupkg_ext=.nupkg
+if "%publish_local_drive%" == "" set publish_local_drive=F:
+set publish_local_dir=%publish_local_drive%\Dev\NuGet\local\packages
+
+rem Expecting NuGet to be found in the System Path.
+set nuget_api_src=https://api.nuget.org/v3/index.json
 set nuget_push_verbosity=detailed
 
 set nuget_push_opts=%nuget_push_opts% %nuget_api_key%
@@ -158,13 +153,11 @@ set nuget_push_opts=%nuget_push_opts% -Source %nuget_api_src%
 rem Do the main areas here.
 pushd ..\..
 
-if "%debug%" == "true" (
-    if not "%projects%" == "" (
-        echo Processing '%config%' configuration for '%projects%' ...
-    )
+if not "%projects%" equ "" (
+    echo Processing '%config%' configuration for '%projects%' ...
 )
 :next_project
-if not "%projects%" == "" (
+if not "%projects%" equ "" (
     for /f "tokens=1* delims=%delim%" %%p in ("%projects%") do (
         call :publish_pkg %%p
         set projects=%%q
@@ -174,38 +167,34 @@ if not "%projects%" == "" (
 
 popd
 
-goto :fini
+goto :end
 
 :publish_pkg
-set package_name=%1
-rem These are a special cases...
-if "%package_name%" == "Code.Generation.Roslyn.Tasks" set package_name=Code.Generation.Roslyn.BuildTime
-if "%package_name%" == "Code.Generation.Roslyn.Tool" set package_name=dotnet-cgr
-set publish_pattern=%1\bin\%config%\%package_name%*%nupkg_ext%
-if not exist "%publish_pattern%" (
-    echo Package '%publish_pattern%' not found.
-)
-for %%f in ("%publish_pattern%") do (
+for %%f in ("%1\bin\%config%\%1*%nupkg_ext%") do (
 
-    if "%destination%-%dry%" == "local-true" (
+    if /i "%destination%-%dry%" equ "local-true" (
         echo Set to copy "%%f" to "%publish_local_dir%".
     )
-    if "%destination%-%dry%" == "local-false" (
+
+    if /i "%destination%-%dry%" equ "local-false" (
         if not exist "%publish_local_dir%" mkdir "%publish_local_dir%"
         echo Copying "%%f" package to local directory "%publish_local_dir%" ...
         %xcopy_exe% /q /y "%%f" "%publish_local_dir%"
     )
 
-    if "%destination%-%dry%" == "nuget-true" (
+    if /i "%destination%-%dry%" equ "nuget-true" (
         echo Dry run: %nuget_exe% push "%%f"%nuget_push_opts%
     )
-    if "%destination%-%dry%" == "nuget-false" (
+
+    if /i "%destination%-%dry%" equ "nuget-false" (
         echo Running: %nuget_exe% push "%%f"%nuget_push_opts%
         %nuget_exe% push "%%f"%nuget_push_opts%
     )
 )
 exit /b
 
-:fini
+:end
 
 endlocal
+
+pause

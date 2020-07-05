@@ -1,0 +1,14 @@
+<Project>
+
+    <PropertyGroup>
+        <XunitVersion>2.4.1</XunitVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- TODO: TBD: this is a sufficient reference for the time being... -->
+        <!-- TODO: TBD: we could get fancier with xunit.fluently.assert, but this will do for now... -->
+        <PackageReference Include="xunit" Version="$(XunitVersion)" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="$(XunitVersion)" />
+    </ItemGroup>
+
+</Project>
