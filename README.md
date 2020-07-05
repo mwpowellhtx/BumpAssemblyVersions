@@ -325,28 +325,28 @@ An example of the resulting elements is as follows. Completely new `PropertyGrou
 
 ---
 
-\[<a name="msbuild-caveats">1</a>\] With any of these inputs, usual `MSBuild` `Condition` rules apply, so you may mix and match the specified files to bump depending on `Configuration` or other criteria at your discretion.
+<sup>\[<a name="msbuild-caveats">1</a>\] With any of these inputs, usual `MSBuild` `Condition` rules apply, so you may mix and match the specified files to bump depending on `Configuration` or other criteria at your discretion.</sup>
 
-\[<a name="bump-version-spec-wildcards">2</a>\] Not all [Bump Version Specifications](#bump-version-specifications) support wildcards; it is left to consumer discretion when to leverage wildcards.
+<sup>\[<a name="bump-version-spec-wildcards">2</a>\] Not all [Bump Version Specifications](#bump-version-specifications) support wildcards; it is left to consumer discretion when to leverage wildcards.</sup>
 
-\[<a name="bump-version-spec-release-labels">3</a>\] Not all [Bump Version Specifications](#bump-version-specifications) allow support for release labels; it is left to consumer discretion when to release labels.
+<sup>\[<a name="bump-version-spec-release-labels">3</a>\] Not all [Bump Version Specifications](#bump-version-specifications) allow support for release labels; it is left to consumer discretion when to release labels.</sup>
 
-\[<a name="bump-version-spec-attribs">4</a>\] Attributes provided without *Version Provider Prefixes* <sup>\[[5](#version-provider-attrib-prefixes)\]</sup> apply for all [Elements](#bump-version-element-specifications) given by the [Specification](#bump-version-specifications).
+<sup>\[<a name="bump-version-spec-attribs">4</a>\] Attributes provided without *Version Provider Prefixes* <sup>\[[5](#version-provider-attrib-prefixes)\]</sup> apply for all [Elements](#bump-version-element-specifications) given by the [Specification](#bump-version-specifications).</sup>
 
-\[<a name="version-provider-attrib-prefixes">5</a>\] Some Bump Version Attributes may be specified for individual Version Providers as follows: `[Major|Minor|Patch|Template|Release]ProviderTemplate]AttributeName`. As indicated here, this prefix is optional; when not specified, the attribute applies for the whole [Specification](#bump-version-specifications).
+<sup>\[<a name="version-provider-attrib-prefixes">5</a>\] Some Bump Version Attributes may be specified for individual Version Providers as follows: `[Major|Minor|Patch|Template|Release]ProviderTemplate]AttributeName`. As indicated here, this prefix is optional; when not specified, the attribute applies for the whole [Specification](#bump-version-specifications).</sup>
 
-\[<a name="specification-only-attribute">6</a>\] These attributes are all [Specification](#bump-version-specifications) only attributes. That is, they apply for the Specification as a whole and are not part of the individual [Elements](#bump-version-element-specifications) specifications.
+<sup>\[<a name="specification-only-attribute">6</a>\] These attributes are all [Specification](#bump-version-specifications) only attributes. That is, they apply for the Specification as a whole and are not part of the individual [Elements](#bump-version-element-specifications) specifications.</sup>
 
-\[<a name="release-increment-version-provider-specific">7</a>\] These attributes apply only for the `PreReleaseIncrementVersionProvider`.
+<sup>\[<a name="release-increment-version-provider-specific">7</a>\] These attributes apply only for the `PreReleaseIncrementVersionProvider`.</sup>
 
-\[<a name="date-time-based-version-provider">8</a>\] All *Version Providers* support a `Timestamp`, but some depend on it as essential to their operation. In addition, you may specify whether to [`UseUtc`](#version-provider-attributes) either for the individual [Elements](#bump-version-element-specifications) or for the [Specification](#bump-version-specifications) as a whole.
+<sup>\[<a name="date-time-based-version-provider">8</a>\] All *Version Providers* support a `Timestamp`, but some depend on it as essential to their operation. In addition, you may specify whether to [`UseUtc`](#version-provider-attributes) either for the individual [Elements](#bump-version-element-specifications) or for the [Specification](#bump-version-specifications) as a whole.</sup>
 
-\[<a name="version-provider-may-reset">9</a>\] Some *Version Providers* support whether it `May Reset`, either for the individual [Elements](#bump-version-element-specifications) or for the [Specification](#bump-version-specifications) as a whole. If any of the *more significant* providers `Changed` in any way, then the affected provider will reset.
+<sup>\[<a name="version-provider-may-reset">9</a>\] Some *Version Providers* support whether it `May Reset`, either for the individual [Elements](#bump-version-element-specifications) or for the [Specification](#bump-version-specifications) as a whole. If any of the *more significant* providers `Changed` in any way, then the affected provider will reset.</sup>
 
-\[<a name="version-provider-for-internal-use-only">10</a>\] Some *Version Providers* are `For Internal Use Only`.
+<sup>\[<a name="version-provider-for-internal-use-only">10</a>\] Some *Version Providers* are `For Internal Use Only`.</sup>
 
-\[<a name="version-provider-right-justified-zero-padded">11</a>\] All version providers yield right justified zero padded textual results using an intuitive, appropriate number of digits.
+<sup>\[<a name="version-provider-right-justified-zero-padded">11</a>\] All version providers yield right justified zero padded textual results using an intuitive, appropriate number of digits.</sup>
 
-\[<a name="dotnet-docs-issues-6476">12</a>\] [Document AssemblyInfo properties](http://github.com/dotnet/docs/issues/6476)
+<sup>\[<a name="dotnet-docs-issues-6476">12</a>\] [Document AssemblyInfo properties](http://github.com/dotnet/docs/issues/6476)</sup>
 
-\[<a name="microsoft-dotnet-generateassemblyinfo-targets">13</a>\] [http://github.com/dotnet/sdk/blob/master/src/Tasks/Microsoft.NET.Build.Tasks/targets/Microsoft.NET.GenerateAssemblyInfo.targets](http://github.com/dotnet/sdk/blob/master/src/Tasks/Microsoft.NET.Build.Tasks/targets/Microsoft.NET.GenerateAssemblyInfo.targets)
+<sup>\[<a name="microsoft-dotnet-generateassemblyinfo-targets">13</a>\] [http://github.com/dotnet/sdk/blob/master/src/Tasks/Microsoft.NET.Build.Tasks/targets/Microsoft.NET.GenerateAssemblyInfo.targets](http://github.com/dotnet/sdk/blob/master/src/Tasks/Microsoft.NET.Build.Tasks/targets/Microsoft.NET.GenerateAssemblyInfo.targets)</sup>
