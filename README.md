@@ -323,6 +323,25 @@ An example of the resulting elements is as follows. Completely new `PropertyGrou
 
 * We discovered during usage testing that BAV gets confused when there is a hybrid usage involved, that is, some versions originating from `.csproj` and others originating from an `AssemblyInfo.cs` `Attribute`. We do not have a solution in mind for that at the moment, but we can say that containing your adoption to one approach or the other seems just fine for operational usage.
 
+## Development Tips
+
+If you are interested in helping with development, here are some tips on how to build and test your changes:
+
+1) Copy this repository to your computer.
+2) Open the `BumpAssemblyVersions.sln` file with Visual Studio.
+3) Make your changes to the code.  It might be easier to identify your modified BumpAssemblyVersions package later if you also modify the version string in the project file at this point.
+4) Build the project.  This should produce a `*.nupkg` file in your build directory (`\bin\Debug\`) and several files in the subdirectory there.
+5) In your test project, install the NuGet package.
+5A) Tools > NuGet Package Manager > Manage NuGet Packages for Solution...
+5B) Click the gear icon to open an "Options" window.
+5C) Click the green plus icon to add a new Package Source to the list.
+5D) Name the package source something useful like "BavDevelopment", set the Source to the path to the directory that contains the `*.nupkg` file you built, and click OK to save the new NuGet package source.
+5E) Back on the Nuget window, use the "Package source" dropdown to change your source from the default "nuget.org" to your new "BavDevelopment" source.
+5F) On the Browse tab, you should see your modified BumpAssemblyVersions package ready to install in your test project.  Install that package into the desired projects using the controls on the right side of the window.
+6) Now that you have your modified BumpAssemblyVersions package installed, you can tell Visual Studio to rebuild your test project to test your code changes.
+7) If you get a build error at this point saying that a BumpAssemblyVersions.dll file is missing, you'll have to copy all the files from the build subdirectory mentioned in step 4 into the path mentioned in the error message.  Then, you should be able to build your test project successfully.  Remember to copy those files every time you rebuild and install your modified NuGet package.
+
+
 ---
 
 <sup>\[<a name="msbuild-caveats">1</a>\] With any of these inputs, usual `MSBuild` `Condition` rules apply, so you may mix and match the specified files to bump depending on `Configuration` or other criteria at your discretion.</sup>
