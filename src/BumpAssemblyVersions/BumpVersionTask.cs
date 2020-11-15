@@ -302,8 +302,7 @@ namespace Bav
             if (TryReadingFile(projectFilename, out var given)
                 && TryParseDocument(given, out var givenDoc,
                     root => root?.Name.LocalName == "Project"
-                            && root.Attribute("Sdk") is XAttribute a
-                            && a.Value == "Microsoft.NET.Sdk"))
+                            && root.Attribute("Sdk") is XAttribute a))
             {
                 /* Process the Given Doc using the Services in the Aggregate.
                  Pull the Tried Doc forward when the Bump did Try. */
