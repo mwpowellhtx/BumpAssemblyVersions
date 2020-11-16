@@ -22,7 +22,7 @@
         <Summary>A dotnet flexible assembly version bumping tool.</Summary>
         <Description>Bumps assembly versions according to user provided specifications.</Description>
         <PackageId>BumpAssemblyVersions</PackageId>
-        <PackageTags>version; versions; assembly; assemblies; bump; bumps; bumped; nuget; restore; restored; msbuild; provider; registry; may; should; reset; use; utc; universal; coordinated; time; stamp; timestamp; label; value; width; discard; create; new; include; wildcard; default; kind; file; files; informational; package; spec; specification; specifications; target; targets; template; major; minor; patch; build; release; prerelease; element; elements; import; item; group; more; significant; change; changed; single; multi; multiple; cross; targeting; dispatch; before; outer; inner; loop</PackageTags>
+        <PackageTags>version;versions;assembly;assemblies;bump;bumps;bumped;nuget;restore;restored;msbuild;provider;registry;may;should;reset;use;utc;universal;coordinated;time;stamp;timestamp;label;value;width;discard;create;new;include;wildcard;default;kind;file;files;informational;package;spec;specification;specifications;target;targets;template;major;minor;patch;build;release;prerelease;element;elements;import;item;group;more;significant;change;changed;single;multi;multiple;cross;targeting;dispatch;before;outer;inner;loop</PackageTags>
         <PackageProjectUrl>https://github.com/mwpowellhtx/BumpAssemblyVersions</PackageProjectUrl>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
@@ -101,7 +101,7 @@
     <Target Name="RelayNuspecPropertiesBeforeBuild" AfterTargets="PreBuild" BeforeTargets="BeforeBuild">
 
         <ItemGroup>
-            <NuspecProperty Include="packageTags=$(PackageTags.Replace(';', ''))" />
+            <NuspecProperty Include="packageTags=$(PackageTags.Replace(';', ' '))" />
             <NuspecProperty Include="id=$(MSBuildProjectName)" />
             <NuspecProperty Include="version=$(PackageVersion)" />
             <NuspecProperty Include="title=$(Title)" />
