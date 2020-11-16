@@ -105,6 +105,9 @@ namespace Bav
              * which should be relayed to us as the $(ProjectPath). */
             var projectFilename = ProjectFilename;
 
+            // TODO: TBD: should consider logging the descriptors we do have here...
+            // TODO: TBD: or possibly as a function of the targets themselves, if possible...
+
             // Ensure that we are dealing only with the Descriptors we can.
             descriptors = descriptors.Where(descriptor => descriptor.Kind.ContainedBy(AssemblyVersion
                 , AssemblyFileVersion, AssemblyInformationalVersion)).ToArray();
@@ -224,6 +227,22 @@ namespace Bav
         private static XNodeEqualityComparer Comparer => EqualityComparer;
 
         // ReSharper disable once MemberCanBeMadeStatic.Local
+        /// <summary>
+        /// Tries to Execute the Project File Bump Version operation given
+        /// <paramref name="descriptors"/>. May also <paramref name="log"/> progress
+        /// as appropriate to do so.
+        /// </summary>
+        /// <param name="descriptors"></param>
+        /// <param name="log"></param>
+        /// <returns></returns>
+        /// <remarks>Key to this is trying to read the input project file then trying to parse the
+        /// XML, including verification that it was a Project file with Sdk attribute. In previous
+        /// versions we keyed too strongly on <c>Sdk=&quot;Microsoft.NET.Sdk&quot;</c>, however,
+        /// we have since learned that Windows Forms dotnet migration paths expect it to be
+        /// <c>Microsoft.NET.Sdk.WindowsDesktop</c>. So therefore, yes, we should still expect
+        /// there to be an <c>Sdk</c> attribute, but we can probably ignore the value itself.
+        /// If necessary, we might consider injecting a configuration that informs which
+        /// <em>Sdk</em> we do support, but only if necessary; for now will ignore the value.</remarks>
         private bool TryExecuteProjectFileBumpVersion(IEnumerable<IBumpVersionDescriptor> descriptors
             , TaskLoggingHelper log = null)
         {
@@ -231,7 +250,9 @@ namespace Bav
              * which should be relayed to us as the $(ProjectPath). */
             var projectFilename = ProjectFilename;
 
+#pragma warning disable IDE0002 // Simplify member access
             const VersionKind version = VersionKind.Version;
+#pragma warning restore IDE0002 // Simplify member access
 
             // ReSharper disable once ConvertIfStatementToReturnStatement
             // Ensure that we are dealing only with the Descriptors we can.
@@ -302,7 +323,7 @@ namespace Bav
             if (TryReadingFile(projectFilename, out var given)
                 && TryParseDocument(given, out var givenDoc,
                     root => root?.Name.LocalName == "Project"
-                            && root.Attribute("Sdk") is XAttribute a))
+                            && root.Attribute("Sdk") is XAttribute))
             {
                 /* Process the Given Doc using the Services in the Aggregate.
                  Pull the Tried Doc forward when the Bump did Try. */
