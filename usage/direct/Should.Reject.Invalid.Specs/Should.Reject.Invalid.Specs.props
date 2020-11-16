@@ -1,0 +1,24 @@
+﻿<Project>
+
+    <PropertyGroup>
+        <BumpAssemblyVersionFullPath>$(SolutionDir)..\..\src\BumpAssemblyVersions\bin\$(Configuration)\netstandard2.0\BumpAssemblyVersions.dll</BumpAssemblyVersionFullPath>
+    </PropertyGroup>
+
+    <UsingTask AssemblyFile="$(BumpAssemblyVersionFullPath)" TaskName="Bav.BumpVersion" />
+
+    <Target Name="BavBeforeBuild" BeforeTargets="BeforeBuild">
+
+        <Message Importance="high" Text="Task found in '$(BumpAssemblyVersionFullPath)' ..." />
+
+        <Message Text="This is a test" />
+
+        <!-- At present we do at least throw an exception:
+          System.InvalidOperationException: Expecting 'Microsoft.Build.Framework.ITaskItem.ItemSpec' to be among: { 'None', 'Version', 'FileVersion', 'InformationalVersion', 'PackageVersion', 'AssemblyVersion', 'AssemblyFileVersion', 'AssemblyInformationalVersion' } -->
+        <!-- TODO: TBD: however, I could pe persuaded that this should at least be more graceful, indicate a useful warning message, etc... -->
+        <BumpVersion ProjectFullPath="$(MSBuildProjectFullPath)" Bumps="@(BumpVersionSpec)" Configuration="$(Configuration)" />
+
+        <Message Text="This is only a test" />
+
+    </Target>
+
+</Project>

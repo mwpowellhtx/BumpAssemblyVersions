@@ -1,0 +1,14 @@
+<Project>
+
+    <!-- The objective here is to verify that we get correct targets invoking the Microsoft Build tasking.
+      Nothing more, nothing less, short of actual proper end-to-end NuGet PackageReferences. -->
+    <ItemGroup>
+        <BumpVersionSpec Include="AssemblyVersion" UseUtc="false" IncludeWildcard="true" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" />
+        <BumpVersionSpec Include="FileVersion" UseUtc="false" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" />
+        <BumpVersionSpec Include="InformationalVersion" UseUtc="false" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" />
+    </ItemGroup>
+
+    <!-- We need to finesse the targets import a little bit at this level, but it does work correctly. -->
+    <Import Project="$(SolutionDir)..\..\src\BumpAssemblyVersions\bin\$(Configuration)\netstandard2.0\build\BumpAssemblyVersions.targets" />
+
+</Project>

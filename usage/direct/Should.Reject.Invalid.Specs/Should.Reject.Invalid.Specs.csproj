@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Intentionally invalid specs, tasking should fail on these... -->
+        <!-- TODO: TBD: should reject these more gracefully than it presently does... -->
+        <!-- TODO: TBD: at least warn that they are invalid, without leaving any doors open for false positives or negatives... -->
+        <BumpVersionSpec Include="Version2" Kind="Version2" />
+        <BumpVersionSpec Include="AssemblyVersion2" Kind="AssemblyVersion2" />
+        <BumpVersionSpec Include="FileVersion2" Kind="FileVersion2" />
+    </ItemGroup>
+
+    <ImportGroup>
+        <Import Project="Should.Reject.Invalid.Specs.props"/>
+    </ImportGroup>
+
+</Project>

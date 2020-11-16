@@ -54,5 +54,5 @@
 	<!-- TODO: TBD: it would be better for these to happen from the targets file perspective if possible.
 	Given the new project format, *.props may be a better choice. -->
   </ItemGroup>
-  <Import Project="$(ProjectDir)..\..\..\src\BumpAssemblyVersions\bin\$(Configuration)\netstandard2.0\build\BumpAssemblyVersions.targets" />
+  <Import Project="$(SolutionDir)..\..\src\BumpAssemblyVersions\bin\$(Configuration)\netstandard2.0\build\BumpAssemblyVersions.targets" />
 </Project>
