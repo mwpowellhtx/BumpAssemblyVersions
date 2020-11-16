@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+    <ImportGroup>
+        <Import Project="..\WindowsDesktop.Usage.props" />
+    </ImportGroup>
+
+    <PropertyGroup>
+        <AssemblyVersion>1.2.64.0</AssemblyVersion>
+        <FileVersion>1.2.64.0</FileVersion>
+        <InformationalVersion>1.2.64.0</InformationalVersion>
+    </PropertyGroup>
+
+</Project>
