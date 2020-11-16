@@ -4,12 +4,14 @@ namespace Bav
 {
     using Microsoft.Build.Execution;
 
-    /// <summary>
-    /// 
-    /// </summary>
     /// <inheritdoc />
     public class BuildResultEventArgs : EventArgs
     {
+        /// <summary>
+        /// Gets or Sets whether IsHandled.
+        /// </summary>
+        public bool IsHandled { get; set; }
+
         /// <summary>
         /// Gets the Result.
         /// </summary>
@@ -18,14 +20,14 @@ namespace Bav
         /// <summary>
         /// Gets the Exception that occurred, if any.
         /// </summary>
-        public InvalidOperationException Exception { get; }
+        public Exception Exception { get; }
 
         internal BuildResultEventArgs(BuildResult result)
             : this(result, null)
         {
         }
 
-        internal BuildResultEventArgs(BuildResult result, InvalidOperationException exception)
+        internal BuildResultEventArgs(BuildResult result, Exception exception)
         {
             Result = result;
             Exception = exception;

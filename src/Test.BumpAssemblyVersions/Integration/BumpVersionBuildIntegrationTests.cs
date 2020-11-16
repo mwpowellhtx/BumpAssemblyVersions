@@ -6,7 +6,7 @@ using System.Reflection;
 using Microsoft.Build.Execution;
 using Microsoft.Build.Framework;
 
-namespace Bav
+namespace Bav.Integration
 {
     using Xunit;
     using Xunit.Abstractions;
@@ -64,16 +64,23 @@ namespace Bav
         /// <param name="evaluateException"></param>
         /// <param name="verifyVersions"></param>
         /// <param name="filterSources"></param>
-        [Theory(Skip = "Ignoring for now, I think it is perhaps a shadow copying issue."), MemberData(nameof(BuildVerificationTestCases))]
+        [
+            // TODO: TBD: skipping for now... this could work after all, but running into some SDK issues, I think.
+            // TODO: TBD: see notes sprinkled throughout for potential opportunities, clues, gaps, etc...
+            Theory
+                (Skip = "Ignoring for now, I think it is perhaps a shadow copying issue.")
+            , MemberData(nameof(BuildVerificationTestCases))
+        ]
         public void Verify_build_results(string projOrSlnFullPath
             , IDictionary<string, string> globalProperties, IEnumerable<string> buildTargets
-            , BuildResultCode expectedResultCode, Func<InvalidOperationException, bool> evaluateException
+            , BuildResultCode expectedResultCode, Func<Exception, bool> evaluateException
             , Action<IEnumerable<string>, IEnumerable<string>> verifyVersions, IEnumerable<IFilterSource> filterSources)
         {
             OutputHelper.WriteLine($"Attempting to build: '{projOrSlnFullPath}'");
 
             void OnToolsetRequired(object sender, ToolsetRequiredEventArgs e)
             {
+                // TODO: TBD: could probably update to toolset 16.0 (VS2019)...
                 const string expectedToolsVersion = "15.0";
                 e.Predicate = ts => ts.ToolsVersion == expectedToolsVersion;
                 e.GetInstallDirectoryName = ts => new FileInfo(ts.ToolsPath).Directory?.Parent?.Parent?.FullName;
@@ -86,6 +93,9 @@ namespace Bav
                 SetEnvironmentVariable("VSINSTALLDIR", e.InstallDirectoryName);
                 SetEnvironmentVariable("MSBUILD_EXE_PATH", e.Toolset.ToolsPath);
                 SetEnvironmentVariable("VisualStudioVersion", e.Toolset.ToolsVersion);
+                // TODO: TBD: may possible have to set environment variable: MSBuildSDKsPath:
+                // https://stackoverflow.com/questions/46257393/msbuild-throws-error-the-sdk-microsoft-net-sdk-specified-could-not-be-found
+                // {"The SDK 'Microsoft.NET.Sdk' specified could not be found. L:\\Source\\Ellumination Technologies\\BumpAssemblyVersions\\master\\usage\\direct\\NetStd.ProjXml.AllowWildcard.FileInfoVersions\\NetStd.ProjXml.AllowWildcard.FileInfoVersions.csproj"}
             }
 
             void OnConfigureBuild(object sender, ConfigureBuildEventArgs e)
@@ -204,10 +214,10 @@ namespace Bav
                         switch (expectedResultCode)
                         {
                             case Success:
-                                yield return (Func<InvalidOperationException, bool>) (ex => ex == null);
+                                yield return (Func<Exception, bool>) (ex => ex == null);
                                 break;
                             case Failure:
-                                yield return (Func<InvalidOperationException, bool>) (ex => ex != null);
+                                yield return (Func<Exception, bool>) (ex => ex != null);
                                 break;
                         }
 
@@ -218,13 +228,14 @@ namespace Bav
                         yield return fs;
                     }
 
-                    void AllDifferent(IEnumerable<string> before, IEnumerable<string> after)
+                    // Renamed for better clarity, these three are intended as strategic callbacks.
+                    void OnAllDifferent(IEnumerable<string> before, IEnumerable<string> after)
                         => Assert.All(before.Zip(after, (b, a) => b != a), Assert.True);
 
-                    void AllEqual(IEnumerable<string> before, IEnumerable<string> after)
+                    void OnAllEqual(IEnumerable<string> before, IEnumerable<string> after)
                         => Assert.All(before.Zip(after, (b, a) => b == a), Assert.True);
 
-                    void NoneGiven(IEnumerable<string> before, IEnumerable<string> after)
+                    void OnNoneGiven(IEnumerable<string> before, IEnumerable<string> after)
                         => Assert.False(before.Any() || after.Any());
 
                     /* Does not seem to be working when I isolate a Project for build.
@@ -239,8 +250,10 @@ namespace Bav
                     Assert.NotNull(assyDir.Parent);
                     Assert.NotNull(assyDir.Parent.Parent);
                     Assert.NotNull(assyDir.Parent.Parent.Parent);
-                    // TODO: TBD: are we shadow copying assemblies here? I thought this was disabled? Or at least not enabled?
-                    var slnDir = assyDir.Parent.Parent.Parent.GetDirectories("TestSolution").Single();
+                    Assert.NotNull(assyDir.Parent.Parent.Parent.Parent);
+                    Assert.NotNull(assyDir.Parent.Parent.Parent.Parent.Parent);
+                    // Remember the projects did refactor location in the overall repository, which this addresses.
+                    var slnDir = assyDir.Parent.Parent.Parent.Parent.Parent.GetDirectories(@"usage\direct").Single();
 
                     string GetProjectFullPath(string fileName)
                         => slnDir.GetFiles($"{fileName}.csproj", AllDirectories).Single().FullName;
@@ -250,7 +263,7 @@ namespace Bav
                     // TODO: TBD: and which ever bits are being screened should see a marked change
                     // TODO: TBD: after that, may see about a NuGetVersion friendly result
                     // TODO: TBD: which I think should support not only Version but also the <version/>-<prereleaselabel/>
-                    yield return GetOne(GetProjectFullPath("NetStd.ProjXml.AllowWildcard.FileInfoVersions"), Success, AllDifferent
+                    yield return GetOne(GetProjectFullPath("NetStd.ProjXml.AllowWildcard.FileInfoVersions"), Success, OnAllDifferent
                         , GetProjectXmlVersionFilterSource(GetProjectFullPath("NetStd.ProjXml.AllowWildcard.FileInfoVersions")
                             , new ProjectXmlVersionFilter {Kind = AssemblyVersion}
                             , new ProjectXmlVersionFilter {Kind = FileVersion}
@@ -258,7 +271,7 @@ namespace Bav
                         )
                     ).ToArray();
 
-                    yield return GetOne(GetProjectFullPath("NetStd.ProjXml.TestLookupNoDups"), Success, AllDifferent
+                    yield return GetOne(GetProjectFullPath("NetStd.ProjXml.TestLookupNoDups"), Success, OnAllDifferent
                         , GetProjectXmlVersionFilterSource(GetProjectFullPath("NetStd.ProjXml.TestLookupNoDups")
                             , new ProjectXmlVersionFilter {Kind = VersionKind.Version}
                             , new ProjectXmlVersionFilter {Kind = AssemblyVersion}
@@ -268,7 +281,7 @@ namespace Bav
                         )
                     ).ToArray();
 
-                    yield return GetOne(GetProjectFullPath("AssyInfo.FileInfoVersions.IncludeWildcards"), Success, AllDifferent
+                    yield return GetOne(GetProjectFullPath("AssyInfo.FileInfoVersions.IncludeWildcards"), Success, OnAllDifferent
                         , GetAssemblyAttributeVersionFilterSource(
                             GetProjectFullPath("AssyInfo.FileInfoVersions.IncludeWildcards")
                             , Combine("Properties", "AssemblyInfo.cs")
@@ -278,7 +291,7 @@ namespace Bav
                         )
                     ).ToArray();
 
-                    yield return GetOne(GetProjectFullPath("AssyAttributes.NoBumpSpecs"), Success, AllEqual
+                    yield return GetOne(GetProjectFullPath("AssyAttributes.NoBumpSpecs"), Success, OnAllEqual
                         , GetAssemblyAttributeVersionFilterSource(
                             GetProjectFullPath("AssyAttributes.NoBumpSpecs")
                             , Combine("Properties", "AssemblyInfo.cs")
@@ -290,7 +303,9 @@ namespace Bav
 
                     // TODO: TBD: this bit is not testing anything apart from the test theory plumbing itself...
                     // TODO: TBD: nothing to compare here, or we might even expect them all to be empty...
-                    yield return GetOne(GetProjectFullPath("ProjectA"), Failure, NoneGiven).ToArray();
+                    yield return GetOne(GetProjectFullPath("Should.Reject.Invalid.Specs"), Failure, OnNoneGiven).ToArray();
+
+                    // TODO: TBD: ...we also need to ensure that we include the winforms, wpf, etc, projects.
                 }
 
                 return _buildVerificationTestCases ?? (_buildVerificationTestCases = Get());

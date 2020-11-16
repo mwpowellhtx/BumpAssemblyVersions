@@ -5,6 +5,7 @@ using Microsoft.Build.Execution;
 namespace Bav
 {
     using Microsoft.Build.Evaluation;
+    using Xunit;
     using static BuildManager;
     using static BuildResultCode;
 
@@ -62,8 +63,23 @@ namespace Bav
         /// </summary>
         public event EventHandler<BuildResultEventArgs> BuildExceptionOccurred;
 
-        private void OnBuildExceptionOccurred(InvalidOperationException exception)
-            => BuildExceptionOccurred?.Invoke(this, new BuildResultEventArgs(null, exception));
+        /// <summary>
+        /// Tries to Handle the Build <paramref name="exception"/>.
+        /// </summary>
+        /// <typeparam name="TException"></typeparam>
+        /// <param name="exception"></param>
+        /// <returns></returns>
+        private bool TryOnBuildExceptionOccurred<TException>(TException exception)
+            where TException : Exception
+        {
+            bool TryHandleInvoke(BuildResultEventArgs e)
+            {
+                BuildExceptionOccurred?.Invoke(this, e);
+                return e.IsHandled;
+            }
+
+            return TryHandleInvoke(new BuildResultEventArgs(null, exception));
+        }
 
         /// <summary>
         /// 
@@ -75,7 +91,8 @@ namespace Bav
             {
                 // Aligning the Toolset with the Build Request is kind of a separate step.
                 OnToolsetRequired(out var e);
-                var ts = pc.Toolsets.Single(e.Predicate);
+                var ts = pc.Toolsets.SingleOrDefault(e.Predicate);
+                Assert.NotNull(ts);
                 installDirectoryName = e.GetInstallDirectoryName(ts);
                 return ts;
             }
@@ -91,15 +108,26 @@ namespace Bav
                 var parameters = new BuildParameters(pc) {Loggers = e.Loggers.ToArray()};
 
                 var requestData = new BuildRequestData(e.ProjectOrSolutionFullPath, e.GlobalProperties
-                , ts.ToolsVersion, e.TargetsToBuild.ToArray(), null);
+                    , ts.ToolsVersion, e.TargetsToBuild.ToArray(), null);
 
                 try
                 {
-                    OnAfterBuild(DefaultBuildManager.Build(parameters, requestData));
+                    var actualResult = DefaultBuildManager.Build(parameters, requestData);
+                    OnAfterBuild(actualResult);
                 }
                 catch (InvalidOperationException ioex)
                 {
-                    OnBuildExceptionOccurred(ioex);
+                    if (!TryOnBuildExceptionOccurred(ioex))
+                    {
+                        throw;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    if (!TryOnBuildExceptionOccurred(ex))
+                    {
+                        throw;
+                    }
                 }
             }
         }
