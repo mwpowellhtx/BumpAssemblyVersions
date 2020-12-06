@@ -204,6 +204,7 @@ namespace Bav
                     var incrementVersionProvider = (IVersionProvider) Registry.Increment;
                     var preReleaseIncrementVersionProvider
                         = (PreReleaseIncrementVersionProvider) Registry.PreReleaseIncrement;
+                    //IVersionProvider minutesSinceMidnightVersionProvider = Registry.MinutesSinceMidnight;
                     //IVersionProvider secondsSinceMidnightVersionProvider = Registry.SecondsSinceMidnight;
                     var hourMinuteVersionProvider = (IVersionProvider) Registry.HourMinute;
                     var monthDayOfMonthVersionProvider = (IVersionProvider) Registry.MonthDayOfMonth;

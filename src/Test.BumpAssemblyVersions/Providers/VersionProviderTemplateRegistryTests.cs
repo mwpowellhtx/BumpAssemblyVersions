@@ -210,6 +210,7 @@ namespace Bav
                     yield return GetOne<DeltaDays2010VersionProvider, IVersionProvider>().ToArray();
                     yield return GetOne<DeltaDays2020VersionProvider, IVersionProvider>().ToArray();
                     yield return GetOne<IncrementVersionProvider, IVersionProvider>().ToArray();
+                    yield return GetOne<MinutesSinceMidnightVersionProvider, IVersionProvider>().ToArray();
                     yield return GetOne<MonthVersionProvider, IVersionProvider>().ToArray();
                     yield return GetOne<NoOpVersionProvider, IVersionProvider>().ToArray();
                     yield return GetOne<PreReleaseIncrementVersionProvider, IVersionProvider>().ToArray();
