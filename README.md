@@ -131,6 +131,7 @@ The prefixed `ProviderTemplate` attribute is always required. The attribute valu
 |DeltaDays2020VersionProvider <sup>\[[8](#date-time-based-version-provider)\]</sup>|Yields the number of Days that occurred since `2020`.|
 |HourMinuteMultipartVersionProvider <sup>\[[8](#date-time-based-version-provider), [11](#version-provider-right-justified-zero-padded)\]</sup>|Yields the Hour and Minute multipart element in the form `hhMM`.|
 |IncrementVersionProvider <sup>\[[9](#version-provider-may-reset)\]</sup>||
+|MinutesSinceMidnightVersionProvider <sup>\[[8](#date-time-based-version-provider), [11](#version-provider-right-justified-zero-padded)\]</sup>|Yields the Minutes Since Midnight element.|
 |MonthDayOfMonthMultipartVersionProvider <sup>\[[8](#date-time-based-version-provider), [11](#version-provider-right-justified-zero-padded)\]</sup>|Yields the Month and Day of the Month multipart element in the form `MMDD`.|
 |MonthVersionProvider <sup>\[[8](#date-time-based-version-provider), [11](#version-provider-right-justified-zero-padded)\]</sup>|Yields the Month element in the form `M`.|
 |NoOpVersionProvider <sup>\[[10](#version-provider-for-internal-use-only)\]</sup>|The *No Op* provider is used when no provider was specified. It assumes a pass through for whatever the [version element](#bump-version-element-specifications) might have been.|
