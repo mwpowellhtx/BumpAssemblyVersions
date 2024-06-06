@@ -1,7 +1,0 @@
-<Project>
-  <ItemGroup>
-	<!-- TODO: TBD: it would be better for these to happen from the targets file perspective if possible. -->
-    <BumpVersionSpec Update="@(BumpVersionSpec)" Visible="False" />
-    <FilesToBump Update="@(FilesToBump)" Visible="False" />
-  </ItemGroup>
-</Project>

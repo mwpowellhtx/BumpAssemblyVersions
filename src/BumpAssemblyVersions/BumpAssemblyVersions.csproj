@@ -1,9 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <DevelopmentDependency>true</DevelopmentDependency>
-        <BuildOutputTargetFolder>tasks</BuildOutputTargetFolder>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <NoWarn>$(NoWarn);NU5100</NoWarn>
     </PropertyGroup>
@@ -12,9 +9,15 @@
         <IsTool>true</IsTool>
         <RootNamespace>Bav</RootNamespace>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <AssemblyVersion>1.8.0</AssemblyVersion>
-        <FileVersion>1.8.0</FileVersion>
-        <PackageVersion>1.8.0</PackageVersion>
+        <AssemblyVersion>1.9.0</AssemblyVersion>
+        <FileVersion>1.9.0</FileVersion>
+        <PackageVersion>1.9.0</PackageVersion>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <DevelopmentDependency>true</DevelopmentDependency>
+        <BuildOutputTargetFolder>tasks\$(TargetFramework)</BuildOutputTargetFolder>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -22,9 +25,8 @@
         <Summary>A dotnet flexible assembly version bumping tool.</Summary>
         <Description>Bumps assembly versions according to user provided specifications.</Description>
         <PackageId>BumpAssemblyVersions</PackageId>
-        <PackageTags>version;versions;assembly;assemblies;bump;bumps;bumped;nuget;restore;restored;msbuild;provider;registry;may;should;reset;use;utc;universal;coordinated;time;stamp;timestamp;label;value;width;discard;create;new;include;wildcard;default;kind;file;files;informational;package;spec;specification;specifications;target;targets;template;major;minor;patch;build;release;prerelease;element;elements;import;item;group;more;significant;change;changed;single;multi;multiple;cross;targeting;dispatch;before;outer;inner;loop</PackageTags>
+        <PackageTags>version;versions;assembly;assemblies;bump;bumps;bumped;nuget;restore;restored;msbuild;provider;registry;may;should;reset;use;utc;universal;coordinated;time;stamp;timestamp;label;value;width;discard;create;new;include;wildcard;default;kind;file;files;informational;package;spec;specification;specifications;target;targets;template;major;minor;patch;build;release;prerelease;element;elements;import;item;group;more;significant;change;changed;single;multi;multiple;cross;targeting;dispatch;before;outer;inner;loop;strategy;strategies;buildMultiTargeting;TargetFramework;TargetFrameworks;framework;frameworks</PackageTags>
         <PackageProjectUrl>https://github.com/mwpowellhtx/BumpAssemblyVersions</PackageProjectUrl>
-        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <NuspecFile>$(MSBuildProjectName).nuspec</NuspecFile>
     </PropertyGroup>
 
@@ -66,63 +68,43 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Update="build\BumpAssemblyVersions.Debug.props">
-            <IsTransformFile>true</IsTransformFile>
-            <DependentUpon>BumpAssemblyVersions.props</DependentUpon>
-        </None>
-        <None Update="build\BumpAssemblyVersions.Debug.targets">
-            <IsTransformFile>true</IsTransformFile>
-            <DependentUpon>BumpAssemblyVersions.targets</DependentUpon>
-        </None>
-        <None Update="build\BumpAssemblyVersions.props">
-            <TransformOnBuild>true</TransformOnBuild>
-        </None>
-        <None Update="build\BumpAssemblyVersions.Release.props">
-            <IsTransformFile>true</IsTransformFile>
-            <DependentUpon>BumpAssemblyVersions.props</DependentUpon>
-        </None>
-        <None Update="build\BumpAssemblyVersions.Release.targets">
-            <IsTransformFile>true</IsTransformFile>
-            <DependentUpon>BumpAssemblyVersions.targets</DependentUpon>
-        </None>
-        <None Update="build\BumpAssemblyVersions.targets">
-            <TransformOnBuild>true</TransformOnBuild>
-        </None>
+        <Content Include="build\BumpAssemblyVersions.targets" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="buildMultiTargeting\BumpAssemblyVersions.targets" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Transitive assets serve both single- and multi-targeting scenarios. -->
+        <Content Include="buildTransitive\BumpAssemblyVersions.props" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="buildTransitive\CommonBumpAssemblyVersions.targets" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="buildTransitive\DebugBumpAssemblyVersions.targets" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Stage all assets, including Sandbox, then we pick them up after build in a target area.
+            This emulates the natural way in which MSBuild rolls up Package References with targets.
+            -->
+        <Content Condition="'$(Configuration)' == 'Debug'" Include="*.sandbox.g.*" CopyToOutputDirectory="PreserveNewest" />
+        <None Condition="'$(Configuration)' == 'Release'" Update="*.sandbox.g.*" CopyToOutputDirectory="Never" />
+    </ItemGroup>
+
+    <!-- TODO: Package extensions: dll json pdb txt xml -->
+    <!-- TODO: Sandbox NuGet emulation: *.sandbox.g.* -->
+    <ImportGroup>
+        <Import Project="..\..\Licensing.props" />
+    </ImportGroup>
+
+    <ImportGroup>
+        <Import Project="targets\BavContainSandboxAfterBuild.targets" />
+        <Import Project="targets\RelayNuspecPropertiesBeforeBuild.targets" />
+    </ImportGroup>
 
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
             <_Parameter1>Test.$(MSBuildProjectName)</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>
-
-    <Import Project="..\..\Licensing.props" />
-
-    <Target Name="RelayNuspecPropertiesBeforeBuild" AfterTargets="PreBuild" BeforeTargets="BeforeBuild">
-
-        <ItemGroup>
-            <NuspecProperty Include="packageTags=$(PackageTags.Replace(';', ' '))" />
-            <NuspecProperty Include="id=$(MSBuildProjectName)" />
-            <NuspecProperty Include="version=$(PackageVersion)" />
-            <NuspecProperty Include="title=$(Title)" />
-            <NuspecProperty Include="author=$(Authors)" />
-            <NuspecProperty Include="owners=$(Company)" />
-            <NuspecProperty Include="summary=$(Summary)" />
-            <NuspecProperty Include="description=$(Description)" />
-            <NuspecProperty Include="developmentDependency=$(DevelopmentDependency)" />
-            <NuspecProperty Include="requireLicenseAcceptance=$(PackageRequireLicenseAcceptance)" />
-            <NuspecProperty Include="projectUrl=$(PackageProjectUrl)" />
-            <NuspecProperty Include="licenseFile=$(PackageLicenseFile)" />
-            <NuspecProperty Include="config=$(Configuration)" />
-            <NuspecProperty Include="targetFramework=$(TargetFramework)" />
-        </ItemGroup>
-
-        <PropertyGroup>
-            <NuspecProperties>@(NuspecProperty, ';')</NuspecProperties>
-        </PropertyGroup>
-
-        <Message Importance="high" Text="Nuspec properties are: $(NuspecProperties)" Condition="'$(Configuration)' == 'Debug'" />
-
-    </Target>
 
 </Project>

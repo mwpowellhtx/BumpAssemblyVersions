@@ -1,0 +1,26 @@
+﻿<!-- https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-properties#local-properties -->
+<Project TreatAsLocalProperty="_TaskTargetFramework;_TaskAssemblyFileName">
+
+    <PropertyGroup>
+        <_TaskTargetFramework>netstandard2.0</_TaskTargetFramework>
+        <!-- https://learn.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2015/msbuild/msbuild-reserved-and-well-known-properties -->
+        <_TaskAssemblyFileName>BumpAssemblyVersions.dll</_TaskAssemblyFileName>
+        <!-- Allows consumers to specify custom directory locations. -->
+        <BumpAssemblyVersionTaskDirectory Condition="'$(BumpAssemblyVersionTaskDirectory)' == ''">$(MSBuildThisFileDirectory)..\tasks\$(_TaskTargetFramework)</BumpAssemblyVersionTaskDirectory>
+    </PropertyGroup>
+
+    <!-- See also: https://msdn.microsoft.com/en-us/library/ms164309.aspx (MSBuild Reserved and Well-Known Properties) -->
+    <UsingTask AssemblyFile="$(BumpAssemblyVersionTaskDirectory)\$(_TaskAssemblyFileName)" TaskName="Bav.BumpVersion" />
+
+    <!-- TODO: what is 'lock' there for? to regular passes through BAV? -->
+    <!-- TODO: can we write to read from files? i.e. a semaphore counter file? -->
+    <!-- TODO: if so that may be one way to more definitely regulate the passes -->
+    <!-- TODO: no matter what we are still contending with single/multi use cases -->
+    <!-- TODO: and being able to ignore subsequent passes from the first valid one -->
+    <PropertyGroup>
+        <!-- TODO: TBD: not sure what a `lock file´ was all about... -->
+        <!-- TODO: TBD: we may not need this after all provided we can arrest the target/condition issue? -->
+        <BavLockFilePath>$(MSBuildProjectDirectory)\$(MSBuildProjectName).bav.lock</BavLockFilePath>
+    </PropertyGroup>
+
+</Project>

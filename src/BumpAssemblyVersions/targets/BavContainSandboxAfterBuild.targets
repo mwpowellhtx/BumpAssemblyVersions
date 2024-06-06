@@ -1,0 +1,97 @@
+
+<Project TreatAsLocalProperty="_BavSandboxPrefix;_BavSandboxRoot;_BavSandboxDirectory;_BavTargetTasksDirectory;_BavTargetBuildDirectory;_BavTargetBuildMultiTargetingDirectory;_BavTargetBuildTransitiveDirectory;_BavSandboxRoot;_BavSandboxBuildDirectory;_BavSandboxBuildMultiTargetingDirectory;_BavSandboxBuildTransitiveDirectory;_BavSandboxTasksDirectory">
+
+    <!-- TODO: can a transform be done slow-cheetah prior under debug conditions (?) -->
+    <!-- TODO: and coordinate accordingly with various targets, tasking, etc (?) -->
+
+    <!-- Prepare some local properties for use throughout the targets. -->
+    <Target Name="BavInitProperties" Condition="'$(Configuration)' == 'Debug'">
+        <PropertyGroup>
+            <_BavSandboxPrefix>Sandbox</_BavSandboxPrefix>
+        </PropertyGroup>
+
+        <PropertyGroup>
+            <_BavTargetTasksDirectory>$(TargetDir)</_BavTargetTasksDirectory>
+            <_BavTargetBuildDirectory>$(TargetDir)build</_BavTargetBuildDirectory>
+            <_BavTargetBuildMultiTargetingDirectory>$(TargetDir)buildMultiTargeting</_BavTargetBuildMultiTargetingDirectory>
+            <_BavTargetBuildTransitiveDirectory>$(TargetDir)buildTransitive</_BavTargetBuildTransitiveDirectory>
+        </PropertyGroup>
+
+        <PropertyGroup>
+            <_BavSandboxRoot>$(SolutionDir)..\sandbox</_BavSandboxRoot>
+            <_BavSandboxDirectory>$(_BavSandboxRoot)\bumpassemblyversions</_BavSandboxDirectory>
+            <_BavSandboxTasksDirectory>$(_BavSandboxDirectory)\tasks\$(TargetFramework)</_BavSandboxTasksDirectory>
+            <_BavSandboxBuildDirectory>$(_BavSandboxDirectory)\build</_BavSandboxBuildDirectory>
+            <_BavSandboxBuildMultiTargetingDirectory>$(_BavSandboxDirectory)\buildMultiTargeting</_BavSandboxBuildMultiTargetingDirectory>
+            <_BavSandboxBuildTransitiveDirectory>$(_BavSandboxDirectory)\buildTransitive</_BavSandboxBuildTransitiveDirectory>
+        </PropertyGroup>
+    </Target>
+
+    <!-- Cleaning simply means dropping the overall Sandbox directory, including contained within. -->
+    <Target Name="BavCleanSandboxBeforeClean" Condition="'$(Configuration)' == 'Debug' And Exists('$(_BavSandboxRoot)')" DependsOnTargets="BavInitProperties" BeforeTargets="Clean">
+        <RemoveDir Directories="$(_BavSandboxRoot)">
+            <Output TaskParameter="RemovedDirectories" ItemName="_BavSandboxRemovedDirectories" />
+        </RemoveDir>
+
+        <Message Importance="high" Text="$(_BavSandboxPrefix): cleaned @(_BavSandboxRemovedDirectories->Count()) directories." />
+    </Target>
+
+    <!-- Separate the Sandbox Make Directories tasks from the copy ones. -->
+    <Target Name="BavMakeSandboxDirectories" Condition="'$(Configuration)' == 'Debug'" DependsOnTargets="BavInitProperties" AfterTargets="Build">
+        <MakeDir Condition="!Exists('$(_BavSandboxTasksDirectory)')" Directories="$(_BavSandboxTasksDirectory)" />
+        <MakeDir Condition="!Exists('$(_BavSandboxBuildDirectory)')" Directories="$(_BavSandboxBuildDirectory)" />
+        <MakeDir Condition="!Exists('$(_BavSandboxBuildMultiTargetingDirectory)')" Directories="$(_BavSandboxBuildMultiTargetingDirectory)" />
+        <MakeDir Condition="!Exists('$(_BavSandboxBuildTransitiveDirectory)')" Directories="$(_BavSandboxBuildTransitiveDirectory)" />
+    </Target>
+
+    <!-- Q: How to coordinate internal targets with SC processes / https://github.com/microsoft/slow-cheetah/issues/299
+        This one is pretty critical, because we must be guaranteed that our SC response is adequately completed.
+        Beggaring to all that, however, is whether SC is even necessary any longer. Especially considering
+        separation of Single- versus Multi-Targeting assets. Could we better condition certain aspects, for
+        instance, in a Debug versus Release configuration, rather than SC transform. -->
+
+    <!-- The purpose for this task is to position the artifacts we will need for some dry run BAV testing,
+        whereby some internally positioned projects will make direct reference to the targets. The idea
+        is to emulate having made a package reference, which should automatically import the targets we
+        require in either single- or multi-targeting scenarios, respectively. The only exception being,
+        that we must make the first importation manually, for dry run test purposes.
+        -->
+    <Target Name="BavContainSandboxAfterBuild" Condition="'$(Configuration)' == 'Debug'" DependsOnTargets="ScApplyTransforms;BavMakeSandboxDirectories" AfterTargets="Build">
+        <ItemGroup>
+            <BavSandboxBuildAssets Include="$(_BavTargetBuildDirectory)\*.props" />
+            <BavSandboxBuildAssets Include="$(_BavTargetBuildDirectory)\*.targets" />
+
+            <BavSandboxBuildMultiTargetingAssets Include="$(_BavTargetBuildMultiTargetingDirectory)\*.props" />
+            <BavSandboxBuildMultiTargetingAssets Include="$(_BavTargetBuildMultiTargetingDirectory)\*.targets" />
+
+            <BavSandboxBuildTransitiveAssets Include="$(_BavTargetBuildTransitiveDirectory)\*.props" />
+            <BavSandboxBuildTransitiveAssets Include="$(_BavTargetBuildTransitiveDirectory)\*.targets" />
+
+            <!-- Assets including the deployable files, excluding the Sandbox NuGet ".g." emulation. -->
+            <BavTargetTasksAssets Include="$(_BavTargetTasksDirectory)*.dll" />
+            <BavTargetTasksAssets Include="$(_BavTargetTasksDirectory)*.json" />
+            <BavTargetTasksAssets Include="$(_BavTargetTasksDirectory)*.pdb" />
+            <BavTargetTasksAssets Include="$(_BavTargetTasksDirectory)*.txt" />
+            <BavTargetTasksAssets Include="$(_BavTargetTasksDirectory)*.xml" />
+
+            <!-- Emulates NuGet generated targets importation. -->
+            <BavNuGetGeneratedImports Include="$(_BavTargetTasksDirectory)*.sandbox.g.*" />
+        </ItemGroup>
+
+        <!-- Copy the asset artifacts into their respective Sandbox directories. -->
+        <Copy SourceFiles="@(BavSandboxBuildAssets)" DestinationFolder="$(_BavSandboxBuildDirectory)" />
+        <Copy SourceFiles="@(BavSandboxBuildMultiTargetingAssets)" DestinationFolder="$(_BavSandboxBuildMultiTargetingDirectory)" />
+        <Copy SourceFiles="@(BavSandboxBuildTransitiveAssets)" DestinationFolder="$(_BavSandboxBuildTransitiveDirectory)" />
+        <Copy SourceFiles="@(BavTargetTasksAssets)" DestinationFolder="$(_BavSandboxTasksDirectory)" />
+        <Copy SourceFiles="@(BavNuGetGeneratedImports)" DestinationFolder="$(_BavSandboxRoot)" />
+
+        <!-- Last but not least report what we did. -->
+        <Message Importance="high" Text="Target directory: '$(TargetDir)'" />
+        <Message Importance="high" Text="$(_BavSandboxPrefix): copied @(BavSandboxBuildAssets->Count()) 'build' artifacts from '$(_BavTargetBuildDirectory)' to '$(_BavSandboxBuildDirectory)'." />
+        <Message Importance="high" Text="$(_BavSandboxPrefix): copied @(BavSandboxBuildMultiTargetingAssets->Count()) 'buildMultiTargeting' artifacts from '$(_BavTargetBuildMultiTargetingDirectory)' to '$(_BavSandboxBuildMultiTargetingDirectory)'." />
+        <Message Importance="high" Text="$(_BavSandboxPrefix): copied @(BavSandboxBuildTransitiveAssets->Count()) 'buildTransitive' artifacts from '$(_BavTargetBuildTransitiveDirectory)' to '$(_BavSandboxBuildTransitiveDirectory)'." />
+        <Message Importance="high" Text="$(_BavSandboxPrefix): copied @(BavTargetTasksAssets->Count()) task artifacts from '$(_BavTargetTasksDirectory)' to '$(_BavSandboxTasksDirectory)'." />
+        <Message Importance="high" Text="$(_BavSandboxPrefix): copied @(BavNuGetGeneratedImports->Count()) NuGet emulation files from '$(_BavTargetTasksDirectory)' to '$(_BavSandboxRoot)'." />
+    </Target>
+
+</Project>

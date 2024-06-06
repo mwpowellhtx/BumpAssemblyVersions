@@ -1,9 +1,15 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<!--For more information on using transformations see the web.config examples at http://go.microsoft.com/fwlink/?LinkId=214134. -->
-<Project xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+﻿<Project TreatAsLocalProperty="_BumpAssemblyVersionsReportCode;_BumpAssemblyVersionReportPrefix">
 
-    <!-- ReSharper disable UnknownProperty -->
-    <Target xdt:Transform="Insert" Name="ReportBumpAssemblyVersionsDebugMessages" AfterTargets="BumpAssemblyVersionsBeforeBuild">
+    <!-- TODO: warning probably means that, if I want to 'transitively' always include  these,
+        then need to consider consolidating the PROPS and/or TARGETS.
+        -->
+
+    <!--
+        Severity	Code	Description	Project	File	Line	Suppression State	Details
+        Warning (active)	NU5129	- At least one .targets file was found in 'buildTransitive/', but 'buildTransitive/BumpAssemblyVersions.targets' was not.	BumpAssemblyVersions	C:\Program Files\dotnet\sdk\8.0.300\Sdks\NuGet.Build.Tasks.Pack\build\NuGet.Build.Tasks.Pack.targets	221		
+    -->
+
+    <Target Name="ReportBumpAssemblyVersionsDebugMessages" Condition="$(VerboseBumpAssemblyVersions) == 'true'" AfterTargets="BumpAssemblyVersionsBeforeBuild">
 
         <!-- TODO: TBD: Code is not reporting through the IDE "Tooling" (quote unquote). -->
         <PropertyGroup>
@@ -29,6 +35,5 @@
         <Warning Code="$(_BumpAssemblyVersionReportCode)" Text="[$(_BumpAssemblyVersionReportPrefix)] %(BumpAssemblyVersionsReport.Identity)" />
 
     </Target>
-    <!-- ReSharper restore UnknownProperty -->
 
 </Project>

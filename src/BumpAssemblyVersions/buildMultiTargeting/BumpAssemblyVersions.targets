@@ -1,9 +1,9 @@
 ﻿<!-- TODO: then do we need to slowcheetah transform insert a target for the inner 'GeneralBumpAssemblyVersions' target (?) -->
 <Project>
 
-    <!-- Single-target targets, the build manager handles the $(TargetFramework) conditions for us,
+    <!-- Multi-targeting targets, the build manager handles the $(TargetFramework) conditions for us,
         so we can focus on the correct BeforeTargets. -->
-    <Target Name="BumpAssemblyVersionsBeforeBuild" BeforeTargets="BeforeBuild">
+    <Target Name="BumpAssemblyVersionsBeforeDispatchToInnerBuilds" BeforeTargets="DispatchToInnerBuilds">
         <CallTarget Targets="GeneralBumpAssemblyVersions" />
     </Target>
 

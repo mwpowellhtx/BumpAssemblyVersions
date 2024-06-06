@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!-- Ditto, along similar lines as Sandbox '.targets', but for '.props' importation. -->
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <!--<ImportGroup Condition="'$(TargetFramework)' != ''">
+        <Import Project="$(MSBuildThisFileDirectory)bumpassemblyversions\build\BumpAssemblyVersions.targets" Condition="Exists('$(MSBuildThisFileDirectory)bumpassemblyversions\build\BumpAssemblyVersions.targets')" />
+    </ImportGroup>-->
+    <!--<ImportGroup Condition="'$(TargetFramework)' == ''">
+        <Import Project="$(MSBuildThisFileDirectory)bumpassemblyversions\buildMultiTargeting\BumpAssemblyVersions.targets" Condition="Exists('$(MSBuildThisFileDirectory)bumpassemblyversions\buildMultiTargeting\BumpAssemblyVersions.targets')" />
+    </ImportGroup>-->
+    <ImportGroup>
+        <Import Project="$(MSBuildThisFileDirectory)bumpassemblyversions\buildTransitive\BumpAssemblyVersions.props" Condition="Exists('$(MSBuildThisFileDirectory)bumpassemblyversions\buildTransitive\BumpAssemblyVersions.props')" />
+        <!--<Import Project="$(MSBuildThisFileDirectory)bumpassemblyversions\buildTransitive\DebugBumpAssemblyVersions.targets" Condition="Exists('$(MSBuildThisFileDirectory)bumpassemblyversions\buildTransitive\DebugBumpAssemblyVersions.targets')" />-->
+    </ImportGroup>
+</Project>
