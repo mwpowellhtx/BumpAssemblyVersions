@@ -1,13 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp2.0</TargetFramework>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
         <!-- Intentionally invalid specs, tasking should fail on these... -->
-        <!-- TODO: TBD: should reject these more gracefully than it presently does... -->
-        <!-- TODO: TBD: at least warn that they are invalid, without leaving any doors open for false positives or negatives... -->
+        <!-- TODO: should reject these more gracefully than it presently does... -->
+        <!-- TODO: the thrown exception is a good start, but should try to handle it more gracefully -->
+        <!-- TODO: at least warn that they are invalid, without leaving any doors open for false positives or negatives... -->
+        <!-- TODO: should also report when there are no specifications, no-op, nothing to do... -->
         <BumpVersionSpec Include="Version2" Kind="Version2" />
         <BumpVersionSpec Include="AssemblyVersion2" Kind="AssemblyVersion2" />
         <BumpVersionSpec Include="FileVersion2" Kind="FileVersion2" />

@@ -1,19 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
     <!-- "CreateNew" does in fact work. This is what results.
       We could potentially inject some whitespace, but this is perfectly fine for now. -->
     <PropertyGroup>
-        <PackageVersion>2020.321.1621.0</PackageVersion>
-        <InformationalVersion>2020.321.1621.0</InformationalVersion>
-        <FileVersion>2020.321.1621.0</FileVersion>
-        <AssemblyVersion>2020.321.1621.0</AssemblyVersion>
-        <Version>2020.321.1621.0</Version>
+        <PackageVersion>2024.157.1819.0</PackageVersion>
+        <InformationalVersion>2024.157.1819.0</InformationalVersion>
+        <FileVersion>2024.157.1819.0</FileVersion>
+        <AssemblyVersion>2024.157.1819.0</AssemblyVersion>
+        <Version>2024.157.1819.0</Version>
     </PropertyGroup>
-
-    <Import Project="$(SolutionDir)..\..\src\BumpAssemblyVersions\bin\$(Configuration)\netstandard2.0\build\BumpAssemblyVersions.targets" />
 
     <PropertyGroup>
         <TargetFramework>netstandard2.0</TargetFramework>
     </PropertyGroup>
+
+    <ImportGroup>
+        <Import Project="..\Default.Usage.props" />
+    </ImportGroup>
 
     <ItemGroup>
         <!-- Legit, "Year" will, in fact, yield two or more such providers. This is by design
