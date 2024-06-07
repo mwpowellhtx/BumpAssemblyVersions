@@ -3,20 +3,10 @@
      for purposes of containing Sandbox isolation to a common area during testing phases.
      -->
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <!-- Instead of wiring to specific frameworks, or NuGet package restoration conditions,
-        we just want to verify for any non-empty TargetFramework, in the Single- or Multi-Targeting scenarios.
-        -->
-    <ImportGroup Condition="'$(TargetFramework)' != ''">
-        <Import Project="$(MSBuildThisFileDirectory)bumpassemblyversions\build\BumpAssemblyVersions.targets" Condition="Exists('$(MSBuildThisFileDirectory)bumpassemblyversions\build\BumpAssemblyVersions.targets')" />
-    </ImportGroup>
-    <ImportGroup Condition="'$(TargetFramework)' == ''">
-        <Import Project="$(MSBuildThisFileDirectory)bumpassemblyversions\buildMultiTargeting\BumpAssemblyVersions.targets" Condition="Exists('$(MSBuildThisFileDirectory)bumpassemblyversions\buildMultiTargeting\BumpAssemblyVersions.targets')" />
-    </ImportGroup>
     <!-- In addition to which, we also import Transitive, that is common or global, assets.
         In order for this to work, we need to be careful of abs-rel directory paths.
         -->
     <ImportGroup>
-        <Import Project="$(MSBuildThisFileDirectory)bumpassemblyversions\buildTransitive\CommonBumpAssemblyVersions.targets" Condition="Exists('$(MSBuildThisFileDirectory)bumpassemblyversions\buildTransitive\CommonBumpAssemblyVersions.targets')" />
-        <Import Project="$(MSBuildThisFileDirectory)bumpassemblyversions\buildTransitive\DebugBumpAssemblyVersions.targets" Condition="Exists('$(MSBuildThisFileDirectory)bumpassemblyversions\buildTransitive\DebugBumpAssemblyVersions.targets')" />
+        <Import Project="$(MSBuildThisFileDirectory)bumpassemblyversions\buildTransitive\BumpAssemblyVersions.targets" Condition="Exists('$(MSBuildThisFileDirectory)bumpassemblyversions\buildTransitive\BumpAssemblyVersions.targets')" />
     </ImportGroup>
 </Project>

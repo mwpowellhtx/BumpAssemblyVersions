@@ -1,0 +1,9 @@
+﻿<Project>
+
+    <!-- Single-target targets, the build manager handles the $(TargetFramework) conditions for us,
+        so we can focus on the correct BeforeTargets. -->
+    <PropertyGroup>
+        <BavBeforeTargets>BeforeBuild</BavBeforeTargets>
+    </PropertyGroup>
+
+</Project>

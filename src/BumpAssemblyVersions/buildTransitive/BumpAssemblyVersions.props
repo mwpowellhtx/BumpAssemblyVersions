@@ -23,4 +23,14 @@
         <BavLockFilePath>$(MSBuildProjectDirectory)\$(MSBuildProjectName).bav.lock</BavLockFilePath>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <BumpAssemblyVersionsLoaded>true</BumpAssemblyVersionsLoaded>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- We like to handle it here, but it does not seem to happen; so consumers must opt-in themselves. -->
+        <BumpVersionSpec Update="@(BumpVersionSpec)" Visible="False" />
+        <FilesToBump Update="@(FilesToBump)" Visible="False" />
+    </ItemGroup>
+
 </Project>

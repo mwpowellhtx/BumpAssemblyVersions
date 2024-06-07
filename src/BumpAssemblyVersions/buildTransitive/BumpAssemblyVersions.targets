@@ -1,0 +1,77 @@
+﻿<Project TreatAsLocalProperty="_BumpAssemblyVersionsReportCode;_BumpAssemblyVersionReportPrefix">
+
+    <!-- This target is here as a placeholder which subscribers may coordinate with. -->
+    <Target Name="BeforeBumpAssemblyVersions" BeforeTargets="BumpAssemblyVersions" />
+
+    <!-- TODO: is there a cleaner way of exception handling -->
+    <Target Name="BumpAssemblyVersions" BeforeTargets="$(BavBeforeTargets)">
+
+        <ItemGroup>
+            <!-- Paths-, dirs-wise, assumes project working directory. -->
+            <FilesToBump Condition="Exists('Properties\AssemblyInfo.cs')" Include="Properties\AssemblyInfo.cs" />
+        </ItemGroup>
+
+        <!-- TODO: may rather report when 'verbose' -->
+        <Message Importance="high" Condition="(@(BumpVersionSpec->Count()) > 0) And (@(BumpVersionSpec->Count()) > 0)" Text="BumpAssemblyVersions: bumping '@(BumpVersionSpec, ';')' (@(BumpVersionSpec->Count())) specifications." />
+        <Message Importance="high" Condition="(@(BumpVersionSpec->Count()) > 0) And  (@(FilesToBump->Count()) > 0)" Text="BumpAssemblyVersions: bumping '@(FilesToBump, ';')' (@(FilesToBump->Count())) files." />
+        <Message Importance="high" Condition="(@(BumpVersionSpec->Count()) > 0) And ('$(MSBuildProjectFullPath)' != '')" Text="BumpAssemblyVersions: bumping project '$(MSBuildProjectFullPath)'." />
+
+        <!-- We need MSBuildProjectFullPath here and not ProjectPath, because, depending on when the target hits, ProjectPath may not yet be defined. -->
+        <BumpVersion Configuration="$(Configuration)" Bumps="@(BumpVersionSpec)" Files="@(FilesToBump)" ProjectFullPath="$(MSBuildProjectFullPath)">
+            <Output TaskParameter="NewVersion" PropertyName="BumpVersionNewVersion" />
+            <Output TaskParameter="NewAssemblyVersion" PropertyName="BumpVersionNewAssemblyVersion" />
+            <Output TaskParameter="NewFileVersion" PropertyName="BumpVersionNewFileVersion" />
+            <Output TaskParameter="NewInformationalVersion" PropertyName="BumpVersionNewInformationalVersion" />
+            <Output TaskParameter="NewPackageVersion" PropertyName="BumpVersionNewPackageVersion" />
+        </BumpVersion>
+
+        <PropertyGroup Condition="@(BumpVersionSpec->Count()) > 0">
+            <Version Condition="$(BumpVersionNewVersion) != ''">$(BumpVersionNewVersion)</Version>
+            <AssemblyVersion Condition="$(BumpVersionNewAssemblyVersion) != ''">$(BumpVersionNewAssemblyVersion)</AssemblyVersion>
+            <FileVersion Condition="$(BumpVersionNewFileVersion) != ''">$(BumpVersionNewFileVersion)</FileVersion>
+            <InformationalVersion Condition="$(BumpVersionNewInformationalVersion) != ''">$(BumpVersionNewInformationalVersion)</InformationalVersion>
+            <PackageVersion Condition="$(BumpVersionNewPackageVersion) != ''">$(BumpVersionNewPackageVersion)</PackageVersion>
+        </PropertyGroup>
+
+    </Target>
+
+    <!-- Ditto before and after target coordination. -->
+    <Target Name="AfterBumpAssemblyVersions" AfterTargets="BumpAssemblyVersions" />
+
+    <!-- TODO: warning probably means that, if I want to 'transitively' always include  these,
+        then need to consider consolidating the PROPS and/or TARGETS.
+        -->
+
+    <!--
+        Severity	Code	Description	Project	File	Line	Suppression State	Details
+        Warning (active)	NU5129	- At least one .targets file was found in 'buildTransitive/', but 'buildTransitive/BumpAssemblyVersions.targets' was not.	BumpAssemblyVersions	C:\Program Files\dotnet\sdk\8.0.300\Sdks\NuGet.Build.Tasks.Pack\build\NuGet.Build.Tasks.Pack.targets	221		
+    -->
+
+    <Target Name="ReportBumpAssemblyVersionsDiagnostics" Condition="$(VerboseBumpAssemblyVersions) == 'true'" AfterTargets="BumpAssemblyVersionsBeforeBuild">
+
+        <!-- TODO: TBD: Code is not reporting through the IDE "Tooling" (quote unquote). -->
+        <PropertyGroup>
+            <_BumpAssemblyVersionsReportCode>BAV0001</_BumpAssemblyVersionsReportCode>
+            <_BumpAssemblyVersionReportPrefix>Configuration=$(Configuration)</_BumpAssemblyVersionReportPrefix>
+        </PropertyGroup>
+
+        <ItemGroup>
+            <BumpAssemblyVersionsReport Include="Version changed: $(BumpVersionNewVersion)" Condition="'$(BumpVersionNewVersion)' != ''" />
+            <BumpAssemblyVersionsReport Include="AssemblyVersion changed: $(BumpVersionNewAssemblyVersion)" Condition="'$(BumpVersionNewAssemblyVersion)' != ''" />
+            <BumpAssemblyVersionsReport Include="FileVersion changed: $(BumpVersionNewFileVersion)" Condition="'$(BumpVersionNewFileVersion)' != ''" />
+            <BumpAssemblyVersionsReport Include="InformationalVersion changed: $(BumpVersionNewInformationalVersion)" Condition="'$(BumpVersionNewInformationalVersion)' != ''" />
+            <BumpAssemblyVersionsReport Include="PackageVersion changed: $(BumpVersionNewPackageVersion)" Condition="'$(BumpVersionNewPackageVersion)' != ''" />
+
+            <BumpAssemblyVersionsReport Include="Version did not change" Condition="'$(BumpVersionNewVersion)' == ''" />
+            <BumpAssemblyVersionsReport Include="AssemblyVersion did not change" Condition="'$(BumpVersionNewAssemblyVersion)' == ''" />
+            <BumpAssemblyVersionsReport Include="FileVersion did not change" Condition="'$(BumpVersionNewFileVersion)' == ''" />
+            <BumpAssemblyVersionsReport Include="InformationalVersion did not change" Condition="'$(BumpVersionNewInformationalVersion)' == ''" />
+            <BumpAssemblyVersionsReport Include="PackageVersion did not change" Condition="'$(BumpVersionNewPackageVersion)' == ''" />
+        </ItemGroup>
+
+        <!-- This is a lot more efficient use of MSBuild pipeline. -->
+        <Warning Code="$(_BumpAssemblyVersionReportCode)" Text="[$(_BumpAssemblyVersionReportPrefix)] %(BumpAssemblyVersionsReport.Identity)" />
+
+    </Target>
+
+</Project>

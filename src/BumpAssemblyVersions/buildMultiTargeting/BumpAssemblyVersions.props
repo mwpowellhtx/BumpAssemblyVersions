@@ -1,0 +1,9 @@
+﻿<Project>
+
+    <!-- Multi-targeting targets, the build manager handles the $(TargetFramework) conditions for us,
+        so we can focus on the correct BeforeTargets. -->
+    <PropertyGroup>
+        <BavBeforeTargets>DispatchToInnerBuilds</BavBeforeTargets>
+    </PropertyGroup>
+
+</Project>

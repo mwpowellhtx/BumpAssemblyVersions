@@ -68,18 +68,18 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="build\BumpAssemblyVersions.targets" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="build\BumpAssemblyVersions.props" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="buildMultiTargeting\BumpAssemblyVersions.targets" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="buildMultiTargeting\BumpAssemblyVersions.props" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>
         <!-- Transitive assets serve both single- and multi-targeting scenarios. -->
         <Content Include="buildTransitive\BumpAssemblyVersions.props" CopyToOutputDirectory="PreserveNewest" />
-        <Content Include="buildTransitive\CommonBumpAssemblyVersions.targets" CopyToOutputDirectory="PreserveNewest" />
-        <Content Include="buildTransitive\DebugBumpAssemblyVersions.targets" CopyToOutputDirectory="PreserveNewest" />
+        <Content Include="buildTransitive\BumpAssemblyVersions.targets" CopyToOutputDirectory="PreserveNewest" />
+        <!--<Content Include="buildTransitive\DebugBumpAssemblyVersions.targets" CopyToOutputDirectory="PreserveNewest" />-->
     </ItemGroup>
 
     <ItemGroup>
