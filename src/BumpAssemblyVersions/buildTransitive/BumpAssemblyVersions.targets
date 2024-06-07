@@ -12,9 +12,9 @@
         </ItemGroup>
 
         <!-- TODO: may rather report when 'verbose' -->
-        <Message Importance="high" Condition="(@(BumpVersionSpec->Count()) > 0) And (@(BumpVersionSpec->Count()) > 0)" Text="BumpAssemblyVersions: bumping '@(BumpVersionSpec, ';')' (@(BumpVersionSpec->Count())) specifications." />
-        <Message Importance="high" Condition="(@(BumpVersionSpec->Count()) > 0) And  (@(FilesToBump->Count()) > 0)" Text="BumpAssemblyVersions: bumping '@(FilesToBump, ';')' (@(FilesToBump->Count())) files." />
-        <Message Importance="high" Condition="(@(BumpVersionSpec->Count()) > 0) And ('$(MSBuildProjectFullPath)' != '')" Text="BumpAssemblyVersions: bumping project '$(MSBuildProjectFullPath)'." />
+        <Message Importance="high" Condition="(@(BumpVersionSpec->Count()) > 0)" Text="BumpAssemblyVersions: Bumping '@(BumpVersionSpec, ';')' (@(BumpVersionSpec->Count())) specifications." />
+        <Message Importance="high" Condition="(@(BumpVersionSpec->Count()) > 0) And  (@(FilesToBump->Count()) > 0)" Text="BumpAssemblyVersions: Bumping '@(FilesToBump, ';')' (@(FilesToBump->Count())) files." />
+        <Message Importance="high" Condition="(@(BumpVersionSpec->Count()) > 0) And ('$(MSBuildProjectFullPath)' != '')" Text="BumpAssemblyVersions: Bumping project '$(MSBuildProjectFullPath)'." />
 
         <!-- We need MSBuildProjectFullPath here and not ProjectPath, because, depending on when the target hits, ProjectPath may not yet be defined. -->
         <BumpVersion Configuration="$(Configuration)" Bumps="@(BumpVersionSpec)" Files="@(FilesToBump)" ProjectFullPath="$(MSBuildProjectFullPath)">
