@@ -10,7 +10,4 @@
     <ImportGroup Condition="'$(TargetFramework)' == ''">
         <Import Project="$(MSBuildThisFileDirectory)bumpassemblyversions\buildMultiTargeting\BumpAssemblyVersions.props" Condition="Exists('$(MSBuildThisFileDirectory)bumpassemblyversions\buildMultiTargeting\BumpAssemblyVersions.props')" />
     </ImportGroup>
-    <ImportGroup>
-        <Import Project="$(MSBuildThisFileDirectory)bumpassemblyversions\buildTransitive\BumpAssemblyVersions.props" Condition="Exists('$(MSBuildThisFileDirectory)bumpassemblyversions\buildTransitive\BumpAssemblyVersions.props')" />
-    </ImportGroup>
 </Project>

@@ -1,0 +1,30 @@
+﻿<Project TreatAsLocalProperty="_BumpAssemblyVersionsReportCode;_BumpAssemblyVersionReportPrefix">
+
+    <Target Name="ReportBumpAssemblyVersionsDiagnostics" Condition="$(VerboseBumpAssemblyVersions) == 'true'" AfterTargets="BumpAssemblyVersions">
+
+        <!-- TODO: TBD: Code is not reporting through the IDE "Tooling" (quote unquote). -->
+        <PropertyGroup>
+            <_BumpAssemblyVersionsReportCode>BAV0001</_BumpAssemblyVersionsReportCode>
+            <_BumpAssemblyVersionReportPrefix>Configuration=$(Configuration)</_BumpAssemblyVersionReportPrefix>
+        </PropertyGroup>
+
+        <ItemGroup>
+            <BumpAssemblyVersionsReport Include="Version changed: $(BumpVersionNewVersion)" Condition="'$(BumpVersionNewVersion)' != ''" />
+            <BumpAssemblyVersionsReport Include="AssemblyVersion changed: $(BumpVersionNewAssemblyVersion)" Condition="'$(BumpVersionNewAssemblyVersion)' != ''" />
+            <BumpAssemblyVersionsReport Include="FileVersion changed: $(BumpVersionNewFileVersion)" Condition="'$(BumpVersionNewFileVersion)' != ''" />
+            <BumpAssemblyVersionsReport Include="InformationalVersion changed: $(BumpVersionNewInformationalVersion)" Condition="'$(BumpVersionNewInformationalVersion)' != ''" />
+            <BumpAssemblyVersionsReport Include="PackageVersion changed: $(BumpVersionNewPackageVersion)" Condition="'$(BumpVersionNewPackageVersion)' != ''" />
+
+            <BumpAssemblyVersionsReport Include="Version did not change" Condition="'$(BumpVersionNewVersion)' == ''" />
+            <BumpAssemblyVersionsReport Include="AssemblyVersion did not change" Condition="'$(BumpVersionNewAssemblyVersion)' == ''" />
+            <BumpAssemblyVersionsReport Include="FileVersion did not change" Condition="'$(BumpVersionNewFileVersion)' == ''" />
+            <BumpAssemblyVersionsReport Include="InformationalVersion did not change" Condition="'$(BumpVersionNewInformationalVersion)' == ''" />
+            <BumpAssemblyVersionsReport Include="PackageVersion did not change" Condition="'$(BumpVersionNewPackageVersion)' == ''" />
+        </ItemGroup>
+
+        <!-- This is a lot more efficient use of MSBuild pipeline. -->
+        <Warning Code="$(_BumpAssemblyVersionsReportCode)" Text="[$(_BumpAssemblyVersionReportPrefix)] %(BumpAssemblyVersionsReport.Identity)" />
+
+    </Target>
+
+</Project>

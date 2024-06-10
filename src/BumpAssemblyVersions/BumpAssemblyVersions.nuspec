@@ -25,6 +25,6 @@
         <file src="bin\$config$\$targetFramework$\*.xml" target="tasks\$targetFramework$" />
         <file src="bin\$config$\$targetFramework$\build\*.*" target="build" />
         <file src="bin\$config$\$targetFramework$\buildMultiTargeting\*.*" target="buildMultiTargeting" />
-        <file src="bin\$config$\$targetFramework$\buildTransitive\*.*" target="buildTransitive" />
+        <file src="bin\$config$\$targetFramework$\buildShared\*.*" target="buildShared" />
     </files>
 </package>

@@ -1,9 +1,14 @@
 ﻿<Project>
 
     <!-- Single-target targets, the build manager handles the $(TargetFramework) conditions for us,
-        so we can focus on the correct BeforeTargets. -->
+        so we can focus on the correct BeforeTargets. Outer .g. conditions based on $(TF).
+        -->
     <PropertyGroup>
         <BavBeforeTargets>BeforeBuild</BavBeforeTargets>
     </PropertyGroup>
+
+    <ImportGroup>
+        <Import Project="..\buildShared\BumpAssemblyVersions.props" />
+    </ImportGroup>
 
 </Project>
