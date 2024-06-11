@@ -50,14 +50,14 @@
     <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <ItemGroup Condition="Exists('..\packages\BumpAssemblyVersions.1.5.0\build\BumpAssemblyVersions.targets')">
+  <ItemGroup Condition="$(TargetFrameworkVersion) != ''">
     <BumpVersionSpec Include="AssemblyVersion" IncludeWildcard="true" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" />
     <BumpVersionSpec Include="AssemblyFileVersion" UseUtc="true" PatchProviderTemplate="MonthDayOfMonth" BuildProviderTemplate="Increment" BuildProviderTemplateMayReset="true" />
     <BumpVersionSpec Include="AssemblyInformationalVersion" UseUtc="true" PatchProviderTemplate="MonthDayOfMonth" BuildProviderTemplate="Increment" BuildProviderTemplateMayReset="true" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BumpAssemblyVersions">
-      <Version>1.5.0</Version>
+      <Version>1.9.0</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -66,8 +66,5 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\BumpAssemblyVersions.1.5.0\build\BumpAssemblyVersions.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\BumpAssemblyVersions.1.5.0\build\BumpAssemblyVersions.props'))" />
-    <Error Condition="!Exists('..\packages\BumpAssemblyVersions.1.5.0\build\BumpAssemblyVersions.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\BumpAssemblyVersions.1.5.0\build\BumpAssemblyVersions.targets'))" />
   </Target>
-  <Import Project="..\packages\BumpAssemblyVersions.1.5.0\build\BumpAssemblyVersions.targets" Condition="Exists('..\packages\BumpAssemblyVersions.1.5.0\build\BumpAssemblyVersions.targets')" />
 </Project>
