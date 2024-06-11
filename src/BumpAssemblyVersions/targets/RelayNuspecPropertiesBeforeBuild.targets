@@ -23,6 +23,7 @@
             <NuspecProperty Include="developmentDependency=$(DevelopmentDependency)" />
             <NuspecProperty Include="projectUrl=$(PackageProjectUrl)" />
             <NuspecProperty Include="licenseFile=$(PackageLicenseFile)" />
+            <NuspecProperty Include="readmeFile=$(PackageReadmeFile)" />
             <NuspecProperty Include="requireLicenseAcceptance=$(PackageRequireLicenseAcceptance)" />
             <NuspecProperty Include="config=$(Configuration)" />
             <NuspecProperty Include="targetFramework=$(TargetFramework)" />

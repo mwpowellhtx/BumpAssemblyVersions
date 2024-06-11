@@ -16,9 +16,11 @@
         <requireLicenseAcceptance>$requireLicenseAcceptance$</requireLicenseAcceptance>
         <tags>$packageTags$</tags>
         <repository type="$repoType$" branch="$repoBranch$" url="$projectUrl$" commit="$repoCommit$" />
+        <readme>$readmeFile$</readme>
     </metadata>
     <files>
         <file src="$licenseFile$" target="" />
+        <file src="$readmeFile$" target="" />
         <file src="bin\$config$\$targetFramework$\*.dll" target="tasks\$targetFramework$" />
         <file src="bin\$config$\$targetFramework$\*.json" target="tasks\$targetFramework$" />
         <file src="bin\$config$\$targetFramework$\*.pdb" target="tasks\$targetFramework$" />

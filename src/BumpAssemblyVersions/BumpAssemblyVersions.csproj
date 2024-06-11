@@ -101,6 +101,7 @@
     <!-- TODO: Sandbox NuGet emulation: *.sandbox.g.* -->
     <ImportGroup>
         <Import Project="..\..\Licensing.props" />
+        <Import Project="README.props" />
     </ImportGroup>
 
     <ImportGroup>
