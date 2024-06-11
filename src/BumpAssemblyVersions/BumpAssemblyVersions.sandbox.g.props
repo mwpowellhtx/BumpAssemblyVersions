@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!-- Ditto, along similar lines as Sandbox '.targets', but for '.props' importation. -->
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <!-- Instead of wiring to specific frameworks, or NuGet package restoration conditions,
+        we just want to verify for any non-empty TargetFramework, in the Single- or Multi-Targeting scenarios.
+        -->
+    <ImportGroup Condition="'$(TargetFramework)' != ''">
+        <Import Project="$(MSBuildThisFileDirectory)bumpassemblyversions\build\BumpAssemblyVersions.props" Condition="Exists('$(MSBuildThisFileDirectory)bumpassemblyversions\build\BumpAssemblyVersions.props')" />
+    </ImportGroup>
+    <ImportGroup Condition="'$(TargetFramework)' == ''">
+        <Import Project="$(MSBuildThisFileDirectory)bumpassemblyversions\buildMultiTargeting\BumpAssemblyVersions.props" Condition="Exists('$(MSBuildThisFileDirectory)bumpassemblyversions\buildMultiTargeting\BumpAssemblyVersions.props')" />
+    </ImportGroup>
+</Project>

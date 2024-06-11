@@ -1,0 +1,27 @@
+﻿<!-- https://learn.microsoft.com/en-us/visualstudio/msbuild/msbuild-properties#local-properties -->
+<Project TreatAsLocalProperty="_TaskTargetFramework">
+
+    <PropertyGroup>
+        <_TaskTargetFramework>netstandard2.0</_TaskTargetFramework>
+        <!-- https://learn.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2015/msbuild/msbuild-reserved-and-well-known-properties -->
+        <BumpAssemblyVersionsDll>BumpAssemblyVersions.dll</BumpAssemblyVersionsDll>
+        <!-- Allows consumers to specify custom directory locations. -->
+        <BumpAssemblyVersionTaskDirectory Condition="'$(BumpAssemblyVersionTaskDirectory)' == ''">$(MSBuildThisFileDirectory)..\tasks\$(_TaskTargetFramework)</BumpAssemblyVersionTaskDirectory>
+    </PropertyGroup>
+
+    <!-- See also: https://msdn.microsoft.com/en-us/library/ms164309.aspx (MSBuild Reserved and Well-Known Properties) -->
+    <UsingTask AssemblyFile="$(BumpAssemblyVersionTaskDirectory)\$(BumpAssemblyVersionsDll)" TaskName="Bav.BumpVersion" />
+
+    <PropertyGroup>
+        <!-- TODO: TBD: not sure what a `lock file´ was all about... -->
+        <!-- TODO: TBD: we may not need this after all provided we can arrest the target/condition issue? -->
+        <BavLockFilePath>$(MSBuildProjectDirectory)\$(MSBuildProjectName).bav.lock</BavLockFilePath>
+    </PropertyGroup>
+
+    <!-- We like to handle it here, but it does not seem to happen; so consumers must opt-in themselves. -->
+    <!--<ItemGroup>
+        <BumpVersionSpec Update="@(BumpVersionSpec)" Visible="False" />
+        <FilesToBump Update="@(FilesToBump)" Visible="False" />
+    </ItemGroup>-->
+
+</Project>

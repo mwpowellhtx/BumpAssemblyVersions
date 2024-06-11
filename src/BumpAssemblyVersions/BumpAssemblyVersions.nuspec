@@ -11,16 +11,22 @@
         <description>$description$</description>
         <developmentDependency>$developmentDependency$</developmentDependency>
         <license type="file">$licenseFile$</license>
+        <licenseUrl>https://aka.ms/deprecateLicenseUrl</licenseUrl>
         <projectUrl>$projectUrl$</projectUrl>
         <requireLicenseAcceptance>$requireLicenseAcceptance$</requireLicenseAcceptance>
         <tags>$packageTags$</tags>
+        <repository type="$repoType$" branch="$repoBranch$" url="$projectUrl$" commit="$repoCommit$" />
+        <readme>$readmeFile$</readme>
     </metadata>
     <files>
         <file src="$licenseFile$" target="" />
-        <file src="bin\$config$\$targetFramework$\$id$.dll" target="tasks" />
-        <file src="bin\$config$\$targetFramework$\$id$.xml" target="tasks" />
-        <file src="bin\$config$\$targetFramework$\*" target="tasks\$targetFramework$" />
-        <!-- ReSharper disable MarkupAttributeTypo -->
-        <file src="obj\$config$\netstandard2.0\build\*.*" target="build" />
+        <file src="$readmeFile$" target="" />
+        <file src="bin\$config$\$targetFramework$\*.dll" target="tasks\$targetFramework$" />
+        <file src="bin\$config$\$targetFramework$\*.json" target="tasks\$targetFramework$" />
+        <file src="bin\$config$\$targetFramework$\*.pdb" target="tasks\$targetFramework$" />
+        <file src="bin\$config$\$targetFramework$\*.xml" target="tasks\$targetFramework$" />
+        <file src="bin\$config$\$targetFramework$\build\*.*" target="build" />
+        <file src="bin\$config$\$targetFramework$\buildMultiTargeting\*.*" target="buildMultiTargeting" />
+        <file src="bin\$config$\$targetFramework$\buildShared\*.*" target="buildShared" />
     </files>
 </package>

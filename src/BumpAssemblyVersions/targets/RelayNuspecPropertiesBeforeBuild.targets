@@ -1,0 +1,43 @@
+<Project>
+
+    <!-- Based loosely around: https://git-scm.com/docs/git-rev-parse -->
+    <Target Name="GetGitSourceRevisionSha" BeforeTargets="InitializeSourceControlInformation">
+        <Exec Command="git rev-parse HEAD" ConsoleToMSBuild="True" IgnoreExitCode="False">
+            <Output PropertyName="GitSourceRevisionSha" TaskParameter="ConsoleOutput" />
+        </Exec>
+        <PropertyGroup>
+            <ProjectUrlRepositoryType Condition="'$(ProjectUrlRepositoryType)' == ''">git</ProjectUrlRepositoryType>
+            <ProjectRepositoryBranch Condition="'$(ProjectRepositoryBranch)' == ''">master</ProjectRepositoryBranch>
+        </PropertyGroup>
+    </Target>
+
+    <Target Name="RelayNuspecPropertiesBeforeBuild" DependsOnTargets="GetGitSourceRevisionSha" AfterTargets="PreBuild" BeforeTargets="BeforeBuild">
+        <ItemGroup>
+            <NuspecProperty Include="id=$(MSBuildProjectName)" />
+            <NuspecProperty Include="version=$(PackageVersion)" />
+            <NuspecProperty Include="title=$(Title)" />
+            <NuspecProperty Include="author=$(Authors)" />
+            <NuspecProperty Include="owners=$(Company)" />
+            <NuspecProperty Include="summary=$(Summary)" />
+            <NuspecProperty Include="description=$(Description)" />
+            <NuspecProperty Include="developmentDependency=$(DevelopmentDependency)" />
+            <NuspecProperty Include="projectUrl=$(PackageProjectUrl)" />
+            <NuspecProperty Include="licenseFile=$(PackageLicenseFile)" />
+            <NuspecProperty Include="readmeFile=$(PackageReadmeFile)" />
+            <NuspecProperty Include="requireLicenseAcceptance=$(PackageRequireLicenseAcceptance)" />
+            <NuspecProperty Include="config=$(Configuration)" />
+            <NuspecProperty Include="targetFramework=$(TargetFramework)" />
+            <NuspecProperty Include="packageTags=$(PackageTags.Replace(';', ' '))" />
+            <NuspecProperty Include="repoType=$(ProjectUrlRepositoryType)" />
+            <NuspecProperty Include="repoUrl=$(projectUrl)" />
+            <NuspecProperty Include="repoBranch=$(ProjectRepositoryBranch)" />
+            <NuspecProperty Include="repoCommit=$(GitSourceRevisionSha)" />
+        </ItemGroup>
+        <PropertyGroup>
+            <NuspecProperties>@(NuspecProperty, ';')</NuspecProperties>
+        </PropertyGroup>
+        <Message Importance="high" Text="Packaging Project SHA: $(GitSourceRevisionSha)" Condition="'$(Configuration)' == 'Debug'" />
+        <Message Importance="high" Text="Nuspec properties are: $(NuspecProperties)" Condition="'$(Configuration)' == 'Debug'" />
+    </Target>
+
+</Project>

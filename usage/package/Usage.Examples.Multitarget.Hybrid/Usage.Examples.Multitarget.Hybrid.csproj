@@ -1,13 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <!-- "CreateNew" does in fact work. This is what results.
      We could potentially inject some whitespace, but this is perfectly fine for now. -->
     <PropertyGroup>
-        <PackageVersion>2020.187.0106.1</PackageVersion>
-        <InformationalVersion>2020.187.0106.1</InformationalVersion>
-        <AssemblyVersion>2020.187.0106.1</AssemblyVersion>
-        <FileVersion>2020.187.0106.1</FileVersion>
-        <Version>2020.187.0106.1</Version>
+        <PackageVersion>2024.162.2026.1</PackageVersion>
+        <InformationalVersion>2024.162.2026.1</InformationalVersion>
+        <AssemblyVersion>2024.162.2026.1</AssemblyVersion>
+        <FileVersion>2024.162.2026.1</FileVersion>
+        <Version>2024.162.2026.1</Version>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -17,16 +17,18 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <BumpAssemblyVersionsVersion>1.5.0</BumpAssemblyVersionsVersion>
+        <BumpAssemblyVersionsVersion>1.9.0</BumpAssemblyVersionsVersion>
+        <VerboseBumpAssemblyVersions>true</VerboseBumpAssemblyVersions>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BumpAssemblyVersions" Version="$(BumpAssemblyVersionsVersion)" PrivateAssets="All">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        <PackageReference Include="BumpAssemblyVersions" Version="1.9.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 
-    <ItemGroup Condition="Exists('..\packages\bumpassemblyversions\$(BumpAssemblyVersionsVersion)\build\BumpAssemblyVersions.targets')">
+    <ItemGroup>
         <!-- Legit, "Year" will, in fact, yield two or more such providers. This is by design in order to avoid errant provider references,
          and I now call it out by name when it happens. Need to specify something more than that, like "YearVersion". -->
         <BumpVersionSpec Include="Version" DefaultVersion="0.0.0.0" CreateNew="true" UseUtc="true" MayReset="true" MajorProviderTemplate="YearVersion" MinorProviderTemplate="DayOfYear" PatchProviderTemplate="HourMinute" BuildProviderTemplate="Increment" />
@@ -37,5 +39,46 @@
         <BumpVersionSpec Include="InformationalVersion" DefaultVersion="0.0.0.0" CreateNew="true" UseUtc="true" MayReset="true" MajorProviderTemplate="YearVersion" MinorProviderTemplate="DayOfYear" PatchProviderTemplate="HourMinute" BuildProviderTemplate="Increment" />
         <BumpVersionSpec Include="PackageVersion" DefaultVersion="0.0.0.0" CreateNew="true" UseUtc="true" MayReset="true" MajorProviderTemplate="YearVersion" MinorProviderTemplate="DayOfYear" PatchProviderTemplate="HourMinute" BuildProviderTemplate="Increment" />
     </ItemGroup>
+
+    <!-- TODO: we think that the 'generated' props/targets importation may be evaluating things prior to seeing things like target frameworks (?) -->
+    <!-- TODO: not sure how/why that would be possible... -->
+    <Target Name="BavAfterGetTargetFrameworks" AfterTargets="GetTargetFrameworks" BeforeTargets="BeforeBuild">
+        <PropertyGroup Condition="'$(TargetFramework)' != ''">
+            <BavBeforeTargets>BeforeBuild</BavBeforeTargets>
+        </PropertyGroup>
+
+        <PropertyGroup Condition="'$(TargetFramework)' == ''">
+            <BavBeforeTargets>DispatchToInnerBuilds</BavBeforeTargets>
+        </PropertyGroup>
+
+        <Message Importance="high" Text="After get target frameworks... '$(BavBeforeTargets)', target(s) = '$(TargetFramework)|$(TargetFrameworks)'" />
+
+        <Message Importance="high" Text="BumpAssemblyVersionTaskDirectory = '$(BumpAssemblyVersionTaskDirectory)'" />
+        <Message Importance="high" Text="BavBeforeTargets = '$(BavBeforeTargets)'" />
+    </Target>
+
+    <Target Name="BavAfterGetTargetFrameworksMulti" AfterTargets="GetTargetFrameworks" BeforeTargets="DispatchToInnerBuilds">
+        <PropertyGroup Condition="'$(TargetFramework)' != ''">
+            <BavBeforeTargets>BeforeBuild</BavBeforeTargets>
+        </PropertyGroup>
+
+        <PropertyGroup Condition="'$(TargetFramework)' == ''">
+            <BavBeforeTargets>DispatchToInnerBuilds</BavBeforeTargets>
+        </PropertyGroup>
+
+        <Message Importance="high" Text="After get target frameworks multi... '$(BavBeforeTargets)', target(s) = '$(TargetFramework)|$(TargetFrameworks)'" />
+    </Target>
+
+    <Target Name="HybridBeforeBuild" BeforeTargets="BeforeBuild">
+        <Message Importance="high" Text="Before before build... '$(BavBeforeTargets)', target(s) = '$(TargetFramework)|$(TargetFrameworks)'" />
+    </Target>
+
+    <Target Name="HybridBeforeBumpAssemblyVersions" BeforeTargets="BumpAssemblyVersions">
+        <Message Importance="high" Text="Before bump assembly versions... '$(BavBeforeTargets)', target(s) = '$(TargetFramework)|$(TargetFrameworks)'" />
+    </Target>
+
+    <Target Name="HybridAfterBumpAssemblyVersions" AfterTargets="BumpAssemblyVersions">
+        <Message Importance="high" Text="After bump assembly versions... '$(BavBeforeTargets)', target(s) = '$(TargetFramework)|$(TargetFrameworks)'" />
+    </Target>
 
 </Project>

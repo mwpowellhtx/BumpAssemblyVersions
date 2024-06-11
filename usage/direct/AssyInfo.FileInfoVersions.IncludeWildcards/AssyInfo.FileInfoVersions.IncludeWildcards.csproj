@@ -51,8 +51,8 @@
     <BumpVersionSpec Include="AssemblyFileVersion" UseUtc="false" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" />
     <BumpVersionSpec Include="AssemblyInformationalVersion" UseUtc="false" PatchProviderTemplate="Increment" PatchProviderTemplateMayReset="true" />
     <FilesToBump Condition="Exists('Properties\TestAssemblyInfo.cs')" Include="Properties\TestAssemblyInfo.cs" />
-	<!-- TODO: TBD: it would be better for these to happen from the targets file perspective if possible.
+    <!-- TODO: TBD: it would be better for these to happen from the targets file perspective if possible.
 	Given the new project format, *.props may be a better choice. -->
   </ItemGroup>
-  <Import Project="$(SolutionDir)..\..\src\BumpAssemblyVersions\bin\$(Configuration)\netstandard2.0\build\BumpAssemblyVersions.targets" />
+  <Import Project="$(SolutionDir)Default.Usage.NoBumpSpecs.props" />
 </Project>

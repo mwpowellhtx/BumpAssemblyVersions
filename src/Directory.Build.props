@@ -1,24 +1,24 @@
-<Project>
+<Project TreatAsLocalProperty="_NuGetPackageExtension;_Wildcard;PackageOutputWildcardPath">
 
     <PropertyGroup>
         <Authors>Michael W. Powell</Authors>
         <Company>Ellumination Technologies</Company>
-        <Copyright>Copyright (c) 2018-2020</Copyright>
+        <Copyright>Copyright (c) 2018-2024</Copyright>
         <NoWarn>$(NoWarn);NU1701</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup>
-        <NewtonsoftJsonVersion>12.0.3</NewtonsoftJsonVersion>
-        <NuGetVersioningVersion>5.6</NuGetVersioningVersion>
+        <NewtonsoftJsonVersion>13.0.3</NewtonsoftJsonVersion>
+        <NuGetVersioningVersion>6.10.0</NuGetVersioningVersion>
         <!-- TODO: TBD: do we reconsider the build version at some point? -->
         <MicrosoftBuildVersion>15.9.20</MicrosoftBuildVersion>
         <MicrosoftCSharpVersion>4.5.0</MicrosoftCSharpVersion>
-        <MicrosoftVisualStudioSlowCheetahVersion>3.2.26</MicrosoftVisualStudioSlowCheetahVersion>
+        <MicrosoftVisualStudioSlowCheetahVersion>4.0.50</MicrosoftVisualStudioSlowCheetahVersion>
+        <!-- TODO: are there more contemporary Xml supporting package(s) (?), last updated in 2016 -->
         <SystemXmlVersion>4.3.0</SystemXmlVersion>
     </PropertyGroup>
 
     <Target Name="DeletePreviouslyBuiltNuGetPackages" BeforeTargets="BeforeBuild">
-
         <PropertyGroup>
             <_NuGetPackageExtension>.nupkg</_NuGetPackageExtension>
             <_Wildcard>.*</_Wildcard>
@@ -26,9 +26,8 @@
         </PropertyGroup>
 
         <Message Importance="high" Text ="Deleting previously existing packages..."/>
-        
-        <Exec Command="if exist &quot;$(PackageOutputWildcardPath)&quot; del &quot;$(PackageOutputWildcardPath)&quot;" />
 
+        <Exec Command="if exist &quot;$(PackageOutputWildcardPath)&quot; del &quot;$(PackageOutputWildcardPath)&quot;" />
     </Target>
 
 </Project>

@@ -1,24 +1,23 @@
 ﻿<Project>
 
-    <PropertyGroup>
-        <BumpAssemblyVersionFullPath>$(SolutionDir)..\..\src\BumpAssemblyVersions\bin\$(Configuration)\netstandard2.0\BumpAssemblyVersions.dll</BumpAssemblyVersionFullPath>
-    </PropertyGroup>
+    <!-- Rather than mimic the internal targets, we instead wire up befores and afters around the BAV-provided targets. -->
+    <ImportGroup>
+        <!-- This is more in keeping with how NuGet would include the assets... -->
+        <Import Project="$(SolutionDir)..\..\sandbox\bumpassemblyversions.sandbox.g.props"/>
+        <Import Project="$(SolutionDir)..\..\sandbox\bumpassemblyversions.sandbox.g.targets"/>
+    </ImportGroup>
 
-    <UsingTask AssemblyFile="$(BumpAssemblyVersionFullPath)" TaskName="Bav.BumpVersion" />
+    <!-- Messaging separated out a bit before and after making intrinsic usage of the built-in BAV targets. -->
+    <Target Name="BeforeBavConsumerReport" AfterTargets="BeforeGeneralBumpAssemblyVersions" BeforeTargets="GeneralBumpAssemblyVersions">
+        <Message Importance="high" Text="This is a test" />
+        <Message Importance="high" Text="Task found in '$(BumpAssemblyVersionTaskDirectory)' ..." />
+    </Target>
 
-    <Target Name="BavBeforeBuild" BeforeTargets="BeforeBuild">
-
-        <Message Importance="high" Text="Task found in '$(BumpAssemblyVersionFullPath)' ..." />
-
-        <Message Text="This is a test" />
-
-        <!-- At present we do at least throw an exception:
-          System.InvalidOperationException: Expecting 'Microsoft.Build.Framework.ITaskItem.ItemSpec' to be among: { 'None', 'Version', 'FileVersion', 'InformationalVersion', 'PackageVersion', 'AssemblyVersion', 'AssemblyFileVersion', 'AssemblyInformationalVersion' } -->
-        <!-- TODO: TBD: however, I could pe persuaded that this should at least be more graceful, indicate a useful warning message, etc... -->
-        <BumpVersion ProjectFullPath="$(MSBuildProjectFullPath)" Bumps="@(BumpVersionSpec)" Configuration="$(Configuration)" />
-
-        <Message Text="This is only a test" />
-
+    <!-- TODO: more concerning better exception handling, could we also support "continue on failure" behavior -->
+    <!-- TODO: this is probably more preferred over straight up dumping on the thrown Exception -->
+    <!-- But because we encounter an exception this target will never be seen. -->
+    <Target Name="AfterBavConsumerReport" AfterTargets="GeneralBumpAssemblyVersions" BeforeTargets="AfterGeneralBumpAssemblyVersions">
+        <Message Importance="high" Text="May never text this message..." />
     </Target>
 
 </Project>

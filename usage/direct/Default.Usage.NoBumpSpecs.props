@@ -1,0 +1,10 @@
+<Project>
+
+    <!-- We need to finesse the targets import a little bit at this level, but it does work correctly. -->
+    <!--<Import Project="$(SolutionDir)..\..\src\BumpAssemblyVersions\bin\$(Configuration)\netstandard2.0\build\BumpAssemblyVersions.targets" />-->
+    <ImportGroup>
+        <Import Project="$(SolutionDir)..\..\sandbox\BumpAssemblyVersions.sandbox.g.props" />
+        <Import Project="$(SolutionDir)..\..\sandbox\BumpAssemblyVersions.sandbox.g.targets" />
+    </ImportGroup>
+
+</Project>

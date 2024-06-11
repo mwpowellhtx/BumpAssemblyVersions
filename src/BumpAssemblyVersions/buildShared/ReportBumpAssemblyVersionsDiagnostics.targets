@@ -1,9 +1,6 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<!--For more information on using transformations see the web.config examples at http://go.microsoft.com/fwlink/?LinkId=214134. -->
-<Project xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+﻿<Project TreatAsLocalProperty="_BumpAssemblyVersionsReportCode;_BumpAssemblyVersionReportPrefix">
 
-    <!-- ReSharper disable UnknownProperty -->
-    <Target xdt:Transform="Insert" Name="ReportBumpAssemblyVersionsDebugMessages" AfterTargets="BumpAssemblyVersionsBeforeBuild">
+    <Target Name="ReportBumpAssemblyVersionsDiagnostics" Condition="$(VerboseBumpAssemblyVersions) == 'true'" AfterTargets="BumpAssemblyVersions">
 
         <!-- TODO: TBD: Code is not reporting through the IDE "Tooling" (quote unquote). -->
         <PropertyGroup>
@@ -26,9 +23,8 @@
         </ItemGroup>
 
         <!-- This is a lot more efficient use of MSBuild pipeline. -->
-        <Warning Code="$(_BumpAssemblyVersionReportCode)" Text="[$(_BumpAssemblyVersionReportPrefix)] %(BumpAssemblyVersionsReport.Identity)" />
+        <Warning Code="$(_BumpAssemblyVersionsReportCode)" Text="[$(_BumpAssemblyVersionReportPrefix)] %(BumpAssemblyVersionsReport.Identity)" />
 
     </Target>
-    <!-- ReSharper restore UnknownProperty -->
 
 </Project>

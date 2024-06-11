@@ -1,23 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project TreatAsLocalProperty="TaskFolder">
+﻿<Project>
 
-    <!-- ReSharper disable UnknownProperty -->
+    <!-- Single-target targets, the build manager handles the $(TargetFramework) conditions for us,
+        so we can focus on the correct BeforeTargets. Outer .g. conditions based on $(TF).
+        -->
     <PropertyGroup>
-        <!-- TODO: TBD: don't care about multi-targeting (yet) ... -->
-        <TaskFolder>netstandard2.0</TaskFolder>
-        <!--<TaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netstandard1.6</TaskFolder>-->
-        <!--<TaskFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net46</TaskFolder>-->
-        <BavPath>$(MSBuildThisFileDirectory)..\tasks\$(TaskFolder)</BavPath>
+        <BavBeforeTargets>BeforeBuild</BavBeforeTargets>
     </PropertyGroup>
-    <!-- ReSharper restore UnknownProperty -->
 
-    <!-- See also: https://msdn.microsoft.com/en-us/library/ms164309.aspx (MSBuild Reserved and Well-Known Properties) -->
-    <UsingTask AssemblyFile="$(BavPath)\BumpAssemblyVersions.dll" TaskName="Bav.BumpVersionTask" />
-
-    <PropertyGroup>
-        <!-- TODO: TBD: not sure what a `lock file´ was all about... -->
-        <!-- TODO: TBD: we may not need this after all provided we can arrest the target/condition issue? -->
-        <BavLockFilePath>$(MSBuildProjectDirectory)\$(MSBuildProjectName).bav.lock</BavLockFilePath>
-    </PropertyGroup>
+    <ImportGroup>
+        <Import Project="..\buildShared\BumpAssemblyVersions.props" />
+    </ImportGroup>
 
 </Project>
