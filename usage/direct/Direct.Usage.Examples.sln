@@ -19,6 +19,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".sln", ".sln", "{02E5EE95-1
 	ProjectSection(SolutionItems) = preProject
 		Default.Usage.NoBumpSpecs.props = Default.Usage.NoBumpSpecs.props
 		Default.Usage.props = Default.Usage.props
+		Test.Hypotheses.props = Test.Hypotheses.props
 		WindowsDesktop.Usage.props = WindowsDesktop.Usage.props
 	EndProjectSection
 EndProject
@@ -46,22 +47,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".sandbox", ".sandbox", "{48
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{21FE1DD9-563A-4D5F-AE8D-E3BB22806D63}"
 	ProjectSection(SolutionItems) = preProject
-		..\..\sandbox\bumpassemblyversions\build\BumpAssemblyVersions.targets = ..\..\sandbox\bumpassemblyversions\build\BumpAssemblyVersions.targets
+		..\..\sandbox\bumpassemblyversions\build\BumpAssemblyVersions.props = ..\..\sandbox\bumpassemblyversions\build\BumpAssemblyVersions.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "buildMultiTargeting", "buildMultiTargeting", "{7FC759B3-7569-48BD-AE76-37EC78BCA7BB}"
 	ProjectSection(SolutionItems) = preProject
-		..\..\sandbox\bumpassemblyversions\buildMultiTargeting\BumpAssemblyVersions.targets = ..\..\sandbox\bumpassemblyversions\buildMultiTargeting\BumpAssemblyVersions.targets
+		..\..\sandbox\bumpassemblyversions\buildMultiTargeting\BumpAssemblyVersions.props = ..\..\sandbox\bumpassemblyversions\buildMultiTargeting\BumpAssemblyVersions.props
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "buildTransitive", "buildTransitive", "{9B5CBF57-CB6C-4F48-BFD3-033EB89BC80F}"
 	ProjectSection(SolutionItems) = preProject
 		..\..\sandbox\bumpassemblyversions\buildTransitive\BumpAssemblyVersions.props = ..\..\sandbox\bumpassemblyversions\buildTransitive\BumpAssemblyVersions.props
-		..\..\sandbox\bumpassemblyversions\buildTransitive\CommonBumpAssemblyVersions.targets = ..\..\sandbox\bumpassemblyversions\buildTransitive\CommonBumpAssemblyVersions.targets
-		..\..\sandbox\bumpassemblyversions\buildTransitive\DebugBumpAssemblyVersions.targets = ..\..\sandbox\bumpassemblyversions\buildTransitive\DebugBumpAssemblyVersions.targets
+		..\..\sandbox\bumpassemblyversions\buildTransitive\BumpAssemblyVersions.targets = ..\..\sandbox\bumpassemblyversions\buildTransitive\BumpAssemblyVersions.targets
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "bumpassemblyversions", "bumpassemblyversions", "{237F9331-861D-40CA-827F-B54C52AE9E6F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiTargeting.ProjXml.Demo", "MultiTargeting.ProjXml.Demo\MultiTargeting.ProjXml.Demo.csproj", "{80535936-B0AD-4542-88CB-49DF036D9850}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -109,6 +111,10 @@ Global
 		{0A6713EE-3E29-4205-9479-DA6DF29BCE0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A6713EE-3E29-4205-9479-DA6DF29BCE0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A6713EE-3E29-4205-9479-DA6DF29BCE0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80535936-B0AD-4542-88CB-49DF036D9850}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80535936-B0AD-4542-88CB-49DF036D9850}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80535936-B0AD-4542-88CB-49DF036D9850}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80535936-B0AD-4542-88CB-49DF036D9850}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -129,6 +135,7 @@ Global
 		{7FC759B3-7569-48BD-AE76-37EC78BCA7BB} = {237F9331-861D-40CA-827F-B54C52AE9E6F}
 		{9B5CBF57-CB6C-4F48-BFD3-033EB89BC80F} = {237F9331-861D-40CA-827F-B54C52AE9E6F}
 		{237F9331-861D-40CA-827F-B54C52AE9E6F} = {48B20F96-B6A2-4609-B9C1-439DD9FC8FD6}
+		{80535936-B0AD-4542-88CB-49DF036D9850} = {A13123B6-5C9B-447A-843B-A9568EA06707}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {11E3FFEC-EBF8-409C-A79D-FF7307AE6DC9}

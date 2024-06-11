@@ -1,0 +1,15 @@
+<Project>
+
+    <PropertyGroup Condition="'$(TargetFramework)' == ''">
+        <TestBeforeTarget>DispatchToInnerBuilds</TestBeforeTarget>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(TargetFramework)' != ''">
+        <TestBeforeTarget>BeforeBuild</TestBeforeTarget>
+    </PropertyGroup>
+
+    <Target Name="ReportBumpVersionSpecs" Condition="'$(Configuration)' == 'Debug'" AfterTargets="BeforeGeneralBumpAssemblyVersions" BeforeTargets="$(TestBeforeTarget)">
+        <Message Importance="high" Text="BumpAssemblyVersions: prepared @(BumpVersionSpec->Count()) specifications." />
+    </Target>
+
+</Project>

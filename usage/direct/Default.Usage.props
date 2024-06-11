@@ -9,7 +9,9 @@
     </ItemGroup>
 
     <!-- We need to finesse the targets import a little bit at this level, but it does work correctly. -->
-    <Import Project="$(SolutionDir)..\..\sandbox\BumpAssemblyVersions.sandbox.g.props" />
-    <Import Project="$(SolutionDir)..\..\sandbox\BumpAssemblyVersions.sandbox.g.targets" />
+    <ImportGroup>
+        <Import Project="$(SolutionDir)..\..\sandbox\BumpAssemblyVersions.sandbox.g.props" />
+        <Import Project="$(SolutionDir)..\..\sandbox\BumpAssemblyVersions.sandbox.g.targets" />
+    </ImportGroup>
 
 </Project>
