@@ -6,12 +6,17 @@
     </PropertyGroup>
 
     <PropertyGroup>
+        <!-- Internally we maintain version integrity one way. -->
+        <BavVersion>1.9.1</BavVersion>
+    </PropertyGroup>
+
+    <PropertyGroup>
         <IsTool>true</IsTool>
         <RootNamespace>Bav</RootNamespace>
         <TargetFramework>netstandard2.0</TargetFramework>
-        <AssemblyVersion>1.9.0</AssemblyVersion>
-        <FileVersion>1.9.0</FileVersion>
-        <PackageVersion>1.9.0</PackageVersion>
+        <AssemblyVersion>$(BavVersion)</AssemblyVersion>
+        <FileVersion>$(BavVersion)</FileVersion>
+        <PackageVersion>$(BavVersion)</PackageVersion>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -23,7 +28,7 @@
     <PropertyGroup>
         <Title>BumpAssemblyVersions</Title>
         <Summary>A dotnet flexible assembly version bumping tool.</Summary>
-        <Description>Bumps assembly versions according to user provided specifications.</Description>
+        <Description>Bumps assembly versions, project properties, assembly attributes, according to consumer specified strategies.</Description>
         <PackageId>BumpAssemblyVersions</PackageId>
         <PackageTags>version;versions;assembly;assemblies;bump;bumps;bumped;nuget;restore;restored;msbuild;provider;registry;may;should;reset;use;utc;universal;coordinated;time;stamp;timestamp;label;value;width;discard;create;new;include;wildcard;default;kind;file;files;informational;package;spec;specification;specifications;target;targets;template;major;minor;patch;build;release;prerelease;element;elements;import;item;group;more;significant;change;changed;single;multi;multiple;cross;targeting;dispatch;before;outer;inner;loop;strategy;strategies;buildMultiTargeting;TargetFramework;TargetFrameworks;framework;frameworks</PackageTags>
         <PackageProjectUrl>https://github.com/mwpowellhtx/BumpAssemblyVersions</PackageProjectUrl>

@@ -1,4 +1,4 @@
-## README
+## BumpAssemblyVersions
 
 Bumps assembly versions according to user provided specifications, strategies.
 
